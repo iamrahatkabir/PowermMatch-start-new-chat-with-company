@@ -4,7 +4,7 @@ import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, Messag
 import { agents, candidateProfile } from '@/mock'
 import { useInbox } from './useInbox'
 import AudioPlayer from './AudioPlayer.vue'
-import EntityAvatar from './EntityAvatar.vue'
+import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 
 const { state, selected, company, currentContact, send } = useInbox()
 const assignee = agents[0]

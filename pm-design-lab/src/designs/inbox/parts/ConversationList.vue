@@ -3,7 +3,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { ArrowUpNarrowWide, Building2, ChevronDown, Mail, MessageCircle, MessageSquareText, Phone, PhoneMissed, Plus, Star, User, UserPlus, Voicemail } from 'lucide-vue-next'
 import { CONVERSATION_KIND } from '@/mock'
 import { companyById, useInbox } from './useInbox'
-import EntityAvatar from './EntityAvatar.vue'
+import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 
 const { state, select } = useInbox()
 const kindIcon = { candidate: User, applicant: UserPlus, company: Building2 }

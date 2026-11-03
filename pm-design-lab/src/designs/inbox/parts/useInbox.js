@@ -1,7 +1,8 @@
 import { computed, inject, provide, reactive } from 'vue'
-import { agents, clientCompanies, contactDirectory, conversations, threads } from '@/mock'
+import { agents, clientCompanies, conversations, threads } from '@/mock'
 
-// Shared, clickable inbox state. Each variant calls provideInbox() once; parts call useInbox().
+// PROTOTYPE ONLY — fake in-memory inbox so the screens are clickable. In production this is the
+// real API/store. Each version calls provideInbox() once; parts call useInbox().
 const KEY = Symbol('inbox')
 const me = agents.find((a) => a.id === 'ls')
 let n = 0
@@ -9,11 +10,6 @@ const uid = () => `x${++n}`
 
 export const companyById = (id) => clientCompanies.find((c) => c.id === id)
 export const contactOf = (company, id) => company?.contacts.find((p) => p.id === id)
-
-// Flat search lists used by the menus
-export const contactPersons = clientCompanies.flatMap((co) => co.contacts.map((p) => ({ ...p, companyId: co.id, company: co.name })))
-export const { candidates, applicants } = contactDirectory
-export const matches = (q, ...fields) => !q.trim() || fields.some((f) => f?.toLowerCase().includes(q.trim().toLowerCase()))
 
 export function provideInbox() {
   const state = reactive({

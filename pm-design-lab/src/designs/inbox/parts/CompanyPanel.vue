@@ -2,7 +2,7 @@
 import { Briefcase, Mail, MapPin, PanelRight, Phone, Receipt } from 'lucide-vue-next'
 import { PROFILE_STATUS } from '@/mock'
 import { useInbox } from './useInbox'
-import EntityAvatar from './EntityAvatar.vue'
+import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 
 // Company info: who we're currently talking to, and a quick switch to another contact person.
 const { selected, company, currentContact, switchContact } = useInbox()
