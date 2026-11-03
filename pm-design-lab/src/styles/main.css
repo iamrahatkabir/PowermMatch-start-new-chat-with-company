@@ -1,0 +1,109 @@
+/* PowerMatch Design Lab — Tailwind v4 theme.
+   Source: PowerMatch design system (colors_and_type.css).
+   The default Tailwind palette is removed on purpose: only on-brand colors exist,
+   so an off-palette class like `bg-blue-500` simply doesn't compile. */
+@import "tailwindcss";
+
+@font-face { font-family: "Inter"; src: url("../assets/fonts/Inter-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../assets/fonts/Inter-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Poppins"; src: url("../assets/fonts/Poppins-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Poppins"; src: url("../assets/fonts/Poppins-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Poppins"; src: url("../assets/fonts/Poppins-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Poppins"; src: url("../assets/fonts/Poppins-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+
+@theme {
+  --color-*: initial;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Brand yellow — max ~5% of any screen */
+  --color-brand: #F8E965;
+  --color-brand-dark: #E6D84E;   /* hover / pressed */
+  --color-brand-light: #FBF2A1;  /* tints */
+  --color-brand-bg: #FEFCE9;     /* icon tiles, active nav */
+  --color-brand-deep: #DACA60;   /* selected day cell */
+  --color-brand-text: #7A6B0C;   /* text on brand-bg */
+
+  /* Untitled-UI grays */
+  --color-gray-25: #FCFCFD;
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F2F4F7;
+  --color-gray-200: #EAECF0;
+  --color-gray-300: #D0D5DD;
+  --color-gray-400: #98A2B3;
+  --color-gray-500: #667085;
+  --color-gray-600: #475467;
+  --color-gray-700: #344054;
+  --color-gray-800: #182230;
+  --color-gray-900: #101828;
+
+  /* Status — pills and inline icons only */
+  --color-success-50: #ECFDF3;
+  --color-success-200: #ABEFC6;
+  --color-success-500: #12B76A;
+  --color-success-700: #027A48;
+  --color-warning-50: #FFFAEB;
+  --color-warning-200: #FEDF89;
+  --color-warning-500: #F79009;
+  --color-warning-700: #B54708;
+  --color-error-50: #FEF3F2;
+  --color-error-200: #FECDCA;
+  --color-error-500: #F04438;
+  --color-error-700: #B42318;
+  --color-info-25: #F5FAFF;
+  --color-info-50: #EFF8FF;
+  --color-info-200: #B2DDFF;
+  --color-info-500: #2E90FA;
+  --color-info-700: #175CD3;
+
+  /* Marketing only — never in product UI */
+  --color-marketing: #082A69;
+  --color-marketing-deep: #001A4B;
+  --color-marketing-accent: #0F5EF7;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Poppins", "Inter", sans-serif;
+
+  /* Type scale aligned to DS (body-xs 12/18, h3 20/30, h1 30/38) */
+  --text-xs: 12px;   --text-xs--line-height: 18px;
+  --text-sm: 14px;   --text-sm--line-height: 20px;
+  --text-base: 16px; --text-base--line-height: 24px;
+  --text-lg: 18px;   --text-lg--line-height: 28px;
+  --text-xl: 20px;   --text-xl--line-height: 30px;
+  --text-2xl: 24px;  --text-2xl--line-height: 32px;
+  --text-3xl: 30px;  --text-3xl--line-height: 38px;
+  --text-display-2: 44px; --text-display-2--line-height: 1.15;
+  --text-display-1: 56px; --text-display-1--line-height: 1.1;
+
+  /* Radii: sm 4 · md 6 · lg 8 (inputs/buttons) · xl 12 (inner cards) · 2xl 16 (outer cards) · 3xl 20 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+
+  --shadow-xs: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(16, 24, 40, 0.10), 0 1px 2px 0 rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.10), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-xl: 0 20px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 8px -4px rgba(16, 24, 40, 0.03);
+  --shadow-focus: 0 0 0 4px rgba(152, 162, 179, 0.14);
+  --shadow-focus-brand: 0 0 0 4px rgba(248, 233, 101, 0.35);
+
+  --ease-pm: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 font-sans text-gray-900 antialiased;
+  }
+  ::placeholder { color: var(--color-gray-500); }
+}
+
+/* Input text weight used in production (Inter at wght 335) */
+@utility input-text {
+  font-variation-settings: "wght" 335;
+}
