@@ -1,5 +1,5 @@
 ---
-description: Add one more variant to an existing design (e.g. /variant candidate-list — B but with a sticky filter bar)
+description: Add one more variant to an existing design (e.g. /variant inbox — C but with recent contacts at the top)
 argument-hint: <slug> — <what to change>
 ---
 Add a variant to the design: $ARGUMENTS

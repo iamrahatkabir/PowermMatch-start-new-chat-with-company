@@ -68,14 +68,15 @@ export const contactDirectory = {
 
 // kind: candidate | applicant | company · channel: call | missed | email | chat | sms | voicemail
 // state 'waiting' = incoming call shows "Waiting…" + Pick up
+// callback = { missedAt } → missed call where the caller asked to be called back
 export const conversations = [
   { id: 'cv-ancorless', kind: 'company', companyId: 'ancorless', currentContactId: 'togu', name: 'Ancorless Bangladesh', channel: 'chat', preview: 'Hi PowerMatch. We need qualified plumbers.', time: '1 d', unread: 0, assignedToMe: true },
+  { id: 'cv-james', kind: 'candidate', name: 'James Adam', photo: photo('men', 32), channel: 'missed', preview: 'Missed call', time: '5 min', unread: 1, callback: { missedAt: '21:45, 19 Oct' } },
   { id: 'cv-jenny', kind: 'applicant', name: 'Jenny Wilson', photo: photo('women', 68), channel: 'chat', preview: "Hi! I'm looking for a carpentry job in Copenhagen", time: '5 min', unread: 2, starred: true },
   { id: 'cv-poly', kind: 'company', companyId: 'poly', currentContactId: 'maria', name: 'Poly Corporation', channel: 'chat', preview: 'Can you send two more carpenters?', time: '1 d', unread: 15, assignedToMe: true },
   { id: 'cv-marvin', kind: 'candidate', name: 'Marvin McKinney', photo: photo('men', 85), channel: 'call', preview: 'Incoming call • Sales', time: 'Now', unread: 1, state: 'waiting' },
   { id: 'cv-courtney', kind: 'applicant', name: 'Courtney Henry', photo: photo('men', 29), channel: 'call', preview: 'Replied: We have reviewed your application and will', time: '5 min', unread: 0 },
   { id: 'cv-eleanor', kind: 'candidate', name: 'Eleanor Pena', photo: photo('women', 47), channel: 'missed', preview: 'Missed call • Customer support', time: '5 min', unread: 2 },
-  { id: 'cv-james', kind: 'candidate', name: 'James Adam', photo: photo('men', 32), channel: 'call', preview: 'Outbound call • 5:22', time: '2 h', unread: 0 },
   { id: 'cv-theresa', kind: 'candidate', name: 'Theresa Webb', photo: photo('women', 33), channel: 'call', preview: 'Incoming call • Sales', time: 'Now', unread: 1, state: 'waiting' },
   { id: 'cv-unknown', kind: 'unknown', name: '+45 12 34 56 78', channel: 'voicemail', preview: 'Voicemail', time: '5 min', unread: 2 },
   { id: 'cv-guy', kind: 'candidate', name: 'Guy Hawkins', photo: photo('men', 64), channel: 'sms', preview: 'Thanks, see you Monday', time: '5 min', unread: 0 },
@@ -110,6 +111,7 @@ export const threads = {
     { id: 'j2', type: 'call', title: 'Outbound call', duration: '05:22', position: '02:52', progress: 0.53, summary, author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '22 Mar 11:05' },
     { id: 'j3', type: 'voicemail', title: 'Voicemail', duration: '05:22', position: '02:52', progress: 0.76, summary, time: '22 Mar 11:05' },
     { id: 'j4', type: 'system', text: 'This ticket has been assigned to Patrick Andre by the system' },
+    { id: 'j5', type: 'missed', text: 'Missed call • Callback requested', time: '19 Oct 21:45' },
   ],
 }
 

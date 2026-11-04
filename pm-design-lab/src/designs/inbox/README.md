@@ -63,3 +63,40 @@ The prototype's version of this behaviour is in `parts/useInbox.js` (`startWithC
 - Vue 3 (`<script setup>`), Tailwind v4 with the PowerMatch theme (`src/styles/main.css`)
 - Design system components used inside: `PmInput`, `PmButton`, `PmTabs` (B), `PmAvatar` (registered globally from `src/ds/`)
 - Icons: `lucide-vue-next`
+
+## Callback requested
+
+A missed call where the caller asked to be called back puts the conversation in a **Callback requested** state:
+- List row: red "Missed call • Callback requested".
+- Open chat: yellow banner under the header ("Callback requested • Missed call at {time}") and a missed-call entry in the thread.
+- **The state stays until a recruiter reaches out** by call, chat, SMS or email. Internal notes don't clear it.
+- Prototype logic: `handleCallback()` in `parts/useInbox.js`; data: `conversation.callback = { missedAt }`.
+
+---
+
+# Inbox — Notification settings
+
+Shown inside the inbox when **Inbox → Notification settings** is clicked in the nav (all versions).
+
+| File | What it is |
+|---|---|
+| `notification-settings/NotificationSettings.vue` | The page content. Self-contained: settings in via `v-model`, events out. **Ship this.** |
+| `notification-settings/playTone.js` | Prototype-only sound preview (Web Audio beeps). Replace with real sound files. |
+| `parts/NotificationSettingsView.vue` | Prototype wiring: dummy data, sound preview, browser permission. |
+
+```vue
+<NotificationSettings
+  v-model="settings"
+  :sounds="sounds"
+  :permission="Notification.permission"
+  @test-sound="(value) => playSound(value)"
+  @fix-permission="async () => (permission = await Notification.requestPermission())"
+  @save="(settings) => api.saveNotificationSettings(settings)"
+/>
+```
+
+- `settings`: `{ inboundRingtone, inboundBrowserNotification, outboundRingtone, messageSound, messageBrowserNotification }` — sound fields hold a sound `value`, toggles are booleans.
+- `sounds`: `[{ value, label }]`. A sound with value `'none'` disables its Test button.
+- `permission`: `'granted' | 'denied' | 'default' | 'unsupported'`. When `'denied'` the browser won't ask again, so the page explains how to allow it manually.
+- Edits stay local until **Save changes** (disabled until something changed). Save emits `save` and updates `v-model`.
+- Uses `PmSelect`, `PmButton`, `PmToggle` and `lucide-vue-next`.

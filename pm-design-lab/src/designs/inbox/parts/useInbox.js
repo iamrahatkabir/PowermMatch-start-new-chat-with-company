@@ -1,5 +1,5 @@
 import { computed, inject, provide, reactive } from 'vue'
-import { agents, clientCompanies, conversations, threads } from '@/mock'
+import { agents, clientCompanies, conversations, notificationSettings, threads } from '@/mock'
 
 // PROTOTYPE ONLY — fake in-memory inbox so the screens are clickable. In production this is the
 // real API/store. Each version calls provideInbox() once; parts call useInbox().
@@ -17,6 +17,8 @@ export function provideInbox() {
     threads: structuredClone(threads),
     selectedId: conversations[0].id,
     menuOpen: true,
+    view: 'inbox-all', // 'inbox-all' (conversations) | 'inbox-notifications' (settings)
+    notificationSettings: { ...notificationSettings },
   })
   for (const c of state.conversations) {
     state.threads[c.id] ??= [{ id: uid(), type: 'message', dir: 'in', channel: c.channel, author: c.name, time: c.time, text: c.preview }]
@@ -71,14 +73,31 @@ export function provideInbox() {
     state.menuOpen = false
   }
 
+  // A "Callback requested" alert stays until a recruiter reaches out: call, chat, SMS or email.
+  // Internal notes don't count.
+  const REACH_OUT = ['call', 'chat', 'sms', 'email']
+  function handleCallback(conv, channel) {
+    if (conv.callback && REACH_OUT.includes(channel)) conv.callback = null
+  }
+
   function send(text, channel) {
     const conv = selected.value
     state.threads[conv.id].push({ id: uid(), type: 'message', dir: 'out', channel, author: me.name, authorPhoto: me.photo, time: 'Now', text })
     conv.preview = text
     conv.time = 'Now'
+    handleCallback(conv, channel)
   }
 
-  const store = { state, selected, company, currentContact, select, switchContact, startWithContact, startWithPerson, send }
+  function call() {
+    const conv = selected.value
+    state.threads[conv.id].push({ id: uid(), type: 'event', dir: 'out', icon: 'outgoing', text: 'Outbound call', author: me.name, authorPhoto: me.photo, time: 'Now' })
+    conv.channel = 'call'
+    conv.preview = 'Outbound call'
+    conv.time = 'Now'
+    handleCallback(conv, 'call')
+  }
+
+  const store = { state, selected, company, currentContact, select, switchContact, startWithContact, startWithPerson, send, call }
   provide(KEY, store)
   return store
 }

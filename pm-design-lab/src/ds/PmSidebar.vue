@@ -6,7 +6,9 @@ import {
 } from 'lucide-vue-next'
 
 // `active` is any item key below (e.g. 'inbox-all', 'candidates', 'journeys').
+// Clicking any item emits `select(key)` so a design can switch what it shows.
 const props = defineProps({ active: String, collapsed: Boolean })
+const emit = defineEmits(['select', 'expand']) // expand: a group was clicked while collapsed
 
 const nav = [
   { key: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -63,7 +65,7 @@ for (const g of nav) if (g.children?.some((c) => c.key === props.active)) open[g
         class="relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50"
         :class="[item.key === active && 'bg-gray-100 text-gray-900', collapsed && 'justify-center']"
         :title="collapsed ? item.label : undefined"
-        @click="item.children && (open[item.key] = !open[item.key])"
+        @click="!item.children ? emit('select', item.key) : collapsed ? ((open[item.key] = true), emit('expand')) : (open[item.key] = !open[item.key])"
       >
         <component :is="item.icon" :size="20" class="shrink-0 text-gray-600" />
         <template v-if="!collapsed">
@@ -80,6 +82,7 @@ for (const g of nav) if (g.children?.some((c) => c.key === props.active)) open[g
           type="button"
           class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] text-gray-700 hover:bg-gray-50"
           :class="c.key === active && 'bg-gray-100 text-gray-900'"
+          @click="emit('select', c.key)"
         >
           <component :is="c.icon" :size="18" class="shrink-0 text-gray-600" />
           <span class="truncate">{{ c.label }}</span>

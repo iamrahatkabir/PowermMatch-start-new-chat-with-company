@@ -22,6 +22,7 @@ or the design system artifact unless a task changes them — their APIs are summ
 - New variant: run the scaffold script, then edit only that variant file + `meta.js`. Read at most one sibling variant, and only if the task says to build on it.
 - Variants never import another variant file — share through `parts/`.
 - **Developer handoff structure** (every design): put each version's actual UI in its own self-contained component (props in, events out, no prototype store or mock imports), plain-JS logic in its own `.js` file, and keep `A.vue`, `B.vue`… as thin preview wrappers. Prototype-only code stays in `parts/`. Each design gets a `README.md` saying which file is which version, its props/events and data shapes. Example: `src/designs/inbox/`.
+- `PmAppShell` emits `nav(key)` when a nav item is clicked; a design uses it to switch views inside the same design (e.g. inbox: All ↔ Notification settings). Don't create a separate design for a page that belongs to an existing area — add it as a view of that design.
 - Inbox design: see `src/designs/inbox/README.md`. Versions live in `start-chat/StartChat*.vue`; the prototype store is `parts/useInbox.js` (`provideInbox()`, `startWithContact`, `startWithPerson`, `switchContact`, `send`).
 - Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/` (auto-registered globally) and add one line to the table below.
 - Don't run `npm run build` or take screenshots after every edit. If a **new design folder** shows unstyled in the dev server, restart the dev server (Tailwind's watcher misses new folders). Verify once at the end of a task, or when asked.
@@ -36,6 +37,7 @@ or the design system artifact unless a task changes them — their APIs are summ
 | `PmStatusPill` | `tone` success·warning·error·info·neutral·brand, `dot` (default true), `bordered` (outlined style used in side panels) |
 | `PmMatchChip` | `score` (always green) |
 | `PmAvatar` | `name` (initials) or `src`, `size` (px), `palette` 0–3 |
+| `PmToggle` | `v-model` (boolean), `label` (accessible name). Yellow when on |
 | `PmCard` | `padding` (Tailwind class, default `p-5`) |
 | `PmTabs` | `v-model`, `tabs: [{ key, label, count? }]` |
 | `PmSectionHeader` | `icon`, `title`, `subtitle`; slot `#actions` |
@@ -47,6 +49,7 @@ Mock data (`@/mock`) — each status map is `{ key: { tone, label } }`, ready fo
 - `candidates` + `STATUS` · `jobs` + `JOB_STATUS` · `companies`
 - `interviews` + `INTERVIEW_STATUS` · `contracts` + `CONTRACT_STATUS` · `timesheets` + `TIMESHEET_STATUS` (these reference `candidateId` / `jobId`)
 - `notifications`, `todos`, `kpis`, `currentUser`
+- Notification settings (`src/mock/notifications.js`): `notificationSounds`, `notificationSettings`
 - Inbox (`src/mock/inbox.js`): `clientCompanies` (with `contacts`, `jobs`, `invoices`), `contactDirectory` (candidates/applicants), `conversations` + `CONVERSATION_KIND`, `threads` (by conversation id), `agents`, `candidateProfile`, `PROFILE_STATUS`
 - Helpers: `candidateById(id)`, `jobById(id)`, `dkk(n)`
 

@@ -121,3 +121,4 @@ export const currentUser = { name: 'Mette Jensen', role: 'Recruiter', company: '
 export const dkk = (n) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'DKK', maximumFractionDigits: 0 }).format(n)
 
 export * from './inbox.js'
+export * from './notifications.js'

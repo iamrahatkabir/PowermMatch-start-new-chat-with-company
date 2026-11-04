@@ -1,12 +1,12 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Phone, PhoneOutgoing, Send, StickyNote, Voicemail, Zap } from 'lucide-vue-next'
+import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Phone, PhoneMissed, PhoneOutgoing, Send, StickyNote, Voicemail, Zap } from 'lucide-vue-next'
 import { agents, candidateProfile } from '@/mock'
 import { useInbox } from './useInbox'
 import AudioPlayer from './AudioPlayer.vue'
 import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 
-const { state, selected, company, currentContact, send } = useInbox()
+const { state, selected, company, currentContact, send, call } = useInbox()
 const assignee = agents[0]
 const thread = computed(() => state.threads[selected.value.id])
 const isCompany = computed(() => selected.value.kind === 'company')
@@ -33,6 +33,8 @@ function assign() {
   selected.value.assignedToMe = true
 }
 watch(() => thread.value.length, () => nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight, behavior: 'smooth' })))
+// Opening a conversation starts at the newest message
+watch(() => selected.value.id, () => nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight })), { immediate: true })
 </script>
 
 <template>
@@ -51,9 +53,16 @@ watch(() => thread.value.length, () => nextTick(() => scroller.value?.scrollTo({
       </button>
       <div class="flex items-center gap-1 text-gray-600">
         <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50" title="More"><Ellipsis :size="18" /></button>
-        <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50" title="Call"><Phone :size="18" /></button>
+        <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50" title="Call" @click="call"><Phone :size="18" /></button>
         <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50" title="Archive"><Archive :size="18" /></button>
       </div>
+    </div>
+
+    <!-- Callback requested: stays until a recruiter calls, chats, texts or emails (not notes) -->
+    <div v-if="selected.callback" class="flex shrink-0 items-center gap-2 border-b border-brand-light bg-brand-bg px-6 py-2.5 text-sm">
+      <PhoneMissed :size="16" class="text-error-500" />
+      <span class="font-medium text-gray-900">Callback requested</span>
+      <span class="text-gray-600">• Missed call at {{ selected.callback.missedAt }}</span>
     </div>
 
     <!-- Messages -->
@@ -61,6 +70,18 @@ watch(() => thread.value.length, () => nextTick(() => scroller.value?.scrollTo({
       <template v-for="m in thread" :key="m.id">
         <div v-if="m.type === 'system'" class="flex items-center gap-3 text-xs text-gray-400">
           <span class="h-px flex-1 bg-gray-200" />{{ m.text }}<span class="h-px flex-1 bg-gray-200" />
+        </div>
+
+        <div v-else-if="m.type === 'missed' || m.type === 'event'" class="flex flex-col gap-1.5" :class="m.dir === 'out' ? 'items-end self-end' : 'items-start'">
+          <div class="flex items-center gap-2 rounded-2xl px-4 py-3 text-sm text-gray-900" :class="m.dir === 'out' ? 'bg-info-25' : 'bg-gray-50'">
+            <PhoneMissed v-if="m.type === 'missed'" :size="18" class="text-error-500" />
+            <PhoneOutgoing v-else :size="18" class="text-gray-600" />
+            {{ m.text }}
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-gray-500">
+            <PmAvatar v-if="m.authorPhoto" :name="m.author" :src="m.authorPhoto" :size="16" />
+            <template v-if="m.author">{{ m.author }} • </template>{{ m.time }}
+          </div>
         </div>
 
         <div v-else-if="m.type === 'message'" class="flex max-w-[70%] flex-col gap-1.5" :class="m.dir === 'out' ? 'items-end self-end' : 'items-start'">

@@ -62,9 +62,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
               {{ c.state === 'waiting' ? 'Waiting…' : c.time }}
             </span>
           </span>
-          <span class="mt-1 flex items-center gap-1.5 text-[13px] text-gray-600">
+          <span class="mt-1 flex items-center gap-1.5 text-[13px]" :class="c.callback ? 'text-error-700' : 'text-gray-600'">
             <component :is="channelIcon[c.channel]" :size="14" class="shrink-0" :class="c.channel === 'missed' && 'text-error-500'" />
-            <span class="truncate">{{ c.preview }}</span>
+            <span class="truncate">{{ c.callback ? 'Missed call • Callback requested' : c.preview }}</span>
             <Star v-if="c.starred" :size="14" class="ml-auto shrink-0 fill-warning-500 text-warning-500" />
             <span v-if="c.unread" class="shrink-0 rounded-full bg-error-50 px-1.5 text-xs font-medium leading-5 text-error-500" :class="!c.starred && 'ml-auto'">{{ c.unread }}</span>
           </span>
