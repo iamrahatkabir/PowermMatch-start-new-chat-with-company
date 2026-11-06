@@ -8,6 +8,8 @@ import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 import EmailMessage from '../email/EmailMessage.vue'
 import { fakeDownload, fakeDownloadAll } from './fakeDownload'
 
+// Email designs can pass their own email component (same props/events as EmailMessage)
+const props = defineProps({ emailComponent: { type: Object, default: () => EmailMessage } })
 const { state, selected, company, currentContact, send, call, assignToMe } = useInbox()
 const assignee = computed(() => agents.find((a) => a.id === (selected.value.assigneeId ?? 'pa')))
 const thread = computed(() => state.threads[selected.value.id])
@@ -37,6 +39,24 @@ function startReply(email) {
   replyTo.value = email
   tab.value = 'email'
   nextTick(() => textarea.value?.focus())
+}
+
+// Email designs can replace the Email tab's composer (#email-composer slot). The slot gets
+// to / sender / replyTo / lastEmail (newest email in the thread) / disabled and calls sendEmail({ subject, body, attachments }) and cancelReply().
+const lastEmail = computed(() => thread.value.findLast((m) => m.subject) ?? null)
+const me = agents.find((a) => a.id === 'ls')
+const sender = { name: me.name, email: 'las@powermatch.dk', phone: '+45 70 20 30 40' }
+const to = computed(() => ({
+  name: isCompany.value ? currentContact.value?.name : selected.value.name,
+  email: isCompany.value ? company.value?.email : selected.value.email ?? candidateProfile.email,
+}))
+function sendEmail({ subject: s, body, attachments = [] }) {
+  send(body, 'email', s, {
+    from: `${sender.name} <${sender.email}>`,
+    to: `${to.value.name} <${to.value.email}>`,
+    attachments,
+  })
+  replyTo.value = null
 }
 
 // Prototype: a retried bounced email "sends" for a moment, then goes through
@@ -116,14 +136,14 @@ watch(
 
         <!-- Emails are full width minus a 48px gap on the opposite side; chat/SMS bubbles stay at 70% -->
         <div v-else-if="m.type === 'message'" class="flex flex-col gap-1.5" :class="[m.dir === 'out' ? 'items-end self-end' : 'items-start', m.subject ? 'w-[calc(100%-48px)]' : 'max-w-[70%]']">
-          <EmailMessage
+          <component
+            :is="props.emailComponent"
             v-if="m.subject"
             :subject="m.subject"
             :body="m.text"
             :dir="m.dir"
             :from="m.from"
             :to="m.to"
-            :cc="m.cc"
             :quoted="m.quoted"
             :attachments="m.attachments"
             :failed="m.failed"
@@ -174,6 +194,18 @@ watch(
             <component :is="t.icon" :size="15" />{{ t.label }}
           </button>
         </div>
+        <slot
+          v-if="isEmail && $slots['email-composer']"
+          name="email-composer"
+          :to="to"
+          :sender="sender"
+          :replyTo="replyTo"
+          :lastEmail="lastEmail"
+          :disabled="!selected.assignedToMe"
+          :sendEmail="sendEmail"
+          :cancelReply="() => (replyTo = null)"
+        />
+        <template v-else>
         <!-- Replying: fixed "RE:" subject with a reply icon; ✕ goes back to a new email -->
         <div v-if="isEmail && replyTo" class="mx-4 mt-2 flex items-center gap-2 border-b border-gray-200 py-2.5 text-sm text-gray-500">
           <Reply :size="16" class="shrink-0" />
@@ -203,6 +235,7 @@ watch(
           <PmButton size="sm" variant="secondary" class="ml-auto"><Check :size="15" />Wrap-up</PmButton>
           <PmButton size="sm" variant="secondary" :disabled="!canSend" @click="submit">Send <Send :size="14" /></PmButton>
         </div>
+        </template>
 
         <div v-if="!selected.assignedToMe" class="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/40">
           <PmButton size="lg" @click="assignToMe">Assign to me</PmButton>

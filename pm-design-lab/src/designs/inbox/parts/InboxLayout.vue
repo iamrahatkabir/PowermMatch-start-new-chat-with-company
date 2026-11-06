@@ -7,8 +7,9 @@ import CompanyPanel from './CompanyPanel.vue'
 import NotificationSettingsView from './NotificationSettingsView.vue'
 
 // The full inbox. Variants pass their "Start new conversation" menu in the #menu slot.
+// Email designs can swap the Email tab's composer through the #email-composer slot (see ConversationThread).
 // Nav: Inbox → All shows conversations, Inbox → Notification settings shows settings.
-defineProps({ navCollapsed: { type: Boolean, default: true } })
+defineProps({ navCollapsed: { type: Boolean, default: true }, emailComponent: Object })
 const { state, selected } = useInbox()
 const views = ['inbox-all', 'inbox-notifications']
 const onNav = (key) => views.includes(key) && (state.view = key)
@@ -19,7 +20,9 @@ const onNav = (key) => views.includes(key) && (state.view = key)
     <NotificationSettingsView v-if="state.view === 'inbox-notifications'" />
     <div v-else class="flex h-full bg-white">
       <ConversationList><template #menu><slot name="menu" /></template></ConversationList>
-      <ConversationThread />
+      <ConversationThread v-bind="emailComponent ? { emailComponent } : {}">
+        <template v-if="$slots['email-composer']" #email-composer="props"><slot name="email-composer" v-bind="props" /></template>
+      </ConversationThread>
       <CompanyPanel v-if="selected.kind === 'company'" />
       <CandidatePanel v-else />
     </div>

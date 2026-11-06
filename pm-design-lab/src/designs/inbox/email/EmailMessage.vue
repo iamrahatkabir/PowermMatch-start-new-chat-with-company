@@ -3,11 +3,12 @@
  * One email in a conversation thread: bold subject, body clamped to 2 lines, "View details" to expand.
  * Links like pmatch.dk/... in the body are rendered as links.
  *
- * Expanded: From / To / Cc, the full body, "Show quoted text" for earlier messages, and Reply.
+ * Expanded: From / To, the full body, "Show quoted text" for earlier messages, and Reply.
  * Attachments are always visible (images as thumbnails with a preview, files with a download button).
  * An outgoing email that bounced shows the reason and Retry.
  *
- * Props:  subject, body?, dir ('in' | 'out'), from?, to?, cc? (string[]), quoted?,
+ * Props:  subject, body?, dir ('in' | 'out'), from?, to?, quoted?,
+ *         alwaysOpen? (no View details: everything is shown and Reply is always there),
  *         attachments? [{ id, name, size, url?, status? }] (see attachments.js),
  *         failed? (reason the email wasn't delivered), sending?
  * Events: reply() · download(attachment) · download-all(attachments) · retry()
@@ -24,17 +25,17 @@ const props = defineProps({
   dir: { type: String, default: 'in' },
   from: String,
   to: String,
-  cc: { type: Array, default: () => [] },
   quoted: String,
   attachments: { type: Array, default: () => [] },
   failed: String,
+  alwaysOpen: Boolean,
   sending: Boolean,
 })
 const emit = defineEmits(['reply', 'download', 'download-all', 'retry'])
 
-const expanded = ref(false)
+const expanded = ref(props.alwaysOpen)
 const showQuoted = ref(false)
-const canExpand = computed(() => !!(props.body || props.quoted || props.from || props.cc.length))
+const canExpand = computed(() => !!(props.body || props.quoted || props.from))
 const showReply = computed(() => !props.failed && !props.sending && (expanded.value || !canExpand.value))
 
 const LINK = /((?:https?:\/\/)?[\w-]+\.[a-z]{2,}\/\S+)/i
@@ -54,10 +55,9 @@ const previewIndex = ref(null)
     </div>
 
     <!-- Sender and recipients (expanded) -->
-    <dl v-if="expanded && (from || to || cc.length)" class="mt-1 grid grid-cols-[auto_1fr] gap-x-2 text-xs leading-5 text-gray-500">
+    <dl v-if="expanded && (from || to)" class="mt-1 grid grid-cols-[auto_1fr] gap-x-2 text-xs leading-5 text-gray-500">
       <template v-if="from"><dt>From</dt><dd class="text-gray-700">{{ from }}</dd></template>
       <template v-if="to"><dt>To</dt><dd class="text-gray-700">{{ to }}</dd></template>
-      <template v-if="cc.length"><dt>Cc</dt><dd class="text-gray-700">{{ cc.join(', ') }}</dd></template>
     </dl>
 
     <p v-if="body" class="mt-1 whitespace-pre-line break-words" :class="!expanded && 'line-clamp-2'">
@@ -90,8 +90,8 @@ const previewIndex = ref(null)
       <PmButton size="sm" variant="outline" class="shrink-0" @click="emit('retry')"><RotateCw :size="14" />Retry</PmButton>
     </div>
 
-    <div v-if="canExpand || showReply || sending" class="mt-1 flex min-h-9 items-center gap-4">
-      <button v-if="canExpand" type="button" class="font-medium text-info-700 hover:underline" @click="expanded = !expanded">
+    <div v-if="(canExpand && !alwaysOpen) || showReply || sending" class="mt-1 flex min-h-9 items-center gap-4">
+      <button v-if="canExpand && !alwaysOpen" type="button" class="font-medium text-info-700 hover:underline" @click="expanded = !expanded">
         {{ expanded ? 'Hide details' : 'View details' }}
       </button>
       <span v-if="sending" class="ml-auto flex items-center gap-1.5 text-xs text-gray-500"><Loader :size="14" class="animate-spin" />Sending</span>

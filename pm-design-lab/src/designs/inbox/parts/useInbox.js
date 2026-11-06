@@ -81,9 +81,10 @@ export function provideInbox({ selectedId = conversations[0].id, menuOpen = true
     if (conv.callback && REACH_OUT.includes(channel)) conv.callback = null
   }
 
-  function send(text, channel, subject) {
+  // extra: email fields (from, to, attachments) copied onto the thread item
+  function send(text, channel, subject, extra = {}) {
     const conv = selected.value
-    state.threads[conv.id].push({ id: uid(), type: 'message', dir: 'out', channel, author: me.name, authorPhoto: me.photo, time: 'Now', text, subject })
+    state.threads[conv.id].push({ id: uid(), type: 'message', dir: 'out', channel, author: me.name, authorPhoto: me.photo, time: 'Now', text, subject, ...extra })
     conv.preview = subject || text
     conv.time = 'Now'
     handleCallback(conv, channel)

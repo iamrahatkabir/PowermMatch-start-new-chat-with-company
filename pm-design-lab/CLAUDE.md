@@ -16,7 +16,7 @@ or the design system artifact unless a task changes them — their APIs are summ
 - `src/designs/<slug>/parts/*.vue` — pieces shared by that design's variants. A variant imports the parts it keeps and replaces only the part being tested (e.g. `inbox/B.vue` swaps `ConversationThread` for its own version).
 - `src/mock/index.js` — shared mock data. Import from `@/mock`; add to it rather than inventing data inline.
 - `npm run new <slug> [count]` scaffolds a design; `npm run new <slug> +` copies the last variant to the next letter.
-- Routes: `/` gallery · `/d/<slug>?v=B` one variant (toolbar; keys 1–9, ← →, H hides it)
+- Routes: `/` gallery · `/d/<slug>?v=B` one variant (toolbar; keys 1–9, ← →, H hides it; drag its grip to move it, double-click the grip to reset)
 
 ## Working rules (keep token use low)
 - New variant: run the scaffold script, then edit only that variant file + `meta.js`. Read at most one sibling variant, and only if the task says to build on it.
