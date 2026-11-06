@@ -69,7 +69,9 @@ export const contactDirectory = {
 // kind: candidate | applicant | company · channel: call | missed | email | chat | sms | voicemail
 // state 'waiting' = incoming call shows "Waiting…" + Pick up
 // callback = { missedAt } → missed call where the caller asked to be called back
+// assigneeId = agent handling it (default Patrick Andre); assignedToMe unlocks the composer
 export const conversations = [
+  { id: 'cv-dianne', kind: 'applicant', name: 'Dianne Russell', photo: photo('men', 46), channel: 'email', preview: 'RE: Application Received by PowerMatch', time: '5 min', unread: 1, assignedToMe: true, assigneeId: 'ls' },
   { id: 'cv-ancorless', kind: 'company', companyId: 'ancorless', currentContactId: 'togu', name: 'Ancorless Bangladesh', channel: 'chat', preview: 'Hi PowerMatch. We need qualified plumbers.', time: '1 d', unread: 0, assignedToMe: true },
   { id: 'cv-james', kind: 'candidate', name: 'James Adam', photo: photo('men', 32), channel: 'missed', preview: 'Missed call', time: '5 min', unread: 1, callback: { missedAt: '21:45, 19 Oct' } },
   { id: 'cv-jenny', kind: 'applicant', name: 'Jenny Wilson', photo: photo('women', 68), channel: 'chat', preview: "Hi! I'm looking for a carpentry job in Copenhagen", time: '5 min', unread: 2, starred: true },
@@ -94,6 +96,11 @@ const summary = 'James is open to the Skanska carpenter role but is on holiday u
 // message: dir in|out, channel chat|email|sms, author (name), authorPhoto?, bySystem?
 // Conversations without a thread get a one-message thread from their preview.
 export const threads = {
+  'cv-dianne': [
+    { id: 'd1', type: 'system', text: 'Profile created • Jobindex application' },
+    { id: 'd2', type: 'message', dir: 'out', channel: 'email', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '22 Mar 11:05', subject: 'Application Received by PowerMatch', text: 'Hi Dianne, complete your PowerMatch profile to get matched faster: pmatch.dk/p/dianne\n\nOnce your profile is complete we will start matching you with open positions in your area.\n\nBest regards,\nLas Sabir\nPowerMatch' },
+    { id: 'd3', type: 'message', dir: 'in', channel: 'email', author: 'Dianne Russell', time: '22 Mar 11:05', subject: 'RE: Application Received by PowerMatch', text: 'Done. Looking for something permanent, ideally near Hvidovre. Would be great if I get a company car from day one, not mandatory but nice to have.\n\nI can start from next month and I have my own tools.\n\nBest,\nDianne' },
+  ],
   'cv-ancorless': [
     { id: 'a1', type: 'system', text: 'Conversation started with Jhon Bossman' },
     { id: 'a2', type: 'message', dir: 'out', channel: 'chat', bySystem: true, author: 'System', time: '22 Mar 11:05', text: 'Hi Ancorless Bangladesh, this is PowerMatch ApS. We help companies with qualified workers. Should I send you some resumes of qualified workers?' },

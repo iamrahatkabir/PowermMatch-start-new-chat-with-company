@@ -33,12 +33,8 @@ ${keys.map((k) => `    ${k}: '',`).join('\n')}
 }
 `)
 for (const k of keys) {
-  writeFileSync(`${dir}/${k}.vue`, `<script setup>
-import { candidates } from '@/mock'
-</script>
-
-<template>
-  <PmAppShell title="${title}" active="dashboard">
+  writeFileSync(`${dir}/${k}.vue`, `<template>
+  <PmAppShell title="${title}" active="overview">
     <PmCard>Variant ${k}</PmCard>
   </PmAppShell>
 </template>

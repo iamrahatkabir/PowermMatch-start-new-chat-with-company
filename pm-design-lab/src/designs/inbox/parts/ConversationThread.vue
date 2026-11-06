@@ -1,13 +1,14 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Phone, PhoneMissed, PhoneOutgoing, Send, StickyNote, Voicemail, Zap } from 'lucide-vue-next'
+import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Paperclip, Phone, PhoneMissed, PhoneOutgoing, Send, StickyNote, Voicemail, Zap } from 'lucide-vue-next'
 import { agents, candidateProfile } from '@/mock'
 import { useInbox } from './useInbox'
 import AudioPlayer from './AudioPlayer.vue'
 import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
+import EmailMessage from '../email/EmailMessage.vue'
 
-const { state, selected, company, currentContact, send, call } = useInbox()
-const assignee = agents[0]
+const { state, selected, company, currentContact, send, call, assignToMe } = useInbox()
+const assignee = computed(() => agents.find((a) => a.id === (selected.value.assigneeId ?? 'pa')))
 const thread = computed(() => state.threads[selected.value.id])
 const isCompany = computed(() => selected.value.kind === 'company')
 const phone = computed(() => (isCompany.value ? currentContact.value?.phone : candidateProfile.phone))
@@ -22,19 +23,29 @@ const tabs = [
 ]
 const channelIcon = { chat: MessageCircle, email: Mail, sms: MessageSquareText, call: Phone, missed: Phone, voicemail: Voicemail }
 const draft = ref('')
+const subject = ref('')
 const scroller = ref()
 
+const isEmail = computed(() => tab.value === 'email')
+const canSend = computed(() => draft.value.trim() && (!isEmail.value || subject.value.trim()))
+
 function submit() {
-  if (!draft.value.trim()) return
-  send(draft.value.trim(), tab.value)
+  if (!canSend.value) return
+  send(draft.value.trim(), tab.value, isEmail.value ? subject.value.trim() : undefined)
   draft.value = ''
-}
-function assign() {
-  selected.value.assignedToMe = true
+  subject.value = ''
 }
 watch(() => thread.value.length, () => nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight, behavior: 'smooth' })))
-// Opening a conversation starts at the newest message
-watch(() => selected.value.id, () => nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight })), { immediate: true })
+// Opening a conversation starts at the newest message, with the composer on that conversation's channel
+const tabFor = { email: 'email', sms: 'sms' }
+watch(
+  () => selected.value.id,
+  () => {
+    tab.value = tabFor[selected.value.channel] ?? 'chat'
+    nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight }))
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -85,7 +96,8 @@ watch(() => selected.value.id, () => nextTick(() => scroller.value?.scrollTo({ t
         </div>
 
         <div v-else-if="m.type === 'message'" class="flex max-w-[70%] flex-col gap-1.5" :class="m.dir === 'out' ? 'items-end self-end' : 'items-start'">
-          <div class="whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-6 text-gray-900" :class="m.dir === 'out' ? 'bg-info-25' : 'bg-gray-50'">{{ m.text }}</div>
+          <EmailMessage v-if="m.subject" :subject="m.subject" :body="m.text" :dir="m.dir" />
+          <div v-else class="whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-6 text-gray-900" :class="m.dir === 'out' ? 'bg-info-25' : 'bg-gray-50'">{{ m.text }}</div>
           <div class="flex items-center gap-1.5 text-xs text-gray-500">
             <component :is="channelIcon[m.channel] ?? MessageCircle" :size="13" />
             <Zap v-if="m.bySystem" :size="13" />
@@ -126,23 +138,31 @@ watch(() => selected.value.id, () => nextTick(() => scroller.value?.scrollTo({ t
             <component :is="t.icon" :size="15" />{{ t.label }}
           </button>
         </div>
+        <input
+          v-if="isEmail"
+          v-model="subject"
+          :disabled="!selected.assignedToMe"
+          placeholder="Subject"
+          class="mx-4 mt-2 block w-[calc(100%-2rem)] border-b border-gray-200 bg-transparent py-2.5 text-sm text-gray-900 outline-none disabled:opacity-40"
+        />
         <textarea
           v-model="draft"
-          rows="3"
+          :rows="isEmail ? 4 : 3"
           :disabled="!selected.assignedToMe"
-          :placeholder="`Write a message to ${recipient}`"
+          :placeholder="isEmail ? 'Write description here' : `Write a message to ${recipient}`"
           class="block w-full resize-none bg-transparent px-4 py-3 text-sm text-gray-900 outline-none disabled:opacity-40"
-          @keydown.enter.exact.prevent="submit"
+          @keydown.enter.exact="!isEmail && ($event.preventDefault(), submit())"
         />
         <div class="flex items-center gap-2 px-3 pb-3 text-gray-500" :class="!selected.assignedToMe && 'opacity-40'">
-          <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50"><Link :size="16" /></button>
-          <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50"><Zap :size="16" /></button>
+          <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50" title="Attach file"><Paperclip :size="16" /></button>
+          <button type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50" title="Templates"><Zap :size="16" /></button>
+          <button v-if="isEmail" type="button" class="flex size-8 items-center justify-center rounded-lg hover:bg-gray-50" title="Insert link"><Link :size="16" /></button>
           <PmButton size="sm" variant="secondary" class="ml-auto"><Check :size="15" />Wrap-up</PmButton>
-          <PmButton size="sm" variant="secondary" :disabled="!draft.trim()" @click="submit">Send <Send :size="14" /></PmButton>
+          <PmButton size="sm" variant="secondary" :disabled="!canSend" @click="submit">Send <Send :size="14" /></PmButton>
         </div>
 
         <div v-if="!selected.assignedToMe" class="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/40">
-          <PmButton size="lg" @click="assign">Assign to me</PmButton>
+          <PmButton size="lg" @click="assignToMe">Assign to me</PmButton>
           <p class="text-sm text-gray-700">Click the button to assign this conversation to yourself.</p>
         </div>
       </div>

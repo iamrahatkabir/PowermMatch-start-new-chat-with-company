@@ -11,12 +11,13 @@ const uid = () => `x${++n}`
 export const companyById = (id) => clientCompanies.find((c) => c.id === id)
 export const contactOf = (company, id) => company?.contacts.find((p) => p.id === id)
 
-export function provideInbox() {
+// options.selectedId: conversation open at start · options.menuOpen: show "Start new conversation" at start
+export function provideInbox({ selectedId = conversations[0].id, menuOpen = true } = {}) {
   const state = reactive({
     conversations: structuredClone(conversations),
     threads: structuredClone(threads),
-    selectedId: conversations[0].id,
-    menuOpen: true,
+    selectedId,
+    menuOpen,
     view: 'inbox-all', // 'inbox-all' (conversations) | 'inbox-notifications' (settings)
     notificationSettings: { ...notificationSettings },
   })
@@ -80,10 +81,10 @@ export function provideInbox() {
     if (conv.callback && REACH_OUT.includes(channel)) conv.callback = null
   }
 
-  function send(text, channel) {
+  function send(text, channel, subject) {
     const conv = selected.value
-    state.threads[conv.id].push({ id: uid(), type: 'message', dir: 'out', channel, author: me.name, authorPhoto: me.photo, time: 'Now', text })
-    conv.preview = text
+    state.threads[conv.id].push({ id: uid(), type: 'message', dir: 'out', channel, author: me.name, authorPhoto: me.photo, time: 'Now', text, subject })
+    conv.preview = subject || text
     conv.time = 'Now'
     handleCallback(conv, channel)
   }
@@ -97,7 +98,12 @@ export function provideInbox() {
     handleCallback(conv, 'call')
   }
 
-  const store = { state, selected, company, currentContact, select, switchContact, startWithContact, startWithPerson, send, call }
+  function assignToMe() {
+    selected.value.assignedToMe = true
+    selected.value.assigneeId = me.id
+  }
+
+  const store = { state, selected, company, currentContact, select, switchContact, startWithContact, startWithPerson, send, call, assignToMe }
   provide(KEY, store)
   return store
 }
