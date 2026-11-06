@@ -96,10 +96,28 @@ const summary = 'James is open to the Skanska carpenter role but is on holiday u
 // message: dir in|out, channel chat|email|sms, author (name), authorPhoto?, bySystem?
 // Conversations without a thread get a one-message thread from their preview.
 export const threads = {
+  // Email edge cases: attachments, images, Cc
   'cv-dianne': [
     { id: 'd1', type: 'system', text: 'Profile created • Jobindex application' },
-    { id: 'd2', type: 'message', dir: 'out', channel: 'email', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '22 Mar 11:05', subject: 'Application Received by PowerMatch', text: 'Hi Dianne, complete your PowerMatch profile to get matched faster: pmatch.dk/p/dianne\n\nOnce your profile is complete we will start matching you with open positions in your area.\n\nBest regards,\nLas Sabir\nPowerMatch' },
-    { id: 'd3', type: 'message', dir: 'in', channel: 'email', author: 'Dianne Russell', time: '22 Mar 11:05', subject: 'RE: Application Received by PowerMatch', text: 'Done. Looking for something permanent, ideally near Hvidovre. Would be great if I get a company car from day one, not mandatory but nice to have.\n\nI can start from next month and I have my own tools.\n\nBest,\nDianne' },
+    { id: 'd2', type: 'message', dir: 'out', channel: 'email', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '22 Mar 11:05', subject: 'Application Received by PowerMatch', from: 'Las Sabir <las@powermatch.dk>', to: 'Dianne Russell <dianne.russell@gmail.com>', text: 'Hi Dianne, complete your PowerMatch profile to get matched faster: pmatch.dk/p/dianne\n\nOnce your profile is complete we will start matching you with open positions in your area.\n\nBest regards,\nLas Sabir\nPowerMatch' },
+    { id: 'd3', type: 'message', dir: 'in', channel: 'email', author: 'Dianne Russell', time: '22 Mar 11:40', subject: 'RE: Application Received by PowerMatch', from: 'Dianne Russell <dianne.russell@gmail.com>', to: 'Las Sabir <las@powermatch.dk>', text: 'Done. Looking for something permanent, ideally near Hvidovre. Would be great if I get a company car from day one, not mandatory but nice to have.\n\nI can start from next month and I have my own tools. My CV and certificate are attached.\n\nBest,\nDianne', attachments: [
+      { id: 'f1', name: 'Dianne_Russell_CV_2026.pdf', size: 1_240_000 },
+      { id: 'f2', name: 'Electrician_Certificate_Autorisation_Sikkerhedsstyrelsen_2019_final_signed.pdf', size: 3_870_000 },
+    ] },
+    { id: 'd4', type: 'message', dir: 'out', channel: 'email', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '23 Mar 09:12', subject: 'Documents needed before your first interview', from: 'Las Sabir <las@powermatch.dk>', to: 'Dianne Russell <dianne.russell@gmail.com>', cc: ['Patrick Andre <patrick@powermatch.dk>', 'hr@powermatch.dk'], text: 'Hi Dianne,\n\nThanks for the documents. Before we book your first interview, please fill in the onboarding checklist and check the hourly rates for your area.\n\nCould you also send a few photos of your recent work?\n\nBest regards,\nLas Sabir', attachments: [
+      { id: 'f3', name: 'Onboarding_checklist.docx', size: 86_000 },
+      { id: 'f4', name: 'Hourly_rates_2026.xlsx', size: 42_000 },
+    ] },
+    { id: 'd5', type: 'message', dir: 'in', channel: 'email', author: 'Dianne Russell', time: '23 Mar 14:30', subject: 'Photos from my last projects', from: 'Dianne Russell <dianne.russell@gmail.com>', to: 'Las Sabir <las@powermatch.dk>', text: 'Here are some photos from the kitchen and bathroom renovations I did last year in Valby and Hvidovre.', attachments: [
+      { id: 'i1', name: 'kitchen_valby_01.jpg', size: 2_310_000, url: 'https://picsum.photos/seed/pm-kitchen/1200/900' },
+      { id: 'i2', name: 'kitchen_valby_02.jpg', size: 2_050_000, url: 'https://picsum.photos/seed/pm-wood/1200/900' },
+      { id: 'i3', name: 'bathroom_hvidovre.jpg', size: 1_870_000, url: 'https://picsum.photos/seed/pm-tiles/1200/900' },
+      { id: 'i4', name: 'wiring_panel.jpg', size: 1_460_000, url: 'https://picsum.photos/seed/pm-panel/1200/900' },
+      { id: 'i5', name: 'IMG_4471.heic', size: 3_020_000, url: 'https://images.invalid/IMG_4471.heic' },
+      { id: 'i6', name: 'terrace_01.jpg', size: 2_640_000, url: 'https://picsum.photos/seed/pm-terrace/1200/900' },
+      { id: 'i7', name: 'terrace_02.jpg', size: 2_480_000, url: 'https://picsum.photos/seed/pm-deck/1200/900' },
+      { id: 'i8', name: 'terrace_03.jpg', size: 2_190_000, url: 'https://picsum.photos/seed/pm-garden/1200/900' },
+    ] },
   ],
   'cv-ancorless': [
     { id: 'a1', type: 'system', text: 'Conversation started with Jhon Bossman' },

@@ -1,11 +1,12 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Paperclip, Phone, PhoneMissed, PhoneOutgoing, Send, StickyNote, Voicemail, Zap } from 'lucide-vue-next'
+import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Paperclip, Phone, Reply, X, PhoneMissed, PhoneOutgoing, Send, StickyNote, Voicemail, Zap } from 'lucide-vue-next'
 import { agents, candidateProfile } from '@/mock'
 import { useInbox } from './useInbox'
 import AudioPlayer from './AudioPlayer.vue'
 import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 import EmailMessage from '../email/EmailMessage.vue'
+import { fakeDownload, fakeDownloadAll } from './fakeDownload'
 
 const { state, selected, company, currentContact, send, call, assignToMe } = useInbox()
 const assignee = computed(() => agents.find((a) => a.id === (selected.value.assigneeId ?? 'pa')))
@@ -24,16 +25,33 @@ const tabs = [
 const channelIcon = { chat: MessageCircle, email: Mail, sms: MessageSquareText, call: Phone, missed: Phone, voicemail: Voicemail }
 const draft = ref('')
 const subject = ref('')
+const replyTo = ref(null) // email being replied to
+const textarea = ref()
+const replySubject = computed(() => replyTo.value && `RE: ${replyTo.value.subject.replace(/^(re:\s*)+/i, '')}`)
 const scroller = ref()
 
 const isEmail = computed(() => tab.value === 'email')
-const canSend = computed(() => draft.value.trim() && (!isEmail.value || subject.value.trim()))
+const canSend = computed(() => draft.value.trim() && (!isEmail.value || replyTo.value || subject.value.trim()))
+
+function startReply(email) {
+  replyTo.value = email
+  tab.value = 'email'
+  nextTick(() => textarea.value?.focus())
+}
+
+// Prototype: a retried bounced email "sends" for a moment, then goes through
+function retry(m) {
+  m.failed = undefined
+  m.sending = true
+  setTimeout(() => (m.sending = false), 1200)
+}
 
 function submit() {
   if (!canSend.value) return
-  send(draft.value.trim(), tab.value, isEmail.value ? subject.value.trim() : undefined)
+  send(draft.value.trim(), tab.value, isEmail.value ? replySubject.value ?? subject.value.trim() : undefined)
   draft.value = ''
   subject.value = ''
+  replyTo.value = null
 }
 watch(() => thread.value.length, () => nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight, behavior: 'smooth' })))
 // Opening a conversation starts at the newest message, with the composer on that conversation's channel
@@ -42,6 +60,7 @@ watch(
   () => selected.value.id,
   () => {
     tab.value = tabFor[selected.value.channel] ?? 'chat'
+    replyTo.value = null
     nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight }))
   },
   { immediate: true },
@@ -95,8 +114,25 @@ watch(
           </div>
         </div>
 
-        <div v-else-if="m.type === 'message'" class="flex max-w-[70%] flex-col gap-1.5" :class="m.dir === 'out' ? 'items-end self-end' : 'items-start'">
-          <EmailMessage v-if="m.subject" :subject="m.subject" :body="m.text" :dir="m.dir" />
+        <!-- Emails are full width minus a 48px gap on the opposite side; chat/SMS bubbles stay at 70% -->
+        <div v-else-if="m.type === 'message'" class="flex flex-col gap-1.5" :class="[m.dir === 'out' ? 'items-end self-end' : 'items-start', m.subject ? 'w-[calc(100%-48px)]' : 'max-w-[70%]']">
+          <EmailMessage
+            v-if="m.subject"
+            :subject="m.subject"
+            :body="m.text"
+            :dir="m.dir"
+            :from="m.from"
+            :to="m.to"
+            :cc="m.cc"
+            :quoted="m.quoted"
+            :attachments="m.attachments"
+            :failed="m.failed"
+            :sending="m.sending"
+            @reply="startReply(m)"
+            @download="fakeDownload"
+            @download-all="(files) => fakeDownloadAll(files, m.subject)"
+            @retry="retry(m)"
+          />
           <div v-else class="whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-6 text-gray-900" :class="m.dir === 'out' ? 'bg-info-25' : 'bg-gray-50'">{{ m.text }}</div>
           <div class="flex items-center gap-1.5 text-xs text-gray-500">
             <component :is="channelIcon[m.channel] ?? MessageCircle" :size="13" />
@@ -138,14 +174,21 @@ watch(
             <component :is="t.icon" :size="15" />{{ t.label }}
           </button>
         </div>
+        <!-- Replying: fixed "RE:" subject with a reply icon; ✕ goes back to a new email -->
+        <div v-if="isEmail && replyTo" class="mx-4 mt-2 flex items-center gap-2 border-b border-gray-200 py-2.5 text-sm text-gray-500">
+          <Reply :size="16" class="shrink-0" />
+          <span class="min-w-0 flex-1 truncate">{{ replySubject }}</span>
+          <button type="button" class="flex size-6 items-center justify-center rounded-md hover:bg-gray-100" title="Cancel reply" @click="replyTo = null"><X :size="16" /></button>
+        </div>
         <input
-          v-if="isEmail"
+          v-else-if="isEmail"
           v-model="subject"
           :disabled="!selected.assignedToMe"
           placeholder="Subject"
           class="mx-4 mt-2 block w-[calc(100%-2rem)] border-b border-gray-200 bg-transparent py-2.5 text-sm text-gray-900 outline-none disabled:opacity-40"
         />
         <textarea
+          ref="textarea"
           v-model="draft"
           :rows="isEmail ? 4 : 3"
           :disabled="!selected.assignedToMe"

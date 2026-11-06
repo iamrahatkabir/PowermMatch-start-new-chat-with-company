@@ -31,7 +31,7 @@ or the design system artifact unless a task changes them — their APIs are summ
 | Component | Props / slots |
 |---|---|
 | `PmAppShell` | `nav-collapsed` starts the nav as icons. Real product chrome (top header + collapsible grouped nav). `active` = nav key: overview · inbox-all · inbox-support · inbox-upcoming · inbox-communication · inbox-archive · inbox-notifications · interviews · time · payroll · contracts · invoicing · candidates · companies · jobs-all · jobs-applicants · journeys · numbers · career-page. `title`/`subtitle` add a page title bar; `flush` = no padding, full height (for multi-column screens). Slots: default, `#actions` |
-| `PmButton` | `variant` primary·secondary·ghost·danger·dark, `size` sm·md·lg, `icon` (icon name), `block` |
+| `PmButton` | `variant` primary·secondary·outline (transparent, bordered)·ghost·danger·dark, `size` sm·md·lg, `icon` (icon name), `block` |
 | `PmInput` | `v-model`, `label`, `placeholder`, `type`, `error`, `hint`; slots `#prefix` `#suffix` |
 | `PmSelect` | `v-model`, `label`, `options: [{ value, label }]` |
 | `PmStatusPill` | `tone` success·warning·error·info·neutral·brand, `dot` (default true), `bordered` (outlined style used in side panels) |
