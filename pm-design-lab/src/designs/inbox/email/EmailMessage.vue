@@ -11,7 +11,7 @@
  *         alwaysOpen? (no View details: everything is shown and Reply is always there),
  *         attachments? [{ id, name, size, url?, status? }] (see attachments.js),
  *         failed? (reason the email wasn't delivered), sending?
- * Events: reply() · download(attachment) · download-all(attachments) · retry()
+ * Events: reply() · download(attachment) · retry()
  */
 import { computed, ref } from 'vue'
 import { AlertCircle, Ellipsis, Loader, Paperclip, Reply, RotateCw } from 'lucide-vue-next'
@@ -31,7 +31,7 @@ const props = defineProps({
   alwaysOpen: Boolean,
   sending: Boolean,
 })
-const emit = defineEmits(['reply', 'download', 'download-all', 'retry'])
+const emit = defineEmits(['reply', 'download', 'retry'])
 
 const expanded = ref(props.alwaysOpen)
 const showQuoted = ref(false)
@@ -78,8 +78,8 @@ const previewIndex = ref(null)
     <EmailAttachments
       v-if="attachments.length"
       :attachments="attachments"
+      :small="alwaysOpen"
       @download="(a) => emit('download', a)"
-      @download-all="(list) => emit('download-all', list)"
       @preview="(i) => (previewIndex = i)"
     />
 
@@ -95,7 +95,7 @@ const previewIndex = ref(null)
         {{ expanded ? 'Hide details' : 'View details' }}
       </button>
       <span v-if="sending" class="ml-auto flex items-center gap-1.5 text-xs text-gray-500"><Loader :size="14" class="animate-spin" />Sending</span>
-      <PmButton v-else-if="showReply" size="sm" variant="outline" class="ml-auto" @click="emit('reply')"><Reply :size="15" />Reply</PmButton>
+      <PmButton v-else-if="showReply" size="sm" variant="ghost" class="ml-auto" @click="emit('reply')"><Reply :size="15" />Reply</PmButton>
     </div>
 
     <ImagePreview

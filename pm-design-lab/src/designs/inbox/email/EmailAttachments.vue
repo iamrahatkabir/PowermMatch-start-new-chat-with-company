@@ -4,25 +4,29 @@
  * Unavailable files (expired / blocked) are shown but can't be downloaded.
  *
  * Props:  attachments [{ id, name, size, url?, status? }], stacked? (files in one column, for narrow spaces),
- *          hideSummary? (no "N attachments • Download all" row, when the parent shows its own)
- * Events: download(attachment) · download-all(attachments) · preview(index into images)
+ *          hideSummary? (no "N attachments • size" row, when the parent shows its own),
+ *          small? (80px image thumbnails in a row, like the simple E version)
+ * Events: download(attachment) · preview(index into images)
  */
 import { computed, reactive } from 'vue'
 import { Download, File, FileArchive, FileImage, FileSpreadsheet, FileText, ImageOff, ShieldAlert, Clock } from 'lucide-vue-next'
 import { isImage, isAvailable, kind, extension, formatSize, STATUS_TEXT } from './attachments'
 
-const props = defineProps({ attachments: { type: Array, required: true }, stacked: Boolean, hideSummary: Boolean })
-const emit = defineEmits(['download', 'download-all', 'preview'])
+const props = defineProps({ attachments: { type: Array, required: true }, stacked: Boolean, hideSummary: Boolean, small: Boolean })
+const emit = defineEmits(['download', 'preview'])
 
 const images = computed(() => props.attachments.filter((a) => isImage(a) && isAvailable(a)))
 const files = computed(() => props.attachments.filter((a) => !isImage(a) || !isAvailable(a)))
 const downloadable = computed(() => props.attachments.filter(isAvailable))
 const totalSize = computed(() => formatSize(downloadable.value.reduce((s, a) => s + a.size, 0)))
 
-// Thumbnails: up to 6, the last one shows "+N" when there are more
+// Thumbnails: up to 6, the last one shows "+N" when there are more.
+// small: 4 images, then a separate "+N" tile for the rest (opens the preview at the 5th image).
 const MAX = 6
-const shown = computed(() => images.value.slice(0, MAX))
+const SMALL_MAX = 4
+const shown = computed(() => images.value.slice(0, props.small ? SMALL_MAX : MAX))
 const hidden = computed(() => images.value.length - MAX)
+const rest = computed(() => images.value.length - SMALL_MAX)
 const broken = reactive({})
 
 const icons = { pdf: FileText, doc: FileText, sheet: FileSpreadsheet, archive: FileArchive, image: FileImage, file: File }
@@ -38,44 +42,48 @@ const tiles = {
 
 <template>
   <div class="mt-3 flex flex-col gap-2">
-    <!-- Summary + Download all (only when there is more than one file to download) -->
-    <div v-if="downloadable.length > 1 && !hideSummary" class="flex items-center gap-2 text-xs text-gray-500">
+    <!-- Summary (only when there is more than one file) -->
+    <div v-if="downloadable.length > 1 && !hideSummary" class="text-xs text-gray-500">
       {{ attachments.length }} attachments • {{ totalSize }}
-      <button type="button" class="ml-auto flex items-center gap-1 font-medium text-gray-700 hover:text-gray-900" @click="emit('download-all', downloadable)">
-        <Download :size="14" />Download all
-      </button>
     </div>
 
     <!-- Images -->
     <div
       v-if="shown.length"
-      class="grid gap-2"
-      :class="shown.length === 1 ? 'max-w-sm grid-cols-1' : shown.length === 2 ? 'max-w-lg grid-cols-2' : 'max-w-lg grid-cols-3'"
+      :class="small ? 'flex flex-wrap gap-1.5' : ['grid gap-2', shown.length === 1 ? 'max-w-sm grid-cols-1' : shown.length === 2 ? 'max-w-lg grid-cols-2' : 'max-w-lg grid-cols-3']"
     >
       <button
         v-for="(img, i) in shown"
         :key="img.id"
         type="button"
-        class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white"
-        :class="shown.length === 1 ? 'aspect-[4/3]' : 'aspect-square'"
+        class="group relative overflow-hidden border border-gray-200 bg-white"
+        :class="small ? 'size-20 rounded-lg' : ['rounded-xl', shown.length === 1 ? 'aspect-[4/3]' : 'aspect-square']"
         :title="img.name"
         @click="emit('preview', i)"
       >
         <div v-if="broken[img.id]" class="flex size-full flex-col items-center justify-center gap-1 bg-gray-50 px-2 text-xs text-gray-500">
-          <ImageOff :size="20" />Image can't be shown
+          <ImageOff :size="small ? 18 : 20" /><template v-if="!small">Image can't be shown</template>
         </div>
         <img v-else :src="img.url" :alt="img.name" loading="lazy" class="size-full object-cover" @error="broken[img.id] = true" />
         <span
-          v-if="i === MAX - 1 && hidden > 0"
-          class="absolute inset-0 flex items-center justify-center bg-gray-900/60 text-lg font-semibold text-white"
+          v-if="!small && i === MAX - 1 && hidden > 0"
+          class="absolute inset-0 flex items-center justify-center bg-gray-900/60 font-semibold text-white"
+          :class="!small && 'text-lg'"
         >+{{ hidden }}</span>
         <span
-          v-else
+          v-else-if="!small"
           class="absolute right-1.5 top-1.5 hidden size-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 group-hover:flex"
           title="Download"
           @click.stop="emit('download', img)"
         ><Download :size="14" /></span>
       </button>
+      <button
+        v-if="small && rest > 0"
+        type="button"
+        class="flex size-20 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 font-semibold text-gray-700 hover:bg-gray-100"
+        :title="`${rest} more images`"
+        @click="emit('preview', SMALL_MAX)"
+      >+{{ rest }}</button>
     </div>
 
     <!-- Files -->

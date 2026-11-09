@@ -1,15 +1,14 @@
 <script setup>
-// Version E: chat-style emails + a composer that replies to the newest email automatically.
-// Ship ../inbox/email/simple/EmailChatBubble.vue (email in the thread) and ../inbox/email/simple/EmailComposerQuick.vue (composer).
+// Version E: split modal — same email in the thread as D (../inbox/email/EmailMessageModal.vue),
+// opening ../inbox/email/EmailDetailsSplit.vue instead of the centered modal. Ship both files.
+import { h } from 'vue'
 import EmailsInbox from './parts/EmailsInbox.vue'
-import EmailChatBubble from '../inbox/email/simple/EmailChatBubble.vue'
-import EmailComposerQuick from '../inbox/email/simple/EmailComposerQuick.vue'
+import EmailMessageModal from '../inbox/email/EmailMessageModal.vue'
+import EmailDetailsSplit from '../inbox/email/EmailDetailsSplit.vue'
+
+const Email = (props, { attrs }) => h(EmailMessageModal, { ...attrs, details: EmailDetailsSplit })
 </script>
 
 <template>
-  <EmailsInbox :email-component="EmailChatBubble">
-    <template #email-composer="{ to, replyTo, lastEmail, disabled, sendEmail, cancelReply }">
-      <EmailComposerQuick :to="to" :reply-to="replyTo" :last-email="lastEmail" :disabled="disabled" @send="sendEmail" @cancel-reply="cancelReply" />
-    </template>
-  </EmailsInbox>
+  <EmailsInbox :email-component="Email" />
 </template>

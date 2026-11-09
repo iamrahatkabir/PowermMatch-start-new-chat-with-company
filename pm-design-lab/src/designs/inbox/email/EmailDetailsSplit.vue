@@ -1,13 +1,13 @@
 <script setup>
 /**
- * Version C: wide modal split in two — the email on the left, all attachments in a column on the right
+ * Version E: wide modal split in two — the email on the left, all attachments in a column on the right
  * ("Attachments (n)", images on top, files below). Without attachments it is a normal single-column modal.
  *
  * Props:  subject, body?, from?, to?, quoted?, attachments?
- * Events: close() · reply() · download(file) · download-all(files)
+ * Events: close() · reply() · download(file)
  */
 import { computed, ref } from 'vue'
-import { Download, Reply, X } from 'lucide-vue-next'
+import { Reply, X } from 'lucide-vue-next'
 import EmailAttachments from './EmailAttachments.vue'
 import EmailBody from './EmailBody.vue'
 import ImagePreview from './ImagePreview.vue'
@@ -22,7 +22,7 @@ const props = defineProps({
   quoted: String,
   attachments: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['close', 'reply', 'download', 'download-all'])
+const emit = defineEmits(['close', 'reply', 'download'])
 
 const images = computed(() => props.attachments.filter((a) => isImage(a) && isAvailable(a)))
 const downloadable = computed(() => props.attachments.filter(isAvailable))
@@ -57,13 +57,6 @@ useModalKeys(() => emit('close'), () => previewIndex.value !== null)
             <div class="flex shrink-0 items-center gap-2 px-5 pb-1 pt-5">
               <h3 class="text-sm font-semibold text-gray-900">Attachments ({{ attachments.length }})</h3>
               <span class="text-xs text-gray-500">{{ total }}</span>
-              <button
-                v-if="downloadable.length > 1"
-                type="button"
-                class="ml-auto flex size-8 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100"
-                title="Download all"
-                @click="emit('download-all', downloadable)"
-              ><Download :size="16" /></button>
             </div>
             <EmailAttachments
               :attachments="attachments"
@@ -71,7 +64,6 @@ useModalKeys(() => emit('close'), () => previewIndex.value !== null)
               hide-summary
               class="!mt-0 min-h-0 overflow-y-auto px-5 pb-5 pt-2"
               @download="(f) => emit('download', f)"
-              @download-all="(l) => emit('download-all', l)"
               @preview="(i) => (previewIndex = i)"
             />
           </aside>

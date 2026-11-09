@@ -4,7 +4,7 @@
  * Esc or the backdrop closes it.
  *
  * Props:  subject, body?, from?, to?, quoted?, attachments?
- * Events: close() · reply() · download(file) · download-all(files)
+ * Events: close() · reply() · download(file)
  */
 import { computed, ref } from 'vue'
 import { Reply, X } from 'lucide-vue-next'
@@ -22,7 +22,7 @@ const props = defineProps({
   quoted: String,
   attachments: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['close', 'reply', 'download', 'download-all'])
+const emit = defineEmits(['close', 'reply', 'download'])
 
 const previewIndex = ref(null)
 const images = computed(() => props.attachments.filter((a) => isImage(a) && isAvailable(a)))
@@ -52,7 +52,6 @@ useModalKeys(() => emit('close'), () => previewIndex.value !== null)
               :attachments="attachments"
               class="!mt-0"
               @download="(f) => emit('download', f)"
-              @download-all="(l) => emit('download-all', l)"
               @preview="(i) => (previewIndex = i)"
             />
           </div>

@@ -1,11 +1,11 @@
 <script setup>
 /**
- * Version D: an email shown like a chat message. The subject is a small label on top, the whole text
+ * Version F: an email shown like a chat message. The subject is a small label on top, the whole text
  * is visible (long emails: first 8 lines + Show more), files sit right under it. Nothing to open.
  * Hovering shows a small Reply link (the composer already replies to the newest email by default).
  *
  * Props:  subject, body?, dir ('in' | 'out'), attachments?
- * Events: reply() · download(file) · download-all(files)
+ * Events: reply() · download(file)
  */
 import { computed, ref } from 'vue'
 import { Mail, Reply } from 'lucide-vue-next'
@@ -20,7 +20,7 @@ const props = defineProps({
   dir: { type: String, default: 'in' },
   attachments: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['reply', 'download', 'download-all'])
+const emit = defineEmits(['reply', 'download'])
 const more = ref(false)
 const parts = computed(() => linkify(props.body))
 const long = computed(() => props.body.split('\n').length > 8 || props.body.length > 600)
@@ -39,6 +39,6 @@ const long = computed(() => props.body.split('\n').length > 8 || props.body.leng
       </p>
       <button v-if="long" type="button" class="text-xs font-medium text-info-700 hover:underline" @click="more = !more">{{ more ? 'Show less' : 'Show more' }}</button>
     </div>
-    <EmailFiles v-if="attachments.length" :attachments="attachments" @download="(f) => emit('download', f)" @download-all="(l) => emit('download-all', l)" />
+    <EmailFiles v-if="attachments.length" :attachments="attachments" @download="(f) => emit('download', f)" />
   </div>
 </template>

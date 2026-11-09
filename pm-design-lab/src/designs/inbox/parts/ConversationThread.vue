@@ -6,7 +6,7 @@ import { useInbox } from './useInbox'
 import AudioPlayer from './AudioPlayer.vue'
 import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 import EmailMessage from '../email/EmailMessage.vue'
-import { fakeDownload, fakeDownloadAll } from './fakeDownload'
+import { fakeDownload } from './fakeDownload'
 
 // Email designs can pass their own email component (same props/events as EmailMessage)
 const props = defineProps({ emailComponent: { type: Object, default: () => EmailMessage } })
@@ -150,7 +150,6 @@ watch(
             :sending="m.sending"
             @reply="startReply(m)"
             @download="fakeDownload"
-            @download-all="(files) => fakeDownloadAll(files, m.subject)"
             @retry="retry(m)"
           />
           <div v-else class="whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-6 text-gray-900" :class="m.dir === 'out' ? 'bg-info-25' : 'bg-gray-50'">{{ m.text }}</div>

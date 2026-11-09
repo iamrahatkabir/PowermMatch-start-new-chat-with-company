@@ -1,12 +1,12 @@
 <script setup>
 /**
- * Version B: email in the thread with a modal for details.
+ * Version D: email in the thread with a modal for details.
  * The bubble shows the subject, attachment counts (images / files) at the top and a 2-line body.
  * "View details" (or a count) opens EmailDetailsModal with the full email, images, files and Reply.
  *
  * Props:  subject, body?, dir ('in' | 'out'), from?, to?, quoted?, attachments? (see attachments.js),
- *         details? — the details component to open (default EmailDetailsModal; version C passes its own)
- * Events: reply() · download(file) · download-all(files)
+ *         details? — the details component to open (default EmailDetailsModal; version E passes its own)
+ * Events: reply() · download(file)
  */
 import { computed, ref } from 'vue'
 import { Image, Paperclip } from 'lucide-vue-next'
@@ -25,7 +25,7 @@ const props = defineProps({
   attachments: { type: Array, default: () => [] },
   details: { type: Object, default: () => EmailDetailsModal },
 })
-const emit = defineEmits(['reply', 'download', 'download-all'])
+const emit = defineEmits(['reply', 'download'])
 const open = ref(false)
 
 const imageCount = computed(() => props.attachments.filter(isImage).length)
@@ -73,7 +73,6 @@ function reply() {
       @close="open = false"
       @reply="reply"
       @download="(f) => emit('download', f)"
-      @download-all="(l) => emit('download-all', l)"
     />
   </div>
 </template>

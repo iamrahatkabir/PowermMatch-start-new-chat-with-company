@@ -1,10 +1,10 @@
 <script setup>
 /**
  * Attachments of a sent/received email, compact: image thumbnails (click → full-screen preview)
- * and files as chips (click → download). Shows "Download all" for 2+ files.
+ * and files as chips (click → download).
  *
  * Props:  attachments [{ id, name, size, url?, status? }] (see ../attachments.js)
- * Events: download(file) · download-all(files)
+ * Events: download(file)
  */
 import { computed, reactive, ref } from 'vue'
 import { Download, File, FileImage, FileSpreadsheet, FileText, ImageOff } from 'lucide-vue-next'
@@ -12,11 +12,10 @@ import { formatSize, isAvailable, isImage, kind, STATUS_TEXT } from '../attachme
 import ImagePreview from '../ImagePreview.vue'
 
 const props = defineProps({ attachments: { type: Array, required: true } })
-const emit = defineEmits(['download', 'download-all'])
+const emit = defineEmits(['download'])
 
 const images = computed(() => props.attachments.filter((a) => isImage(a) && isAvailable(a)))
 const files = computed(() => props.attachments.filter((a) => !isImage(a) || !isAvailable(a)))
-const downloadable = computed(() => props.attachments.filter(isAvailable))
 const MAX = 6
 const shown = computed(() => images.value.slice(0, MAX))
 const more = computed(() => images.value.length - MAX)
@@ -59,13 +58,6 @@ const icons = { pdf: FileText, doc: FileText, sheet: FileSpreadsheet, image: Fil
         <Download v-if="isAvailable(f)" :size="13" class="shrink-0 text-gray-500" />
       </button>
     </div>
-
-    <button
-      v-if="downloadable.length > 1"
-      type="button"
-      class="flex w-fit items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-900"
-      @click="emit('download-all', downloadable)"
-    ><Download :size="13" />Download all ({{ downloadable.length }})</button>
 
     <ImagePreview v-if="preview !== null" v-model:index="preview" :images="images" @close="preview = null" @download="(a) => emit('download', a)" />
   </div>

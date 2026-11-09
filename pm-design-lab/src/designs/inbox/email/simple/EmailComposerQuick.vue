@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Version D composer: as simple as chat. Just type and send — it replies to the newest email in the
+ * Version F composer: as simple as chat. Just type and send — it replies to the newest email in the
  * conversation, so the subject is filled in for you ("RE: …"). Click the subject to change it,
  * or "New email" to start a fresh subject. Attach with the paperclip or drop files on the box.
  * Ctrl/⌘ + Enter sends.
