@@ -1,10 +1,8 @@
 <script setup>
-// Version D: View details opens a modal — the email in the thread is ../inbox/email/EmailMessageModal.vue
-// (with EmailDetailsModal.vue). Ship those files.
+// Version D: the current composer (Email tab with Subject + body), built into ConversationThread.
 import EmailsInbox from './parts/EmailsInbox.vue'
-import EmailMessageModal from '../inbox/email/EmailMessageModal.vue'
 </script>
 
 <template>
-  <EmailsInbox :email-component="EmailMessageModal" />
+  <EmailsInbox />
 </template>

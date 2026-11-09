@@ -4,10 +4,9 @@ export default {
   variants: {
     A: 'Always open, no View details',
     B: 'Counts on top, View details expands below',
-    C: 'View details expands in place',
-    D: 'View details opens a modal',
-    E: 'Split modal: email + attachments',
+    C: 'Cards + Reply / New email',
+    D: 'View details expands in place',
+    E: 'View details opens a modal',
     F: 'Chat-style: just type to reply',
-    G: 'Cards + Reply / New email',
   },
 }

@@ -60,6 +60,7 @@ const chip = 'flex items-center gap-1 rounded-full border border-gray-200 bg-whi
       <EmailAttachments
         v-if="attachments.length"
         :attachments="attachments"
+        small
         @download="(f) => emit('download', f)"
         @preview="(i) => (previewIndex = i)"
       />

@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Version G composer: one clear choice at the top — Reply (to the newest email, or the one whose Reply
+ * Version C composer: one clear choice at the top — Reply (to the newest email, or the one whose Reply
  * was clicked) or New email. Reply shows which email you're answering; New email asks for a subject.
  * Big labelled buttons: "Attach files" and "Send email". Files can also be dropped on the box.
  *

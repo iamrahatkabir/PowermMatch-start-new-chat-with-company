@@ -4,7 +4,6 @@
  * Unavailable files (expired / blocked) are shown but can't be downloaded.
  *
  * Props:  attachments [{ id, name, size, url?, status? }], stacked? (files in one column, for narrow spaces),
- *          hideSummary? (no "N attachments • size" row, when the parent shows its own),
  *          small? (80px image thumbnails in a row, like the simple E version)
  * Events: download(attachment) · preview(index into images)
  */
@@ -12,13 +11,11 @@ import { computed, reactive } from 'vue'
 import { Download, File, FileArchive, FileImage, FileSpreadsheet, FileText, ImageOff, ShieldAlert, Clock } from 'lucide-vue-next'
 import { isImage, isAvailable, kind, extension, formatSize, STATUS_TEXT } from './attachments'
 
-const props = defineProps({ attachments: { type: Array, required: true }, stacked: Boolean, hideSummary: Boolean, small: Boolean })
+const props = defineProps({ attachments: { type: Array, required: true }, stacked: Boolean, small: Boolean })
 const emit = defineEmits(['download', 'preview'])
 
 const images = computed(() => props.attachments.filter((a) => isImage(a) && isAvailable(a)))
 const files = computed(() => props.attachments.filter((a) => !isImage(a) || !isAvailable(a)))
-const downloadable = computed(() => props.attachments.filter(isAvailable))
-const totalSize = computed(() => formatSize(downloadable.value.reduce((s, a) => s + a.size, 0)))
 
 // Thumbnails: up to 6, the last one shows "+N" when there are more.
 // small: 4 images, then a separate "+N" tile for the rest (opens the preview at the 5th image).
@@ -42,11 +39,6 @@ const tiles = {
 
 <template>
   <div class="mt-3 flex flex-col gap-2">
-    <!-- Summary (only when there is more than one file) -->
-    <div v-if="downloadable.length > 1 && !hideSummary" class="text-xs text-gray-500">
-      {{ attachments.length }} attachments • {{ totalSize }}
-    </div>
-
     <!-- Images -->
     <div
       v-if="shown.length"

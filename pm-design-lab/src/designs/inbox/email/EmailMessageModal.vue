@@ -1,11 +1,11 @@
 <script setup>
 /**
- * Version D: email in the thread with a modal for details.
+ * Version E: email in the thread with a modal for details.
  * The bubble shows the subject, attachment counts (images / files) at the top and a 2-line body.
  * "View details" (or a count) opens EmailDetailsModal with the full email, images, files and Reply.
  *
  * Props:  subject, body?, dir ('in' | 'out'), from?, to?, quoted?, attachments? (see attachments.js),
- *         details? — the details component to open (default EmailDetailsModal; version E passes its own)
+ *         details? — the details component to open (default EmailDetailsModal)
  * Events: reply() · download(file)
  */
 import { computed, ref } from 'vue'
