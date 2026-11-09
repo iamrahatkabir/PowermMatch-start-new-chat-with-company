@@ -24,22 +24,22 @@ Email conversations inside the inbox: an email thread and the email composer.
 E uses the bubble `EmailMessageModal.vue`; its `details` prop picks which details component opens (default `EmailDetailsModal`). Shared pieces: `EmailBody.vue` (text, links, quoted text), `EmailAttachments.vue` (`stacked`, `small` options), `ImagePreview.vue`, `useModalKeys.js` (Esc closes; ← → don't switch lab versions).
 B and E have the same props and events as `EmailMessage` (`failed` / `sending` aren't shown).
 
-### C and F: email + sending (simple)
-C and F change **both** the email in the thread and the composer. Files in `../inbox/email/simple/`.
+### C and F: simple emails
+C changes the email in the thread (composer stays the same as A). F changes **both** the email in the thread and the composer. Files in `../inbox/email/simple/`.
 
 | Version | Email in the thread | Composer |
 |---|---|---|
-| C | `EmailCardReply.vue`: white card with the subject and an always-visible tertiary **Reply** button on top, then text (6 lines + Show more) and files. | `EmailComposerReplyNew.vue`: one switch on top, **Reply** (shows the RE: subject) or **New email** (asks for a subject). Labelled **Attach files** and **Send email** buttons. |
+| C | `EmailCardReply.vue`: white card with the subject and a tertiary **Reply** button on top that shows on hover, then text (6 lines + Show more) and files. | The built-in composer, same as A. |
 | F | `EmailChatBubble.vue`: looks like a chat message. Subject is a small label, the whole text is visible (8 lines + Show more), files right under it. Reply link on hover. | `EmailComposerQuick.vue`: just type and Send. It replies to the newest email, so the subject is filled in ("RE: …"); click it to change, or **New email** for a fresh subject. Ctrl/⌘ + Enter sends. |
 
 Shared: `simple/EmailFiles.vue` (thumbnails + file chips with download, image preview), `simple/FileChips.vue` (files added in the composer), `simple/compose.js` (RE: subject, picked file → attachment, links, sender name).
-Composer API (both): props `to`, `lastEmail` (newest email `{ subject }`), `replyTo` (email whose Reply was clicked), `disabled`; events `send({ subject, body, attachments })`, `cancel-reply`. Files can be dropped on the composer.
+Composer API (F): props `to`, `lastEmail` (newest email `{ subject }`), `replyTo` (email whose Reply was clicked), `disabled`; events `send({ subject, body, attachments })`, `cancel-reply`. Files can be dropped on the composer.
 
 ## Swapping the email in the thread
 `<EmailsInbox :email-component="MyEmail" />` makes the thread render `MyEmail` instead of `EmailMessage` (same props and events). Versions A and D use `EmailMessage` (A with `alwaysOpen`).
 
 ## Swapping the composer
-`ConversationThread` has an `#email-composer` slot (passed through `InboxLayout` and `parts/EmailsInbox.vue`). A new composer version can fill it to replace the Email tab's content. It gets `to`, `sender`, `replyTo`, `lastEmail`, `disabled`, `sendEmail({ subject, body, attachments })` and `cancelReply()`. Versions A, B, D and E use the built-in composer.
+`ConversationThread` has an `#email-composer` slot (passed through `InboxLayout` and `parts/EmailsInbox.vue`). A new composer version can fill it to replace the Email tab's content. It gets `to`, `sender`, `replyTo`, `lastEmail`, `disabled`, `sendEmail({ subject, body, attachments })` and `cancelReply()`. Versions A–E use the built-in composer.
 
 ## EmailMessage
 

@@ -1,7 +1,7 @@
 <script setup>
 /**
- * Version C: an email as a clear card. Subject on top with a tertiary Reply button that is always visible,
- * then text (first 6 lines, Show more) and files.
+ * Version C: an email as a clear card. Subject on top with a tertiary Reply button that appears when the
+ * card is hovered (or focused with the keyboard), then text (first 6 lines, Show more) and files.
  *
  * Props:  subject, body?, attachments?
  * Events: reply() · download(file)
@@ -25,10 +25,10 @@ const long = computed(() => props.body.split('\n').length > 6 || props.body.leng
 </script>
 
 <template>
-  <div class="w-full rounded-2xl border border-gray-200 bg-white text-sm leading-6 text-gray-900">
+  <div class="group w-full rounded-2xl border border-gray-200 bg-white text-sm leading-6 text-gray-900">
     <div class="flex items-center gap-3 px-4 pt-3">
       <div class="min-w-0 flex-1 truncate font-semibold">{{ subject }}</div>
-      <PmButton size="sm" variant="ghost" class="-mr-2 shrink-0" @click="emit('reply')"><Reply :size="15" />Reply</PmButton>
+      <PmButton size="sm" variant="ghost" class="-mr-2 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100" @click="emit('reply')"><Reply :size="15" />Reply</PmButton>
     </div>
     <div v-if="body" class="px-4 pt-2">
       <p class="whitespace-pre-line break-words text-gray-700" :class="long && !more && 'line-clamp-6'">
