@@ -40,7 +40,7 @@ Files in `../inbox/email/thread/`.
 
 | File | What it is |
 |---|---|
-| `EmailThreadRoot.vue` | The first email of a thread, in the conversation: subject, 3 lines of body, small image thumbnails / files, a **"N replies • Last reply …"** row with reply avatars. Replies are not listed in the conversation. Without replies (empty state, like notes) it ends with a blue **Reply** link that opens the Thread panel. Props `subject`, `body`, `dir`, `attachments`, `replies`; events `open-thread`, `download`. |
+| `EmailThreadRoot.vue` | The first email of a thread, in the conversation: subject, 3 lines of body, small image thumbnails / files, a **"N replies • Last reply …"** row with reply avatars. Replies are not listed in the conversation. Without replies (empty state, like notes) it ends with a blue **Reply** link that opens the Thread panel. Clicking the email itself expands it in place (From / To, full text); click again to collapse. Props `subject`, `body`, `dir`, `from`, `to`, `attachments`, `replies`; events `open-thread`, `download`. |
 | `EmailThreadPanel.vue` | Right-hand **Thread** panel (replaces the contact panel while open): the first email with From / To, "N replies", every reply (avatar, name • time, text, files, image preview), and a **Reply…** box with attach + Send (Ctrl/⌘ + Enter). No subject field, replies are sent as "RE: <subject>". Props `root`, `replies`, `disabled`; events `close`, `send({ body, attachments })`, `download`. |
 | `threads.js` | `threadKey(subject)` (strips RE: / Fwd: / SV:), `groupReplies(items)` → `{ replies: { [rootId]: [] }, isReply: Set }`. The first email with a subject starts the thread; later emails with the same subject are its replies. |
 
