@@ -20,6 +20,7 @@ export function provideInbox({ selectedId = conversations[0].id, menuOpen = true
     menuOpen,
     view: 'inbox-all', // 'inbox-all' (conversations) | 'inbox-notifications' (settings)
     notificationSettings: { ...notificationSettings },
+    emailThreadId: null, // emails version G: id of the email whose Thread panel is open
   })
   for (const c of state.conversations) {
     state.threads[c.id] ??= [{ id: uid(), type: 'message', dir: 'in', channel: c.channel, author: c.name, time: c.time, text: c.preview }]
@@ -31,6 +32,7 @@ export function provideInbox({ selectedId = conversations[0].id, menuOpen = true
 
   function select(id) {
     state.selectedId = id
+    state.emailThreadId = null
     const c = state.conversations.find((x) => x.id === id)
     if (c) c.unread = 0
   }

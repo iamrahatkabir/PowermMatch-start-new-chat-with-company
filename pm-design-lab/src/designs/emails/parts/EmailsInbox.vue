@@ -7,12 +7,15 @@ import InboxLayout from '../../inbox/parts/InboxLayout.vue'
 import StartChatSections from '../../inbox/start-chat/StartChatSections.vue'
 
 // emailComponent: a version's email-in-thread component (default: ../inbox/email/EmailMessage.vue)
-defineProps({ emailComponent: Object })
+// groupReplies + threadPanel: version G (replies live in a Thread panel, see EmailThreadSide.vue)
+// extraEmails: more emails added to the end of Dianne's conversation (version G's sample replies)
+const props = defineProps({ emailComponent: Object, groupReplies: Boolean, threadPanel: Object, extraEmails: { type: Array, default: () => [] } })
 const inbox = provideInbox({ selectedId: 'cv-dianne', menuOpen: false })
+inbox.state.threads['cv-dianne'].push(...structuredClone(props.extraEmails))
 </script>
 
 <template>
-  <InboxLayout :nav-collapsed="false" :email-component="emailComponent">
+  <InboxLayout :nav-collapsed="false" :email-component="emailComponent" :group-replies="groupReplies" :thread-panel="threadPanel">
     <template #menu>
       <StartChatSections
         :companies="clientCompanies"

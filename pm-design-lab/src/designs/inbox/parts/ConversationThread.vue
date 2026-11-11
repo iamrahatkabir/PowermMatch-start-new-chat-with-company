@@ -7,13 +7,20 @@ import AudioPlayer from './AudioPlayer.vue'
 import EntityAvatar from '../start-chat/ui/EntityAvatar.vue'
 import EmailMessage from '../email/EmailMessage.vue'
 import { fakeDownload } from './fakeDownload'
+import { groupReplies } from '../email/thread/threads'
 
-// Email designs can pass their own email component (same props/events as EmailMessage)
-const props = defineProps({ emailComponent: { type: Object, default: () => EmailMessage } })
+// Email designs can pass their own email component (same props/events as EmailMessage).
+// groupReplies (emails version G): replies to an email are hidden here; the first email gets `replies`
+// and emits open-thread, which opens the Thread panel (state.emailThreadId).
+const props = defineProps({ emailComponent: { type: Object, default: () => EmailMessage }, groupReplies: Boolean })
 const { state, selected, company, currentContact, send, call, assignToMe } = useInbox()
 const assignee = computed(() => agents.find((a) => a.id === (selected.value.assigneeId ?? 'pa')))
 const thread = computed(() => state.threads[selected.value.id])
 const isCompany = computed(() => selected.value.kind === 'company')
+const groups = computed(() => (props.groupReplies ? groupReplies(thread.value) : null))
+// Incoming emails have no author photo in the mock → use the conversation's photo for reply avatars
+const withPhoto = (r) => ({ ...r, authorPhoto: r.authorPhoto ?? (r.dir === 'in' ? selected.value.photo : undefined) })
+const threadProps = (m) => (groups.value ? { replies: (groups.value.replies[m.id] ?? []).map(withPhoto) } : {})
 const phone = computed(() => (isCompany.value ? currentContact.value?.phone : candidateProfile.phone))
 const recipient = computed(() => (isCompany.value ? currentContact.value?.name : selected.value.name)?.split(' ')[0])
 
@@ -118,7 +125,8 @@ watch(
     <!-- Messages -->
     <div ref="scroller" class="flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-6">
       <template v-for="m in thread" :key="m.id">
-        <div v-if="m.type === 'system'" class="flex items-center gap-3 text-xs text-gray-400">
+        <template v-if="groups?.isReply.has(m.id)" />
+        <div v-else-if="m.type === 'system'" class="flex items-center gap-3 text-xs text-gray-400">
           <span class="h-px flex-1 bg-gray-200" />{{ m.text }}<span class="h-px flex-1 bg-gray-200" />
         </div>
 
@@ -148,6 +156,8 @@ watch(
             :attachments="m.attachments"
             :failed="m.failed"
             :sending="m.sending"
+            v-bind="threadProps(m)"
+            @open-thread="state.emailThreadId = m.id"
             @reply="startReply(m)"
             @download="fakeDownload"
             @retry="retry(m)"

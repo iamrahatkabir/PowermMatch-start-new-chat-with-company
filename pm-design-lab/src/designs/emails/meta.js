@@ -8,5 +8,6 @@ export default {
     D: 'View details expands in place',
     E: 'View details opens a modal',
     F: 'Chat-style: just type to reply',
+    G: 'Replies in a thread panel',
   },
 }

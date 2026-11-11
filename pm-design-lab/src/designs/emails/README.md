@@ -10,7 +10,7 @@ Email conversations inside the inbox: an email thread and the email composer.
 | `../inbox/email/attachments.js` | Plain-JS helpers: file type, size format, image check, status labels. **Ship this.** |
 | `../inbox/parts/fakeDownload.js` | Prototype only: makes Download save a dummy file. |
 | `../inbox/parts/ConversationThread.vue` | Prototype thread + composer. The Email tab adds a **Subject** field, uses "Write description here", and needs both subject and body before Send. Enter adds a new line in emails (Enter sends in chat/SMS). |
-| `A.vue` … `F.vue` | Preview wrappers: open Dianne Russell's email conversation with the sidebar expanded (via `parts/EmailsInbox.vue`). |
+| `A.vue` … `G.vue` | Preview wrappers: open Dianne Russell's email conversation with the sidebar expanded (via `parts/EmailsInbox.vue`). |
 
 ## Versions
 
@@ -35,11 +35,22 @@ C changes the email in the thread (composer stays the same as A). F changes **bo
 Shared: `simple/EmailFiles.vue` (thumbnails + file chips with download, image preview), `simple/FileChips.vue` (files added in the composer), `simple/compose.js` (RE: subject, picked file → attachment, links, sender name).
 Composer API (F): props `to`, `lastEmail` (newest email `{ subject }`), `replyTo` (email whose Reply was clicked), `disabled`; events `send({ subject, body, attachments })`, `cancel-reply`. Files can be dropped on the composer.
 
+### G: replies in a thread (like notes)
+Files in `../inbox/email/thread/`.
+
+| File | What it is |
+|---|---|
+| `EmailThreadRoot.vue` | The first email of a thread, in the conversation: subject, 3 lines of body, small image thumbnails / files, a **"N replies • Last reply …"** row with reply avatars. Replies are not listed in the conversation. Without replies (empty state, like notes) it ends with a blue **Reply** link that opens the Thread panel. Props `subject`, `body`, `dir`, `attachments`, `replies`; events `open-thread`, `download`. |
+| `EmailThreadPanel.vue` | Right-hand **Thread** panel (replaces the contact panel while open): the first email with From / To, "N replies", every reply (avatar, name • time, text, files, image preview), and a **Reply…** box with attach + Send (Ctrl/⌘ + Enter). No subject field, replies are sent as "RE: <subject>". Props `root`, `replies`, `disabled`; events `close`, `send({ body, attachments })`, `download`. |
+| `threads.js` | `threadKey(subject)` (strips RE: / Fwd: / SV:), `groupReplies(items)` → `{ replies: { [rootId]: [] }, isReply: Set }`. The first email with a subject starts the thread; later emails with the same subject are its replies. |
+
+Prototype glue: `parts/EmailThreadSide.vue` (finds the open thread, sends replies into the fake inbox). Sample data added only in G (`EmailsInbox` `extra-emails`): `emailThreadSamples` in `@/mock`, with 3 replies to "Photos from my last projects" and a new email without replies ("Question about the company car"). `ConversationThread` gets `group-replies`, `InboxLayout` gets `thread-panel`; the open thread is `state.emailThreadId` in `useInbox`.
+
 ## Swapping the email in the thread
 `<EmailsInbox :email-component="MyEmail" />` makes the thread render `MyEmail` instead of `EmailMessage` (same props and events). Versions A and D use `EmailMessage` (A with `alwaysOpen`).
 
 ## Swapping the composer
-`ConversationThread` has an `#email-composer` slot (passed through `InboxLayout` and `parts/EmailsInbox.vue`). A new composer version can fill it to replace the Email tab's content. It gets `to`, `sender`, `replyTo`, `lastEmail`, `disabled`, `sendEmail({ subject, body, attachments })` and `cancelReply()`. Versions A–E use the built-in composer.
+`ConversationThread` has an `#email-composer` slot (passed through `InboxLayout` and `parts/EmailsInbox.vue`). A new composer version can fill it to replace the Email tab's content. It gets `to`, `sender`, `replyTo`, `lastEmail`, `disabled`, `sendEmail({ subject, body, attachments })` and `cancelReply()`. Versions A–E and G use the built-in composer.
 
 ## EmailMessage
 

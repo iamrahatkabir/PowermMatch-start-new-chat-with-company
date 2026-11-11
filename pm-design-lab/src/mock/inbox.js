@@ -141,6 +141,17 @@ export const threads = {
 }
 
 // Right-hand panel for people (candidate/applicant) conversations
+// Emails version G only, added to the end of Dianne's conversation: 3 replies to "Photos from my last projects"
+// (shown in its thread) and a new email without replies. Kept out of `threads` so the other email versions don't list them.
+export const emailThreadSamples = [
+  { id: 'd6', type: 'message', dir: 'out', channel: 'email', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '23 Mar 15:02', subject: 'RE: Photos from my last projects', from: 'Las Sabir <las@powermatch.dk>', to: 'Dianne Russell <dianne.russell@gmail.com>', text: 'Great work, Dianne. The kitchen in Valby looks very clean.\n\nCould you also send a photo of an electrical installation you did?' },
+  { id: 'd7', type: 'message', dir: 'in', channel: 'email', author: 'Dianne Russell', time: '23 Mar 15:40', subject: 'RE: Photos from my last projects', from: 'Dianne Russell <dianne.russell@gmail.com>', to: 'Las Sabir <las@powermatch.dk>', text: 'Sure, here is the main panel from the Hvidovre job. I did the full rewiring of the house.', attachments: [
+    { id: 'i9', name: 'main_panel_hvidovre.jpg', size: 1_920_000, url: 'https://picsum.photos/seed/pm-wiring/1200/900' },
+  ] },
+  { id: 'd8', type: 'message', dir: 'out', channel: 'email', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '23 Mar 16:05', subject: 'RE: Photos from my last projects', from: 'Patrick Andre <patrick@powermatch.dk>', to: 'Dianne Russell <dianne.russell@gmail.com>', text: 'Thanks Dianne. I have shared your photos with Renow Power ApS. We will get back to you tomorrow with a time for the interview.' },
+  { id: 'd9', type: 'message', dir: 'in', channel: 'email', author: 'Dianne Russell', time: '24 Mar 08:47', subject: 'Question about the company car', from: 'Dianne Russell <dianne.russell@gmail.com>', to: 'Las Sabir <las@powermatch.dk>', text: 'Hi Las,\n\nQuick question: if I start with Renow Power ApS, will the company car be available from the first week, or only after the trial period?\n\nBest,\nDianne' },
+]
+
 export const candidateProfile = {
   type: 'Candidate',
   trade: 'Refrigeration tech',
