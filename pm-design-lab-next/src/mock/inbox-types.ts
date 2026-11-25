@@ -38,7 +38,7 @@ export type Conversation = {
   currentContactId?: string
   personId?: string
   assignedToMe?: boolean
-  assigneeId?: string
+  assigneeId?: string | null // null = Unassigned
   starred?: boolean
   state?: 'waiting'
   callback?: { missedAt: string } | null
@@ -73,6 +73,8 @@ export type ThreadItem = {
   progress?: number
   summary?: string
   icon?: string
+  // internal notes (channel 'note'): names @mentioned in the text
+  mentions?: string[]
 }
 
 export type StatusMap = Record<string, { tone: PillTone; label: string }>

@@ -103,3 +103,9 @@ Shown inside the inbox when **Inbox → Notification settings** is clicked in th
 - `permission`: `'granted' | 'denied' | 'default' | 'unsupported'`. When `'denied'` the browser won't ask again, so the page explains how to allow it manually.
 - Edits stay local until **Save changes** (disabled until something changed). Save calls `onSave` and `onChange`.
 - Uses `PmSelect`, `PmButton`, `PmToggle` and `lucide-react`.
+
+## Prototype options
+- `useCreateInbox({ selectedId, menuOpen, init })` — open conversation, show the Start new conversation menu at start (default yes), `init(state)` to change the fresh state.
+- `<InboxLayout defaultTab>` — composer tab at start and after switching conversation (chat · email · sms · note). Default: the conversation's channel. Used by `notes-inbox`.
+- `<InboxLayout renderNote renderNoteComposer>` — optional: draw notes (`channel: 'note'`) and replace the Note tab composer (no assign overlay there). Used by `notes-inbox`.
+- `conversation.assigneeId: null` shows "Unassigned" in the thread header.

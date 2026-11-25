@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react'
-import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Paperclip, Phone, Reply, X, PhoneMissed, PhoneOutgoing, Send, StickyNote, Voicemail, Zap } from 'lucide-react'
+import { Archive, Check, ChevronDown, ChevronRight, Ellipsis, Link, Mail, MessageCircle, MessageSquareText, Paperclip, Phone, Reply, X, PhoneMissed, PhoneOutgoing, Send, StickyNote, User, Voicemail, Zap } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { PmAvatar, PmButton } from '@/ds'
 import { agents, candidateProfile } from '@/mock'
@@ -18,6 +18,12 @@ export type ConversationThreadProps = {
   emailComponent?: ComponentType<EmailInThreadProps>
   groupReplies?: boolean
   renderEmailComposer?: (p: EmailComposerSlotProps) => ReactNode
+  /** Composer tab open at start (chat · email · sms · note). Default: the conversation's channel. */
+  defaultTab?: string
+  /** Draws a note (message with channel 'note'). openNoteTab switches the composer to the Note tab. */
+  renderNote?: (m: ThreadItem, actions: { openNoteTab: () => void }) => ReactNode
+  /** Replaces the Note tab composer. Notes can be saved without being assigned. */
+  renderNoteComposer?: (p: { saveNote: (text: string, extra?: Partial<ThreadItem>) => void }) => ReactNode
 }
 
 // Email designs can pass their own email component (same props/callbacks as EmailMessage).
@@ -35,9 +41,9 @@ const sender = { name: me.name, email: 'las@powermatch.dk', phone: '+45 70 20 30
 // Opening a conversation starts at the newest message, with the composer on that conversation's channel
 const tabFor: Record<string, string> = { email: 'email', sms: 'sms' }
 
-export function ConversationThread({ emailComponent: EmailComponent = EmailMessage, groupReplies, renderEmailComposer }: ConversationThreadProps) {
+export function ConversationThread({ emailComponent: EmailComponent = EmailMessage, groupReplies, renderEmailComposer, defaultTab, renderNote, renderNoteComposer }: ConversationThreadProps) {
   const { state, selected, company, currentContact, send, call, assignToMe, update } = useInbox()
-  const assignee = agents.find((a) => a.id === (selected.assigneeId ?? 'pa'))!
+  const assignee = selected.assigneeId === null ? null : agents.find((a) => a.id === (selected.assigneeId ?? 'pa'))!
   const thread = state.threads[selected.id]
   const isCompany = selected.kind === 'company'
   const groups = groupReplies ? groupEmailReplies(thread) : null
@@ -47,7 +53,7 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
   const phone = isCompany ? currentContact?.phone : candidateProfile.phone
   const recipient = (isCompany ? currentContact?.name : selected.name)?.split(' ')[0]
 
-  const [tab, setTab] = useState(() => tabFor[selected.channel] ?? 'chat')
+  const [tab, setTab] = useState(() => defaultTab ?? tabFor[selected.channel] ?? 'chat')
   const [draft, setDraft] = useState('')
   const [subject, setSubject] = useState('')
   const [replyTo, setReplyTo] = useState<ThreadItem | null>(null) // email being replied to
@@ -115,7 +121,7 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
   const lastSelectedId = useRef<string | null>(null)
   useEffect(() => {
     if (lastSelectedId.current !== null) {
-      setTab(tabFor[selected.channel] ?? 'chat')
+      setTab(defaultTab ?? tabFor[selected.channel] ?? 'chat')
       setReplyTo(null)
     }
     lastSelectedId.current = selected.id
@@ -132,8 +138,11 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
           <div className="text-xs text-gray-500">{phone}</div>
         </div>
         <button type="button" className="ml-auto flex items-center gap-2 rounded-lg border border-gray-200 py-1.5 pl-1.5 pr-2.5 text-sm text-gray-900 hover:bg-gray-50">
-          <span className="flex size-6 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-gray-600">{assignee.initials}</span>
-          {assignee.name}
+          {assignee ? (
+            <><span className="flex size-6 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-gray-600">{assignee.initials}</span>{assignee.name}</>
+          ) : (
+            <><User size={16} className="ml-1 text-gray-400" /><span className="text-gray-400">Unassigned</span></>
+          )}
           <ChevronDown size={16} className="text-gray-500" />
         </button>
         <div className="flex items-center gap-1 text-gray-600">
@@ -177,6 +186,10 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
                 </div>
               </div>
             )
+          }
+
+          if (m.type === 'message' && m.channel === 'note' && renderNote) {
+            return <div key={m.id} className="flex flex-col">{renderNote(m, { openNoteTab: () => setTab('note') })}</div>
           }
 
           // Emails are full width minus a 48px gap on the opposite side; chat/SMS bubbles stay at 70%
@@ -248,7 +261,9 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
               </button>
             ))}
           </div>
-          {isEmail && renderEmailComposer ? (
+          {tab === 'note' && renderNoteComposer ? (
+            renderNoteComposer({ saveNote: (text, extra) => send(text, 'note', undefined, extra) })
+          ) : isEmail && renderEmailComposer ? (
             renderEmailComposer({
               to,
               sender,
@@ -301,7 +316,7 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
             </>
           )}
 
-          {!selected.assignedToMe && (
+          {!selected.assignedToMe && !(tab === 'note' && renderNoteComposer) && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/40">
               <PmButton size="lg" onClick={() => assignToMe()}>Assign to me</PmButton>
               <p className="text-sm text-gray-700">Click the button to assign this conversation to yourself.</p>

@@ -3,6 +3,11 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-25
+- **Notes in inbox (A):** chat column built from the owner's screenshot: note bubble with @mentions and Reply, yellow Note composer with colleague list and Save note, James Adam open (voicemail + note, Unassigned). Inbox gets `renderNote` / `renderNoteComposer` slots and `assigneeId: null` = Unassigned. Owner asked: "ignore the inbox sidebar and build this in the chat".
+- **Docs:** root `CLAUDE.md` points new sessions to the lab; notes-inbox README, lab `CLAUDE.md` and inbox README now describe the notes setup and `defaultTab`. Owner asked to track everything so new sessions don't re-read code.
+- **Notes in inbox (A):** all chat messages removed from conversations (threads start empty). Owner asked: "remove all the chats for now".
+- **Notes in inbox (A):** opens with the Start new conversation menu closed and the Note tab active. Inbox gets an optional `defaultTab` prop (also used when switching conversations). Owner asked: "should not show popup and email tab, should show notes tab".
+- **Notes in inbox (A):** now shows the current inbox (reused from the inbox design) as the base for notes. Owner asked: "Build the current inbox first in notes in inbox".
 - **TypeScript:** whole lab converted from JavaScript to strict TypeScript (`.tsx`/`.ts`, typed props, `tsconfig.json`). Admin Settings uses its original typed source. Owner asked: "Go with typescript".
 - **Reply style:** replies are now short (few bullets, plain words). Rule in `CLAUDE.md`.
 - **Docs:** added this `CHANGELOG.md`, the lab `README.md`, and the "Track every change" rule in `CLAUDE.md`.

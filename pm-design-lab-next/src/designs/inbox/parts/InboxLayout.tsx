@@ -3,7 +3,7 @@ import type { ComponentType, ReactNode } from 'react'
 import { PmAppShell } from '@/ds'
 import { useInbox } from './useInbox'
 import { ConversationList } from './ConversationList'
-import { ConversationThread } from './ConversationThread'
+import { ConversationThread, type ConversationThreadProps } from './ConversationThread'
 import { CandidatePanel } from './CandidatePanel'
 import { CompanyPanel } from './CompanyPanel'
 import { NotificationSettingsView } from './NotificationSettingsView'
@@ -16,6 +16,9 @@ export type InboxLayoutProps = {
   threadPanel?: ComponentType
   menu?: ReactNode
   renderEmailComposer?: (p: EmailComposerSlotProps) => ReactNode
+  defaultTab?: string
+  renderNote?: ConversationThreadProps['renderNote']
+  renderNoteComposer?: ConversationThreadProps['renderNoteComposer']
 }
 
 // The full inbox. Variants pass their "Start new conversation" menu in the `menu` prop (a node).
@@ -25,7 +28,7 @@ export type InboxLayoutProps = {
 // the contact panel while an email thread is open (state.emailThreadId).
 const views = ['inbox-all', 'inbox-notifications']
 
-export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies, threadPanel: ThreadPanel, menu, renderEmailComposer }: InboxLayoutProps) {
+export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies, threadPanel: ThreadPanel, menu, renderEmailComposer, defaultTab, renderNote, renderNoteComposer }: InboxLayoutProps) {
   const { state, selected, update } = useInbox()
   const onNav = (key: string) => views.includes(key) && update((s) => { s.view = key })
 
@@ -36,7 +39,7 @@ export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies,
       ) : (
         <div className="flex h-full bg-white">
           <ConversationList menu={menu} />
-          <ConversationThread {...(emailComponent ? { emailComponent } : {})} groupReplies={groupReplies} renderEmailComposer={renderEmailComposer} />
+          <ConversationThread {...(emailComponent ? { emailComponent } : {})} groupReplies={groupReplies} renderEmailComposer={renderEmailComposer} defaultTab={defaultTab} renderNote={renderNote} renderNoteComposer={renderNoteComposer} />
           {ThreadPanel && state.emailThreadId ? <ThreadPanel /> : selected.kind === 'company' ? <CompanyPanel /> : <CandidatePanel />}
         </div>
       )}

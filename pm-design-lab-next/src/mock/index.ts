@@ -125,3 +125,4 @@ export const dkk = (n: number) => new Intl.NumberFormat('en-GB', { style: 'curre
 export * from './inbox'
 export type * from './inbox-types'
 export * from './notifications'
+export * from './notes'

@@ -4,7 +4,7 @@ const meta: DesignMeta = {
   title: 'Notes in inbox',
   question: '',
   variants: {
-    A: 'Placeholder until the design is shared',
+    A: 'Notes with @mentions',
   },
 }
 
