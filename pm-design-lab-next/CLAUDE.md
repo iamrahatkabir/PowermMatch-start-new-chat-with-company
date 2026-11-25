@@ -1,7 +1,14 @@
 # PowerMatch Design Lab
 
 ## How to reply
-Keep replies medium length: only what's needed to understand what changed or what to decide. No intros, recaps of the request, or extra detail. Use short bullets when listing several things.
+**Short answers.** The owner wants to read replies quickly.
+- A few short bullets or 1–3 sentences. Plain, simple words.
+- Say what changed (or the answer) and anything they must decide. Nothing else.
+- No intros, no recap of the request, no file-by-file details unless asked.
+- Link the page to look at (http://localhost:3000/d/<slug>?v=X).
+
+## Track every change
+After each task, add a dated entry at the top of `CHANGELOG.md`: what changed, which design/version, the owner's instruction in a few words. Update this file when a rule or structure changes, and the design's `README.md` when its versions, props or behaviour change. Keep entries short.
 
 ## One version by default
 Build **one** version (variant A) of any design. Only create more variants (B, C, …, switchable in the toolbar) when the user explicitly asks for more versions.
