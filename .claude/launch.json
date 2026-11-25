@@ -2,10 +2,15 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "design-lab",
+      "name": "design-lab-next",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "pm-design-lab", "run", "dev", "--", "--port", "5173", "--strictPort"],
-      "port": 5173
+      "runtimeArgs": [
+        "--prefix",
+        "pm-design-lab-next",
+        "run",
+        "dev"
+      ],
+      "port": 3000
     }
   ]
 }
