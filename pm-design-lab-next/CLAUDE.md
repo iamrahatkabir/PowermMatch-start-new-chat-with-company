@@ -17,7 +17,7 @@ or the design system artifact unless a task changes them — their APIs are summ
 - Files that use hooks or event handlers start with `'use client'`.
 - `src/mock/index.js` — shared mock data. Import from `@/mock`; add to it rather than inventing data inline.
 - `npm run new <slug> [count]` scaffolds a design; `npm run new <slug> +` copies the last variant to the next letter.
-- `npm run dev` → http://localhost:3000 (port 3000).
+- `npm run dev` → http://localhost:3000. If 3000 is taken (the owner's separate PowerMatch Design Lab app also uses it), run `PORT=3001 npm run dev`.
 - Routes: `/` gallery · `/d/<slug>?v=B` one variant (toolbar; keys 1–9, ← →, H hides it; drag its grip to move it, double-click the grip to reset)
 
 ## Working rules (keep token use low)
@@ -26,6 +26,7 @@ or the design system artifact unless a task changes them — their APIs are summ
 - **Developer handoff structure** (every design): put each version's actual UI in its own self-contained component (props in, `onX` callbacks out, no prototype store or mock imports), plain-JS logic in its own `.js` file, and keep `A.jsx`, `B.jsx`… as thin preview wrappers. Prototype-only code stays in `parts/`. Each design gets a `README.md` saying which file is which version, its props/callbacks and data shapes. Example: `src/designs/inbox/`.
 - `PmAppShell` calls `onNav(key)` when a nav item is clicked; a design uses it to switch views inside the same design (e.g. inbox: All ↔ Notification settings). Don't create a separate design for a page that belongs to an existing area — add it as a view of that design.
 - Inbox design: see `src/designs/inbox/README.md`. Versions live in `start-chat/StartChat*.jsx`; the prototype store is `parts/useInbox.js` (`useCreateInbox()` + `<InboxProvider store>`, `useInbox()` → `startWithContact`, `startWithPerson`, `switchContact`, `send`, `update(fn)` for any other state change).
+- Admin Settings design (`src/designs/settings/`): merged in from the separate PowerMatch Design Lab app; see its `README.md`. It keeps its own UI kit in `settings/ui/` (modal, select, toast, `useUnsavedChanges`…) — use those inside Settings, `@/ds` elsewhere. "Save changes" only appears when something changed.
 - Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/`, export it from `src/ds/index.js`, and add one line to the table below.
 - Don't run `npm run build` or take screenshots after every edit. Verify once at the end of a task, or when asked.
 
