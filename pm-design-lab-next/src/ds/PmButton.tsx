@@ -1,0 +1,36 @@
+import type { ButtonHTMLAttributes } from 'react'
+import { cx } from '@/lib/cx'
+import { PmIcon } from './PmIcon'
+
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'dark'
+export type ButtonSize = 'sm' | 'md' | 'lg'
+
+// Each variant sets its own border color (a shared border-transparent would override it)
+const variants: Record<ButtonVariant, string> = {
+  primary: 'bg-brand text-gray-900 border-transparent hover:bg-brand-dark',
+  secondary: 'bg-white text-gray-700 border-gray-300 shadow-xs hover:bg-gray-50',
+  outline: 'bg-transparent text-gray-700 border-gray-300 hover:bg-gray-900/5',
+  ghost: 'bg-transparent text-gray-600 border-transparent hover:bg-gray-100',
+  danger: 'bg-white text-error-700 border-error-200 shadow-xs hover:bg-error-50',
+  dark: 'bg-gray-900 text-white border-transparent hover:bg-gray-800',
+}
+const sizes: Record<ButtonSize, string> = { sm: 'px-3 py-2', md: 'px-4 py-2.5', lg: 'px-5 py-3 text-base' }
+
+// variant: primary | secondary | outline | ghost | danger | dark · size: sm | md | lg · icon: /brand/icons name
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: ButtonSize; icon?: string; block?: boolean }
+
+export function PmButton({ variant = 'primary', size = 'md', icon, block, className, children, type = 'button', ...rest }: Props) {
+  return (
+    <button
+      type={type}
+      className={cx(
+        'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border text-sm font-semibold transition-colors duration-150 focus:outline-none focus-visible:shadow-focus disabled:cursor-not-allowed disabled:opacity-55',
+        variants[variant], sizes[size], block && 'w-full', className,
+      )}
+      {...rest}
+    >
+      {icon && <PmIcon name={icon} size={16} />}
+      {children}
+    </button>
+  )
+}

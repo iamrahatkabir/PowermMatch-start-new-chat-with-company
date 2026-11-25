@@ -3,10 +3,11 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-25
+- **TypeScript:** whole lab converted from JavaScript to strict TypeScript (`.tsx`/`.ts`, typed props, `tsconfig.json`). Admin Settings uses its original typed source. Owner asked: "Go with typescript".
 - **Reply style:** replies are now short (few bullets, plain words). Rule in `CLAUDE.md`.
 - **Docs:** added this `CHANGELOG.md`, the lab `README.md`, and the "Track every change" rule in `CLAUDE.md`.
 - **New categories:** `Notes in inbox` (`notes-inbox`) and `Notes in profile` (`notes-profile`). Placeholders until designs are shared.
-- **Admin Settings merged** from the separate PowerMatch Design Lab app (`src/designs/settings/`). TypeScript → plain JSX, pages became views, colours mapped to lab tokens. See its README.
+- **Admin Settings merged** from the separate PowerMatch Design Lab app (`src/designs/settings/`). pages became views, colours mapped to lab tokens. See its README.
 - **Dev port:** `PORT=3001 npm run dev` when 3000 is taken by the other app.
 - **Vue lab removed:** `pm-design-lab/` moved to the macOS Trash. This Next.js lab is the only one now.
 - **Moved to Next.js + React:** whole lab converted from Vue (gallery, toolbar, `Pm*` components, mock data, Inbox, Emails, Dialer 2.0).

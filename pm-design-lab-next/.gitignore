@@ -1,4 +1,5 @@
 node_modules
 .next
 out
-src/lab/designs.generated.js
+src/lab/designs.generated.ts
+*.tsbuildinfo

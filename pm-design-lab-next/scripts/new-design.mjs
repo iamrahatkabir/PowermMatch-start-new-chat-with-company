@@ -13,11 +13,11 @@ const letters = 'ABCDEFGHIJ'
 
 if (arg === '+') {
   if (!existsSync(dir)) throw new Error(`${dir} does not exist`)
-  const have = readdirSync(dir).filter((f) => /^[A-Z]\.jsx$/.test(f)).sort()
+  const have = readdirSync(dir).filter((f) => /^[A-Z]\.tsx$/.test(f)).sort()
   const next = letters[have.length]
-  copyFileSync(`${dir}/${have.at(-1)}`, `${dir}/${next}.jsx`)
+  copyFileSync(`${dir}/${have.at(-1)}`, `${dir}/${next}.tsx`)
   generate()
-  console.log(`Created ${dir}/${next}.jsx (copy of ${have.at(-1)}) — add it to meta.js variants`)
+  console.log(`Created ${dir}/${next}.tsx (copy of ${have.at(-1)}) — add it to meta.js variants`)
   process.exit(0)
 }
 
@@ -26,16 +26,20 @@ mkdirSync(dir, { recursive: true })
 const keys = letters.slice(0, Number(arg)).split('')
 const title = slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase())
 
-writeFileSync(`${dir}/meta.js`, `export default {
+writeFileSync(`${dir}/meta.ts`, `import type { DesignMeta } from '@/lab/types'
+
+const meta: DesignMeta = {
   title: '${title}',
   question: '',
   variants: {
 ${keys.map((k) => `    ${k}: '',`).join('\n')}
   },
 }
+
+export default meta
 `)
 for (const k of keys) {
-  writeFileSync(`${dir}/${k}.jsx`, `import { PmAppShell, PmCard } from '@/ds'
+  writeFileSync(`${dir}/${k}.tsx`, `import { PmAppShell, PmCard } from '@/ds'
 
 export default function Variant${k}() {
   return (

@@ -13,28 +13,29 @@ After each task, add a dated entry at the top of `CHANGELOG.md`: what changed, w
 ## One version by default
 Build **one** version (variant A) of any design. Only create more variants (B, C, …, switchable in the toolbar) when the user explicitly asks for more versions.
 
-Next.js 16 (App Router) + React 19 + Tailwind v4 sandbox for designing PowerMatch UI in several variants and comparing them. Plain JavaScript (`.jsx`), frontend only, dummy data, no backend. Every design renders client-side only.
+Next.js 16 (App Router) + React 19 + **TypeScript** (strict) + Tailwind v4 sandbox for designing PowerMatch UI in several variants and comparing them. Frontend only, dummy data, no backend. Every design renders client-side only.
 Everything you need is in this file. **Do not** read `src/ds/*`, `src/lab/*`, `app/*`, `src/styles/globals.css`
 or the design system artifact unless a task changes them — their APIs are summarised below.
 
 ## Layout
-- `src/designs/<slug>/meta.js` — `{ title, question, variants: { A: 'label', … } }`
-- `src/designs/<slug>/A.jsx`, `B.jsx`, … — one page per variant, `export default function VariantA()`. Discovered automatically: `npm run dev` regenerates `src/lab/designs.generated.js` (don't edit it) whenever a design or variant file is added; `npm run registry` does it by hand.
-- `src/designs/<slug>/parts/*.jsx` — pieces shared by that design's variants. A variant imports the parts it keeps and replaces only the part being tested.
+- `src/designs/<slug>/meta.ts` — `const meta: DesignMeta = { title, question, variants: { A: 'label', … } }` (`DesignMeta` from `@/lab/types`)
+- `src/designs/<slug>/A.tsx`, `B.tsx`, … — one page per variant, `export default function VariantA()`. Discovered automatically: `npm run dev` regenerates `src/lab/designs.generated.ts` (don't edit it) whenever a design or variant file is added; `npm run registry` does it by hand.
+- `src/designs/<slug>/parts/*.tsx` — pieces shared by that design's variants. A variant imports the parts it keeps and replaces only the part being tested.
 - Files that use hooks or event handlers start with `'use client'`.
-- `src/mock/index.js` — shared mock data. Import from `@/mock`; add to it rather than inventing data inline.
+- `src/mock/index.ts` — shared mock data. Import from `@/mock`; add to it rather than inventing data inline. Inbox data types (`Conversation`, `ThreadItem`, `Attachment`, …) are in `src/mock/inbox-types.ts`, also exported from `@/mock`.
+- **Types:** every component has typed props (`type Props = {…}`), callbacks typed (`onX?: (v: string) => void`). No `any`, no `@ts-ignore`. Run `npx tsc --noEmit` before finishing a task; it must be clean.
 - `npm run new <slug> [count]` scaffolds a design; `npm run new <slug> +` copies the last variant to the next letter.
 - `npm run dev` → http://localhost:3000. If 3000 is taken (the owner's separate PowerMatch Design Lab app also uses it), run `PORT=3001 npm run dev`.
 - Routes: `/` gallery · `/d/<slug>?v=B` one variant (toolbar; keys 1–9, ← →, H hides it; drag its grip to move it, double-click the grip to reset)
 
 ## Working rules (keep token use low)
-- New variant: run the scaffold script, then edit only that variant file + `meta.js`. Read at most one sibling variant, and only if the task says to build on it.
+- New variant: run the scaffold script, then edit only that variant file + `meta.ts`. Read at most one sibling variant, and only if the task says to build on it.
 - Variants never import another variant file — share through `parts/`.
-- **Developer handoff structure** (every design): put each version's actual UI in its own self-contained component (props in, `onX` callbacks out, no prototype store or mock imports), plain-JS logic in its own `.js` file, and keep `A.jsx`, `B.jsx`… as thin preview wrappers. Prototype-only code stays in `parts/`. Each design gets a `README.md` saying which file is which version, its props/callbacks and data shapes. Example: `src/designs/inbox/`.
+- **Developer handoff structure** (every design): put each version's actual UI in its own self-contained component (props in, `onX` callbacks out, no prototype store or mock imports), plain logic in its own `.ts` file, and keep `A.tsx`, `B.tsx`… as thin preview wrappers. Prototype-only code stays in `parts/`. Each design gets a `README.md` saying which file is which version, its props/callbacks and data shapes. Example: `src/designs/inbox/`.
 - `PmAppShell` calls `onNav(key)` when a nav item is clicked; a design uses it to switch views inside the same design (e.g. inbox: All ↔ Notification settings). Don't create a separate design for a page that belongs to an existing area — add it as a view of that design.
-- Inbox design: see `src/designs/inbox/README.md`. Versions live in `start-chat/StartChat*.jsx`; the prototype store is `parts/useInbox.js` (`useCreateInbox()` + `<InboxProvider store>`, `useInbox()` → `startWithContact`, `startWithPerson`, `switchContact`, `send`, `update(fn)` for any other state change).
+- Inbox design: see `src/designs/inbox/README.md`. Versions live in `start-chat/StartChat*.tsx`; the prototype store is `parts/useInbox.ts` (`useCreateInbox()` + `<InboxProvider store>`, `useInbox()` → `startWithContact`, `startWithPerson`, `switchContact`, `send`, `update(fn)` for any other state change).
 - Admin Settings design (`src/designs/settings/`): merged in from the separate PowerMatch Design Lab app; see its `README.md`. It keeps its own UI kit in `settings/ui/` (modal, select, toast, `useUnsavedChanges`…) — use those inside Settings, `@/ds` elsewhere. "Save changes" only appears when something changed.
-- Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/`, export it from `src/ds/index.js`, and add one line to the table below.
+- Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/`, export it from `src/ds/index.ts`, and add one line to the table below.
 - Don't run `npm run build` or take screenshots after every edit. Verify once at the end of a task, or when asked.
 
 ## Components (`import { PmButton, … } from '@/ds'`)
@@ -61,8 +62,8 @@ Mock data (`@/mock`) — each status map is `{ key: { tone, label } }`, ready fo
 - `candidates` + `STATUS` · `jobs` + `JOB_STATUS` · `companies`
 - `interviews` + `INTERVIEW_STATUS` · `contracts` + `CONTRACT_STATUS` · `timesheets` + `TIMESHEET_STATUS` (these reference `candidateId` / `jobId`)
 - `notifications`, `todos`, `kpis`, `currentUser`
-- Notification settings (`src/mock/notifications.js`): `notificationSounds`, `notificationSettings`
-- Inbox (`src/mock/inbox.js`): `clientCompanies` (with `contacts`, `jobs`, `invoices`), `contactDirectory` (candidates/applicants), `conversations` + `CONVERSATION_KIND`, `threads` (by conversation id), `agents`, `candidateProfile`, `PROFILE_STATUS`
+- Notification settings (`src/mock/notifications.ts`): `notificationSounds`, `notificationSettings`
+- Inbox (`src/mock/inbox.ts`): `clientCompanies` (with `contacts`, `jobs`, `invoices`), `contactDirectory` (candidates/applicants), `conversations` + `CONVERSATION_KIND`, `threads` (by conversation id), `agents`, `candidateProfile`, `PROFILE_STATUS`
 - Helpers: `candidateById(id)`, `jobById(id)`, `dkk(n)`
 
 UI icons: **Lucide** (`import { Phone, Mail } from 'lucide-react'`, use `size={16|18|20}`, colored via `text-gray-600`). Join classes with `cx()` from `@/lib/cx`. This matches the current product.

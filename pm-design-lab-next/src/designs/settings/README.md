@@ -1,6 +1,6 @@
 # Admin Settings (developer handoff)
 
-Telephony admin settings, merged in from the separate **PowerMatch Design Lab** app (`/Users/rahatkabirifty/PowerMatch Design Lab`, Next.js + TypeScript). Converted to plain JSX (types stripped, code otherwise unchanged) and moved into this lab.
+Telephony admin settings, merged in from the separate **PowerMatch Design Lab** app (`/Users/rahatkabirifty/PowerMatch Design Lab`, Next.js + TypeScript). Kept in TypeScript (the original typed source) and moved into this lab.
 
 | File | What it is |
 |---|---|
@@ -19,16 +19,15 @@ Telephony admin settings, merged in from the separate **PowerMatch Design Lab** 
 - Assets copied to `public/`: `powermatch-logo.svg`, `avatars/placeholder.png`.
 
 ## Rules carried over
-- **"Save changes" only appears when something has changed**, on every page and popup. Use `useUnsavedChanges` (`ui/use-unsaved-changes.js`). Changing a field back hides the button; saving shows a toast and resets the baseline.
+- **"Save changes" only appears when something has changed**, on every page and popup. Use `useUnsavedChanges` (`ui/use-unsaved-changes.ts`). Changing a field back hides the button; saving shows a toast and resets the baseline.
 - Keep the first Queues & wrap-up tab named **"Queues"**.
 - Inputs and selects are 40px tall (`h-10`), table rows 52px, sidebar 248px, popups 520px wide.
 
 ## Where things are
 **Sample data (`data/`)**: replace these with real APIs later.
-- `phone-numbers.js`: owned numbers (label, routedTo, type Mobile/Landline, active) and `availableNumbers` offered for purchase.
-- `queues.js`: queues (name, phoneNumbers[], channels, members), wrap-up outcomes per channel, `OutcomeIcon` type, `queueLabel()`, `formatCreatedAt()`.
-- `users.js`: members (name, email, lastLogin, memberSince, photo), `photoFor()`, `PLACEHOLDER_PHOTO`.
-- `categories.js`: home screen categories.
+- `phone-numbers.ts`: owned numbers (label, routedTo, type Mobile/Landline, active) and `availableNumbers` offered for purchase.
+- `queues.ts`: queues (name, phoneNumbers[], channels, members), wrap-up outcomes per channel, `OutcomeIcon` type, `queueLabel()`, `formatCreatedAt()`.
+- `users.ts`: members (name, email, lastLogin, memberSince, photo), `photoFor()`, `PLACEHOLDER_PHOTO`.
 
 **Shared UI (`ui/`)**: reuse these before writing new ones.
 - `modal.jsx`: popup on native `<dialog>` (title, subtitle, footer; Esc/backdrop close; `data-autofocus` picks the focused field).
@@ -40,8 +39,8 @@ Telephony admin settings, merged in from the separate **PowerMatch Design Lab** 
 - `tab-bar.jsx`: `TabBar` (underlined page tabs), `SegmentedControl`, `PillTabs` (full-width grey track).
 - `data-display.jsx`: `Chip`, `ChipList` (+N), `Avatar` (photo or initials), `AvatarStack`, `StatusBadge`, `TableCard`, table class strings `th`/`tr`.
 - `switch.jsx`: yellow toggle.
-- `use-unsaved-changes.js`: `useUnsavedChanges(value)` returns `{ dirty, markSaved }` by comparing against the last saved snapshot as JSON. Pass plain data only; compare icons by name.
-- `use-floating-menu.js`: shared dropdown open/close/position (fixed, flips upward when there isn't room, closes on outside click or scroll).
+- `use-unsaved-changes.ts`: `useUnsavedChanges(value)` returns `{ dirty, markSaved }` by comparing against the last saved snapshot as JSON. Pass plain data only; compare icons by name.
+- `use-floating-menu.ts`: shared dropdown open/close/position (fixed, flips upward when there isn't room, closes on outside click or scroll).
 - `avatar-select.jsx`: single-choice dropdown with avatars (Agent field).
 - `date-picker.jsx`: `DatePicker`, a date field with a Monday-first month calendar. The chosen day is a yellow circle and today is grey. It supports keyboard navigation and `invalid`/`errorId`. Dates are stored as `"YYYY-MM-DD"` and shown as "Apr 2, 2026" (`formatDate`, `toIso`, `fromIso`). Used for holidays.
 - `audio-upload.jsx`: `AudioUpload`, a drop zone for one audio file of any common format (MP3, WAV, M4A, AAC, OGG, Opus, FLAC, WebM, AIFF, WMA, AMR…) up to 10 MB ("Click to upload or drag and drop"). Formats the browser can't play still upload, with a note that preview isn't available. Wrong type or size shows a red error. Once uploaded, it shows a file card with name, size and length, a play/pause preview with a progress bar, Replace, and remove. The uploaded-state design is my own (none was provided).
@@ -97,7 +96,7 @@ Telephony admin settings, merged in from the separate **PowerMatch Design Lab** 
 - **User management, bin icon:** always asks first.
   - Pending invites (no "Member since") get "Cancel invitation?" / "Yes! Cancel" and the toast "Invitation to {email} has been cancelled."
   - Members get "Remove agent?" / "Do you really want to remove **Name**?" / "Yes! Remove" and the toast "{Name} has been removed."
-- **Avatars:** everyone with a photo uses one placeholder face cropped from the mock (`public/avatars/placeholder.png`); real photos go in `public/avatars/` via `users.js`.
+- **Avatars:** everyone with a photo uses one placeholder face cropped from the mock (`public/avatars/placeholder.png`); real photos go in `public/avatars/` via `users.ts`.
 - **Logo:** `public/powermatch-logo.svg` (the real one).
 
 ## Not built yet

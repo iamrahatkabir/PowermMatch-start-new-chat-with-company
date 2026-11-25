@@ -29,10 +29,10 @@ Each design folder (`src/designs/<design>/`) has its own `README.md`: which file
 ```bash
 npm run new my-design
 ```
-Then edit `src/designs/my-design/A.jsx` and `meta.js`. `npm run new my-design +` adds the next version.
+Then edit `src/designs/my-design/A.tsx` and `meta.ts`. `npm run new my-design +` adds the next version.
 
 ## Stack
-Next.js 16, React 19, Tailwind CSS v4, Lucide icons. Plain JavaScript.
+Next.js 16, React 19, TypeScript (strict), Tailwind CSS v4, Lucide icons. Type check: `npx tsc --noEmit`.
 
 ## Docs
 - `CLAUDE.md`: rules and structure for Claude (reply style, tokens, components).
