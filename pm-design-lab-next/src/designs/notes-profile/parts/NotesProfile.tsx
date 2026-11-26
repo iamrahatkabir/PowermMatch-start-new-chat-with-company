@@ -3,7 +3,7 @@
 // noteTypes (same as Notes in inbox): 'ai-top' (A: AI sets the type after posting, badge at the bottom right of the card),
 // 'ai' (B: same, badge next to the time), 'manual' (C: dropdown next to Send),
 // 'chips' (D: four chips next to Send). Only the note's author can change the type from the badge.
-// Active / Archived tabs; Active = pinned first, then newest first; 8 per page with a pager under the list.
+// Active / Archived tabs; Active = pinned first, then newest first; 6 per page with a pager under the list.
 // Anyone can pin or archive; archiving unpins. Pinning jumps to page 1 (where pinned notes are).
 import { useRef, useState } from 'react'
 import { cx } from '@/lib/cx'
@@ -37,8 +37,8 @@ type Props = { noteTypes: NoteTypeMode }
 export function NotesProfile({ noteTypes }: Props) {
   const [tab, setTab] = useState('notes')
   const [notes, setNotes] = useState<ProfileNote[]>(profileNotes)
-  // Newest first, 8 per page
-  const PAGE_SIZE = 8
+  // Newest first, 6 per page
+  const PAGE_SIZE = 6
   const [page, setPage] = useState(1)
   const main = useRef<HTMLElement>(null)
   const [view, setView] = useState<NotesView>('active')
@@ -160,8 +160,8 @@ export function NotesProfile({ noteTypes }: Props) {
             replies={thread.replies ?? []}
             colleagues={noteColleagues}
             currentUser={me.name}
-            noteMeta={noteTypes !== 'ai-top' ? typeBadge(thread) : undefined}
-            noteCorner={noteTypes === 'ai-top' ? typeBadge(thread) : undefined}
+            // Thread panel looks like Notes in inbox A in every version: type badge at the right of the author/time line
+            noteMeta={typeBadge(thread)}
             focusKey={threadFocus}
             onClose={() => setThreadId(null)}
             onSendReply={(text, mentions, quote) => patch(thread.id, (n) => ({

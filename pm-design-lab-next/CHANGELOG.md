@@ -3,6 +3,9 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-26
+- **Notes in inbox + Notes in profile:** "5 replies • Unread" is now one button (one click area, both parts darken together on hover). Owner asked: "replies and unread feel like 2 buttons, make it one".
+- **Notes in profile (all versions):** Thread panel matches Notes in inbox A: the type badge sits on the right of the note's author/time line (A had it inside the note). Owner asked: "profile threads same as inbox note version A".
+- **Notes in profile:** 6 notes per page (was 8). Owner asked: "show 6 notes then pagination".
 - **Notes in profile:** the profile column no longer scrolls on its own; the whole page scrolls and the column shows in full. The Thread panel sticks to the screen. Owner asked: "left side bar shouldn't be scrollable, make it full screen".
 - **Notes in profile:** hovering the "+N" filter chip shows the hidden chips in a small card, each removable. Added shadcn `hover-card`. Owner asked: "more than 2 filters shows like the Knowledge Base +1 hover".
 - **Notes in profile:** date range calendar: the days between start and end get a gray-100 band (start/end unchanged). Owner asked: "background between the date range gray 100".

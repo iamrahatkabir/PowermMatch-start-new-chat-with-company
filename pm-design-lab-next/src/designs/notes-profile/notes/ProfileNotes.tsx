@@ -207,10 +207,11 @@ function RepliesRow({ replies, unread, onOpen }: { replies: NoteReply[]; unread?
         {shown.map((r) => <PmAvatar key={r.id} name={r.author} src={r.authorPhoto} size={16} />)}
         {more > 0 && <span className="flex size-4 items-center justify-center rounded-full border border-gray-200 bg-white text-[8px] font-medium text-gray-700">+{more}</span>}
       </div>
-      <button type="button" className="ml-0.5 font-medium text-info-500 hover:text-info-700" onClick={onOpen}>
-        {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+      {/* One button: "5 replies • Unread" (both parts darken together on hover) */}
+      <button type="button" className="group/replies ml-0.5 flex items-center gap-1.5 whitespace-nowrap font-medium" onClick={onOpen}>
+        <span className="text-info-500 group-hover/replies:text-info-700">{replies.length} {replies.length === 1 ? 'reply' : 'replies'}</span>
+        {unread && <span className="text-error-500 group-hover/replies:text-error-700">• Unread</span>}
       </button>
-      {unread && <button type="button" className="font-medium text-error-500 hover:text-error-700" onClick={onOpen}>• Unread</button>}
       <span className="text-gray-700">Last reply {replies[replies.length - 1].time.slice(-5)}</span>
     </div>
   )
