@@ -1,7 +1,7 @@
 'use client'
 // Filter bar for profile notes: [Type] [Author] [Date] [× Clear filter] (no chevrons; ticked boxes gray-600), and a chips row under it
 // ("Type: Sales × Screening × +1 · Author: … · Date: Last 30 days ×"). Type and Author are multi-select checkbox
-// menus (stay open while ticking); Date has quick presets and a custom range calendar.
+// menus (stay open while ticking); Date is a two-month range calendar.
 // Uses shadcn DropdownMenu, Checkbox, Popover and Calendar, PowerMatch colors.
 import { useState } from 'react'
 import type { DateRange as DayRange } from 'react-day-picker'
@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { NOTE_TYPES, noteTypeLabel, type NoteType } from '@/designs/notes-inbox/notes/noteTypes'
-import { DATE_PRESETS, dateLabel, emptyFilter, fromYmd, isFiltered, presetRange, ymd, type NotesFilter } from './filters'
+import { dateLabel, emptyFilter, fromYmd, isFiltered, ymd, type NotesFilter } from './filters'
 
 type Props = {
   value: NotesFilter
@@ -123,7 +123,7 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   )
 }
 
-// Date: quick presets on the left, a two-month range calendar on the right
+// Date: a two-month range calendar (no quick presets) with Cancel / Apply
 function DateFilter({ value, onChange }: { value: NotesFilter['date']; onChange: (d: NotesFilter['date']) => void }) {
   const [open, setOpen] = useState(false)
   const [range, setRange] = useState<DayRange | undefined>()
@@ -137,19 +137,7 @@ function DateFilter({ value, onChange }: { value: NotesFilter['date']; onChange:
           
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="flex w-auto flex-row gap-0 p-0">
-        <div className="flex w-40 shrink-0 flex-col gap-0.5 border-r border-gray-200 p-2">
-          {DATE_PRESETS.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              className={cx('rounded-md px-2 py-1.5 text-left text-sm', value?.preset === p.key ? 'bg-gray-100 font-medium text-gray-900' : 'text-gray-700 hover:bg-gray-50')}
-              onClick={() => { onChange(presetRange(p.key)); setOpen(false) }}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+      <PopoverContent align="start" className="w-auto p-0">
         <div className="flex flex-col">
           <Calendar
             mode="range"

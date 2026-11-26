@@ -210,3 +210,7 @@ export const companyProfileNotes: ProfileNote[] = [
   },
   ...olderProfileNotes(64, companyTexts, 'co'),
 ]
+
+// Company profile header (Company profile notes): breadcrumb, logo, name, source, tab counts
+export type CompanyHeader = { name: string; logo?: string; source: string; counts: { tasks: number; jobs: number } }
+export const notesCompany: CompanyHeader = { name: 'Reno Power ApS.', logo: '/mock/reno-power-logo.svg', source: 'Meta Ads', counts: { tasks: 3, jobs: 3 } }

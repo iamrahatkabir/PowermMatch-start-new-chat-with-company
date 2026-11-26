@@ -1,5 +1,5 @@
 'use client'
-// Internal profile page used by Applicant/Candidate profile notes and Company profile notes:
+// Internal profile page used by Applicant/Candidate profile notes (Company profile notes has its own layout):
 // PowerMatch app shell, a summary column on the left (shown in full, no scroll of its own), tabs and the Notes tab
 // on the right, Thread panel at the far right. The whole content area scrolls as one; the Thread panel sticks.
 import { useRef, useState, type ReactNode } from 'react'

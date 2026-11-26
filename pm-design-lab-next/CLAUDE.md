@@ -39,7 +39,7 @@ Always design for edge cases, not just the happy path: long names, long text, ma
 - Inbox design: see `src/designs/inbox/README.md`. Versions live in `start-chat/StartChat*.tsx`; the prototype store is `parts/useInbox.ts` (`useCreateInbox()` + `<InboxProvider store>`, `useInbox()` → `startWithContact`, `startWithPerson`, `switchContact`, `send`, `update(fn)` for any other state change).
 - Notes in inbox design (`src/designs/notes-inbox/`): reuses the inbox (`inbox/parts` + `StartChatSections`); notes UI in `notes-inbox/notes/` (NoteBubble, NoteComposer with @mentions, NoteThreadPanel) plugged in through InboxLayout's `renderNote` / `renderNoteComposer` / `renderLockedComposer` / `renderSidePanel`. Rule: chat/email/SMS need the ticket assigned to you; notes don't. Versions: A AI note type (set after posting, editable), B AI note type v2 (automatic, badge inside the note at the bottom right), C Manual note type (dropdown), D Manual note type v2 (chips next to Save note); all wrap `parts/NotesInbox.tsx`. See its `README.md`.
 - Notes in profile design (`src/designs/notes-profile/`): candidate profile page with a Notes tab (`profile/CandidateProfile.tsx`, `notes/ProfileNotes.tsx`); reuses `MentionText` / `NoteComposer` / `ClampedText` / note type pieces from notes-inbox. Versions: A AI v2 (corner badge), B AI note type (badge next to the time), C Manual dropdown, D Manual chips; all wrap `parts/NotesProfile.tsx`. See its `README.md`.
-- Applicant/Candidate profile notes (`src/designs/notes-candidate-profile/`) and Company profile notes (`src/designs/notes-company-profile/`): internal profile pages (app shell) with the same notes as Notes in profile; summary columns in their `profile/` folders, page layout `notes-profile/parts/InternalProfilePage.tsx`, notes state `notes-profile/parts/ProfileNotesSection.tsx`. Mock: `notesPerson`, `personNotes`, `companyProfileNotes`.
+- Applicant/Candidate profile notes (`src/designs/notes-candidate-profile/`) and Company profile notes (`src/designs/notes-company-profile/`): internal profile pages (app shell) with the same notes as Notes in profile; notes state `notes-profile/parts/ProfileNotesSection.tsx`. Candidate: summary column + `notes-profile/parts/InternalProfilePage.tsx`. Company: built from the owner's screenshot (breadcrumb, header, tabs with counts, full-width notes; `notes-company-profile/parts/CompanyNotesPage.tsx`). Mock: `notesPerson`, `personNotes`, `notesCompany`, `companyProfileNotes`.
 - Admin Settings design (`src/designs/settings/`): merged in from the separate PowerMatch Design Lab app; see its `README.md`. It keeps its own UI kit in `settings/ui/` (modal, select, toast, `useUnsavedChanges`…) — use those inside Settings, `@/ds` elsewhere. "Save changes" only appears when something changed.
 - Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/`, export it from `src/ds/index.ts`, and add one line to the table below.
 - Don't run `npm run build` or take screenshots after every edit. Verify once at the end of a task, or when asked.
@@ -74,7 +74,7 @@ Mock data (`@/mock`) — each status map is `{ key: { tone, label } }`, ready fo
 - `candidates` + `STATUS` · `jobs` + `JOB_STATUS` · `companies`
 - `interviews` + `INTERVIEW_STATUS` · `contracts` + `CONTRACT_STATUS` · `timesheets` + `TIMESHEET_STATUS` (these reference `candidateId` / `jobId`)
 - `notifications`, `todos`, `kpis`, `currentUser`
-- Notes (`src/mock/notes.ts`): `noteColleagues`, `notesThread`, `profileCandidate`, `profileNotes`, `notesPerson`, `personNotes`, `companyProfileNotes`
+- Notes (`src/mock/notes.ts`): `noteColleagues`, `notesThread`, `profileCandidate`, `profileNotes`, `notesPerson`, `personNotes`, `notesCompany`, `companyProfileNotes`
 - Notification settings (`src/mock/notifications.ts`): `notificationSounds`, `notificationSettings`
 - Inbox (`src/mock/inbox.ts`): `clientCompanies` (with `contacts`, `jobs`, `invoices`), `contactDirectory` (candidates/applicants), `conversations` + `CONVERSATION_KIND`, `threads` (by conversation id), `agents`, `candidateProfile`, `PROFILE_STATUS`
 - Helpers: `candidateById(id)`, `jobById(id)`, `dkk(n)`
@@ -96,6 +96,7 @@ Shadow: `shadow-xs` (buttons) · `shadow-sm` (cards, rarely) · `shadow-lg`/`sha
 Spacing: the default 4px scale. Card padding `p-4`–`p-6`, gaps `gap-4`–`gap-6`, page padding `p-4 sm:p-8`.
 
 ## Brand rules
+- **Date pickers:** a two-month range calendar (shadcn Calendar, Cancel / Apply) only, no quick presets (Today, Last 7 days…). Applies to every design.
 - Yellow is ≤5% of a screen: primary CTA, logo, active nav, small "New" badges, icon tiles. Match scores are green.
 - Page background `bg-gray-50`, surfaces white, **always** a 1px `border-gray-200` (or `border-gray-300` on inputs). No shadow-only cards, no gradients, no glassmorphism.
 - Hover changes color only (no lift or scale). Focus is the soft gray ring, never a colored ring.

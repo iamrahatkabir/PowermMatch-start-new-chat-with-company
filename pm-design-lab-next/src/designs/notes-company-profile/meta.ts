@@ -5,7 +5,7 @@ const meta: DesignMeta = {
   order: 4,
   question: '',
   variants: {
-    A: 'Notes on the internal company profile',
+    A: 'Company profile with notes',
   },
 }
 
