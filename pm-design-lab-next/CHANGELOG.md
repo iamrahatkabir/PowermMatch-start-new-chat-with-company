@@ -3,6 +3,9 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-26
+- **Lab gallery:** shows only each design's name (no version list); clicking opens the first version, the rest are in the toolbar. Owner asked: "don't show versions on the category page, only the name".
+- **Lab gallery:** new optional `order` in a design's meta.ts; Notes in inbox, Notes in profile, Applicant/Candidate profile notes and Company profile notes now show first, the rest A–Z. Owner asked: "bring the notes designs to the top of the category page".
+- **New designs: Applicant/Candidate profile notes, Company profile notes (A):** internal profile pages in the app shell (nav collapsed) with a summary column (person / company) and the same notes as Notes in profile (filters, Active/Archived, pin, archive, paging, edit, AI type, Thread). Notes logic moved into `notes-profile/parts/ProfileNotesSection.tsx`, shared by all three. New mock: `notesPerson`, `personNotes`, `companyProfileNotes`. Owner asked: "2 more categories: Applicant/Candidate profile notes, Company profile notes".
 - **Notes in inbox + Notes in profile:** "5 replies • Unread" is now one button (one click area, both parts darken together on hover). Owner asked: "replies and unread feel like 2 buttons, make it one".
 - **Notes in profile (all versions):** Thread panel matches Notes in inbox A: the type badge sits on the right of the note's author/time line (A had it inside the note). Owner asked: "profile threads same as inbox note version A".
 - **Notes in profile:** 6 notes per page (was 8). Owner asked: "show 6 notes then pagination".

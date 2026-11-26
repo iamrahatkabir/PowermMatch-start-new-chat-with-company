@@ -5,6 +5,8 @@ export type DesignMeta = {
   title: string
   question: string
   variants: Record<string, string>
+  /** Gallery position: lower comes first. Designs without it follow, A–Z by slug. */
+  order?: number
 }
 
 /** One entry of the generated registry (scripts/registry.mjs). */

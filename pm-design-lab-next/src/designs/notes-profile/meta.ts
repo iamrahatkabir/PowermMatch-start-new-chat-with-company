@@ -2,6 +2,7 @@ import type { DesignMeta } from '@/lab/types'
 
 const meta: DesignMeta = {
   title: 'Notes in profile',
+  order: 2,
   question: '',
   variants: {
     A: 'AI note type v2',

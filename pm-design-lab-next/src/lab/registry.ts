@@ -6,6 +6,7 @@ import type { Design } from './types'
 
 export const designs: Design[] = generated
   .map(({ slug, meta, keys, variants }) => ({ slug, ...meta, keys, components: variants }))
-  .sort((a, b) => a.title.localeCompare(b.title))
+  // meta.order first (lowest on top), then the rest A–Z by title
+  .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity) || a.title.localeCompare(b.title))
 
 export const getDesign = (slug: string): Design | undefined => designs.find((d) => d.slug === slug)

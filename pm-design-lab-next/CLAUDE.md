@@ -18,7 +18,7 @@ Everything you need is in this file. **Do not** read `src/ds/*`, `src/lab/*`, `a
 or the design system artifact unless a task changes them — their APIs are summarised below.
 
 ## Layout
-- `src/designs/<slug>/meta.ts` — `const meta: DesignMeta = { title, question, variants: { A: 'label', … } }` (`DesignMeta` from `@/lab/types`)
+- `src/designs/<slug>/meta.ts` — `const meta: DesignMeta = { title, question, variants: { A: 'label', … }, order? }` (`DesignMeta` from `@/lab/types`). `order` puts a design higher in the gallery (1 = top); designs without it follow A–Z by title. Now: 1 Notes in inbox, 2 Notes in profile, 3 Applicant/Candidate profile notes, 4 Company profile notes.
 - `src/designs/<slug>/A.tsx`, `B.tsx`, … — one page per variant, `export default function VariantA()`. Discovered automatically: `npm run dev` regenerates `src/lab/designs.generated.ts` (don't edit it) whenever a design or variant file is added; `npm run registry` does it by hand.
 - `src/designs/<slug>/parts/*.tsx` — pieces shared by that design's variants. A variant imports the parts it keeps and replaces only the part being tested.
 - Files that use hooks or event handlers start with `'use client'`.
@@ -39,6 +39,7 @@ Always design for edge cases, not just the happy path: long names, long text, ma
 - Inbox design: see `src/designs/inbox/README.md`. Versions live in `start-chat/StartChat*.tsx`; the prototype store is `parts/useInbox.ts` (`useCreateInbox()` + `<InboxProvider store>`, `useInbox()` → `startWithContact`, `startWithPerson`, `switchContact`, `send`, `update(fn)` for any other state change).
 - Notes in inbox design (`src/designs/notes-inbox/`): reuses the inbox (`inbox/parts` + `StartChatSections`); notes UI in `notes-inbox/notes/` (NoteBubble, NoteComposer with @mentions, NoteThreadPanel) plugged in through InboxLayout's `renderNote` / `renderNoteComposer` / `renderLockedComposer` / `renderSidePanel`. Rule: chat/email/SMS need the ticket assigned to you; notes don't. Versions: A AI note type (set after posting, editable), B AI note type v2 (automatic, badge inside the note at the bottom right), C Manual note type (dropdown), D Manual note type v2 (chips next to Save note); all wrap `parts/NotesInbox.tsx`. See its `README.md`.
 - Notes in profile design (`src/designs/notes-profile/`): candidate profile page with a Notes tab (`profile/CandidateProfile.tsx`, `notes/ProfileNotes.tsx`); reuses `MentionText` / `NoteComposer` / `ClampedText` / note type pieces from notes-inbox. Versions: A AI v2 (corner badge), B AI note type (badge next to the time), C Manual dropdown, D Manual chips; all wrap `parts/NotesProfile.tsx`. See its `README.md`.
+- Applicant/Candidate profile notes (`src/designs/notes-candidate-profile/`) and Company profile notes (`src/designs/notes-company-profile/`): internal profile pages (app shell) with the same notes as Notes in profile; summary columns in their `profile/` folders, page layout `notes-profile/parts/InternalProfilePage.tsx`, notes state `notes-profile/parts/ProfileNotesSection.tsx`. Mock: `notesPerson`, `personNotes`, `companyProfileNotes`.
 - Admin Settings design (`src/designs/settings/`): merged in from the separate PowerMatch Design Lab app; see its `README.md`. It keeps its own UI kit in `settings/ui/` (modal, select, toast, `useUnsavedChanges`…) — use those inside Settings, `@/ds` elsewhere. "Save changes" only appears when something changed.
 - Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/`, export it from `src/ds/index.ts`, and add one line to the table below.
 - Don't run `npm run build` or take screenshots after every edit. Verify once at the end of a task, or when asked.
@@ -73,7 +74,7 @@ Mock data (`@/mock`) — each status map is `{ key: { tone, label } }`, ready fo
 - `candidates` + `STATUS` · `jobs` + `JOB_STATUS` · `companies`
 - `interviews` + `INTERVIEW_STATUS` · `contracts` + `CONTRACT_STATUS` · `timesheets` + `TIMESHEET_STATUS` (these reference `candidateId` / `jobId`)
 - `notifications`, `todos`, `kpis`, `currentUser`
-- Notes (`src/mock/notes.ts`): `noteColleagues`, `notesThread`, `profileCandidate`, `profileNotes`
+- Notes (`src/mock/notes.ts`): `noteColleagues`, `notesThread`, `profileCandidate`, `profileNotes`, `notesPerson`, `personNotes`, `companyProfileNotes`
 - Notification settings (`src/mock/notifications.ts`): `notificationSounds`, `notificationSettings`
 - Inbox (`src/mock/inbox.ts`): `clientCompanies` (with `contacts`, `jobs`, `invoices`), `contactDirectory` (candidates/applicants), `conversations` + `CONVERSATION_KIND`, `threads` (by conversation id), `agents`, `candidateProfile`, `PROFILE_STATUS`
 - Helpers: `candidateById(id)`, `jobById(id)`, `dkk(n)`

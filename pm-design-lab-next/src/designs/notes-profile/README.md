@@ -9,7 +9,9 @@ Goal: a Notes tab on the candidate profile page (the page companies see). Built 
 | C | `C.tsx` | **Manual note type.** "Note type ▾" dropdown next to Send; Send disabled until a type is picked. |
 | D | `D.tsx` | **Manual note type v2.** Four type chips next to Send; Send disabled until one is picked. |
 
-All four are thin wrappers around `parts/NotesProfile.tsx` (prototype: yellow top bar, profile column left, tabs (Profile details · Interviews · Notes), Thread sidebar on the right when a thread is open; only the Notes tab has content), prop `noteTypes: NoteTypeMode` (same modes as Notes in inbox). Same rules as Notes in inbox: only the note's author can change the type from its badge; the Thread panel shows the badge too, always on the right of the author/time line (same as Notes in inbox A); note text shows 2 lines then "… See more".
+All four are thin wrappers around `parts/NotesProfile.tsx` (page layout), which uses `parts/ProfileNotesSection.tsx` (all notes state + ProfileNotes + Thread panel, shared with Applicant/Candidate profile notes and Company profile notes; render prop gives `{ notes, thread }` to place in the layout). `parts/InternalProfilePage.tsx` is the app-shell layout those two internal designs use.
+
+`parts/NotesProfile.tsx` layout: yellow top bar, profile column left, tabs (Profile details · Interviews · Notes), Thread sidebar on the right when a thread is open; only the Notes tab has content), prop `noteTypes: NoteTypeMode` (same modes as Notes in inbox). Same rules as Notes in inbox: only the note's author can change the type from its badge; the Thread panel shows the badge too, always on the right of the author/time line (same as Notes in inbox A); note text shows 2 lines then "… See more".
 
 ## UI (copy these)
 ```

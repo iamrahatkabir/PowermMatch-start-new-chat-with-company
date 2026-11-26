@@ -139,16 +139,16 @@ const olderAuthors = [
   { author: 'Frederik Krogh', authorPhoto: photo('men', 12) },
 ]
 const olderTypes: NoteType[] = ['screening', 'sales', 'payroll-cs', 'sales-form']
-function olderProfileNotes(n: number): ProfileNote[] {
+function olderProfileNotes(n: number, texts: string[] = olderTexts, prefix = 'po'): ProfileNote[] {
   return Array.from({ length: n }, (_, i) => {
     const d = new Date(2026, 8, 26, 16 - (i % 8), (i * 13) % 60)
     d.setDate(d.getDate() - Math.floor(i * 1.5))
-    const text = olderTexts[i % olderTexts.length]
+    const text = texts[i % texts.length]
     return {
-      id: `po${i + 1}`, ...olderAuthors[i % olderAuthors.length], time: profileLabel(d), createdAt: d.toISOString().slice(0, 16), text,
+      id: `${prefix}${i + 1}`, ...olderAuthors[i % olderAuthors.length], time: profileLabel(d), createdAt: d.toISOString().slice(0, 16), text,
       mentions: text.startsWith('@Maja Holm') ? ['Maja Holm'] : undefined,
       noteType: olderTypes[i % olderTypes.length], noteTypeBy: 'ai' as const,
-      replies: i % 7 === 3 ? manyReplies(`po${i + 1}`, 2 + (i % 4), false) : undefined,
+      replies: i % 7 === 3 ? manyReplies(`${prefix}${i + 1}`, 2 + (i % 4), false) : undefined,
       // A few old ones are archived (12 of 118); one old note is pinned so pinned notes come from different dates
       archived: i % 10 === 4 ? true : undefined,
       pinned: i === 40 ? true : undefined,
@@ -170,4 +170,43 @@ export const profileNotes: ProfileNote[] = [
   // Worst case: long name, long text + link, 3 mentions, 24 replies, unread
   { id: 'pn4', ...longAuthor, time: '23:59, 30 September, 2026', createdAt: '2026-09-30T23:59', text: longNoteText, noteType: 'payroll-cs', noteTypeBy: 'ai', mentions: ['Las Sabir', 'Pranto Kumar Pashi', 'Maja Holm'], unread: true, replies: manyReplies('pn4', 24, true) },
   ...olderProfileNotes(118),
+]
+
+// ── Applicant/Candidate profile notes (internal profile page) ──
+export type PersonProfile = {
+  name: string; photo: string; kind: 'applicant' | 'candidate'; trade: string; experienceYears: number; age: number
+  city: string; phone: string; email: string; address: string; status: string; appliedFor?: string; recruiter: string
+}
+export const notesPerson: PersonProfile = {
+  name: 'Jonas Østergaard Nielsen', photo: photo('men', 86), kind: 'candidate', trade: 'Carpenter', experienceYears: 3, age: 23,
+  city: 'Copenhagen', phone: '+45 22 41 87 90', email: 'jonas.nielsen@gmail.com', address: 'Valby Langgade 112, 2500 Valby',
+  status: 'Available', appliedFor: 'Carpenter for Skanska site in Valby', recruiter: 'Las Sabir',
+}
+// Same notes as the candidate profile (122, worst case)
+export const personNotes: ProfileNote[] = profileNotes
+
+// ── Company profile notes ──
+const companyTexts = [
+  'Called Jhon about the two open electrician jobs. They want people who can start in week 2.',
+  'Contract renewal sent for signing.',
+  'Invoice for January is overdue, reminded the HR manager by phone.',
+  'Site visit in Valby on Thursday 10:00 with @Maja Holm.',
+  'New contact person: Togu Mogu, Site Manager. Use him for anything on site.',
+  'They are not happy with the last plumber, want a replacement before Friday. Agreed to send two profiles today and follow up tomorrow morning.',
+  'Sales form filled in for the power plant job.',
+  'Price agreed: 385 DKK/hour for electricians, 360 DKK/hour for plumbers.',
+  'Asked for safety certificates for everyone on site.',
+  'No answer, left a voicemail.',
+]
+export const companyProfileNotes: ProfileNote[] = [
+  {
+    id: 'cn1', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '10:05, 29 September, 2026', createdAt: '2026-09-29T10:05',
+    text: 'Agreed with @Patrick Andre that we take over the payroll for their 6 temp workers from October.', mentions: ['Patrick Andre'],
+    noteType: 'payroll-cs', noteTypeBy: 'ai', pinned: true,
+  },
+  {
+    id: 'cn2', ...longAuthor, time: '23:59, 30 September, 2026', createdAt: '2026-09-30T23:59', text: longNoteText,
+    mentions: ['Las Sabir', 'Pranto Kumar Pashi', 'Maja Holm'], noteType: 'payroll-cs', noteTypeBy: 'ai', unread: true, replies: manyReplies('cn2', 24, true),
+  },
+  ...olderProfileNotes(64, companyTexts, 'co'),
 ]
