@@ -24,6 +24,8 @@ export type ConversationThreadProps = {
   renderNote?: (m: ThreadItem, actions: { openNoteTab: () => void }) => ReactNode
   /** Replaces the Note tab composer. Notes can be saved without being assigned. */
   renderNoteComposer?: (p: { saveNote: (text: string, extra?: Partial<ThreadItem>) => void }) => ReactNode
+  /** Replaces the Chat/Email/SMS composer (and the overlay) while the conversation isn't assigned to you. The Note tab stays usable. */
+  renderLockedComposer?: (p: { assignToMe: () => void }) => ReactNode
 }
 
 // Email designs can pass their own email component (same props/callbacks as EmailMessage).
@@ -41,7 +43,7 @@ const sender = { name: me.name, email: 'las@powermatch.dk', phone: '+45 70 20 30
 // Opening a conversation starts at the newest message, with the composer on that conversation's channel
 const tabFor: Record<string, string> = { email: 'email', sms: 'sms' }
 
-export function ConversationThread({ emailComponent: EmailComponent = EmailMessage, groupReplies, renderEmailComposer, defaultTab, renderNote, renderNoteComposer }: ConversationThreadProps) {
+export function ConversationThread({ emailComponent: EmailComponent = EmailMessage, groupReplies, renderEmailComposer, defaultTab, renderNote, renderNoteComposer, renderLockedComposer }: ConversationThreadProps) {
   const { state, selected, company, currentContact, send, call, assignToMe, update } = useInbox()
   const assignee = selected.assigneeId === null ? null : agents.find((a) => a.id === (selected.assigneeId ?? 'pa'))!
   const thread = state.threads[selected.id]
@@ -62,6 +64,8 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
   const scroller = useRef<HTMLDivElement>(null)
 
   const isEmail = tab === 'email'
+  // Not assigned + a locked-composer slot: Chat/Email/SMS show it, the Note tab works as normal
+  const locked = !selected.assignedToMe && !!renderLockedComposer
   const canSend = draft.trim() && (!isEmail || replyTo || subject.trim())
 
   // Focus the textarea after the render that opened the reply
@@ -254,14 +258,21 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
               <button
                 key={t.key}
                 type="button"
-                className={cx('flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-[13px]', t.key === tab ? 'border-gray-900 font-medium text-gray-900' : 'border-transparent text-gray-500')}
+                className={cx(
+                  'flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-[13px]',
+                  locked && t.key !== 'note'
+                    ? t.key === tab ? 'border-gray-400 font-medium text-gray-500' : 'border-transparent text-gray-400'
+                    : t.key === tab ? 'border-gray-900 font-medium text-gray-900' : cx('border-transparent', locked ? 'text-gray-700' : 'text-gray-500'),
+                )}
                 onClick={() => setTab(t.key)}
               >
                 <t.icon size={15} />{t.label}
               </button>
             ))}
           </div>
-          {tab === 'note' && renderNoteComposer ? (
+          {locked && tab !== 'note' ? (
+            renderLockedComposer!({ assignToMe })
+          ) : tab === 'note' && renderNoteComposer ? (
             renderNoteComposer({ saveNote: (text, extra) => send(text, 'note', undefined, extra) })
           ) : isEmail && renderEmailComposer ? (
             renderEmailComposer({
@@ -316,7 +327,7 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
             </>
           )}
 
-          {!selected.assignedToMe && !(tab === 'note' && renderNoteComposer) && (
+          {!selected.assignedToMe && !renderLockedComposer && !(tab === 'note' && renderNoteComposer) && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/40">
               <PmButton size="lg" onClick={() => assignToMe()}>Assign to me</PmButton>
               <p className="text-sm text-gray-700">Click the button to assign this conversation to yourself.</p>

@@ -109,3 +109,5 @@ Shown inside the inbox when **Inbox → Notification settings** is clicked in th
 - `<InboxLayout defaultTab>` — composer tab at start and after switching conversation (chat · email · sms · note). Default: the conversation's channel. Used by `notes-inbox`.
 - `<InboxLayout renderNote renderNoteComposer>` — optional: draw notes (`channel: 'note'`) and replace the Note tab composer (no assign overlay there). Used by `notes-inbox`.
 - `conversation.assigneeId: null` shows "Unassigned" in the thread header.
+- `<InboxLayout renderSidePanel>` — optional: called each render; a node replaces the contact panel, null keeps it. Used by `notes-inbox` for the note Thread panel.
+- `<InboxLayout renderLockedComposer>` — optional: replaces the Chat/Email/SMS composer (and the Assign overlay) while not assigned; Note tab stays usable. Used by `notes-inbox`.

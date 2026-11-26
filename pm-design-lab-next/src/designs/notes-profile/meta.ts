@@ -4,7 +4,7 @@ const meta: DesignMeta = {
   title: 'Notes in profile',
   question: '',
   variants: {
-    A: 'Placeholder until the design is shared',
+    A: 'Notes tab on the candidate profile',
   },
 }
 

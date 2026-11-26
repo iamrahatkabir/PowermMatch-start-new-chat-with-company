@@ -75,6 +75,15 @@ export type ThreadItem = {
   icon?: string
   // internal notes (channel 'note'): names @mentioned in the text
   mentions?: string[]
+  canReply?: boolean // false = note shows no Reply link
+  noteReplies?: NoteReply[] // replies to a note (oldest first)
 }
 
+// time: 'dd Mon HH:MM' (e.g. '22 Mar 13:55'); mentions: names written as @Name in text;
+// quote: the reply this one answers (shown as a quote block above the text)
+export type NoteReplyQuote = { replyId: string; author: string; text: string }
+export type NoteReply = { id: string; author: string; authorPhoto?: string; time: string; text: string; mentions?: string[]; quote?: NoteReplyQuote }
+
 export type StatusMap = Record<string, { tone: PillTone; label: string }>
+
+

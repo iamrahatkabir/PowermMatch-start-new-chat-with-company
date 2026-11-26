@@ -34,7 +34,8 @@ or the design system artifact unless a task changes them — their APIs are summ
 - **Developer handoff structure** (every design): put each version's actual UI in its own self-contained component (props in, `onX` callbacks out, no prototype store or mock imports), plain logic in its own `.ts` file, and keep `A.tsx`, `B.tsx`… as thin preview wrappers. Prototype-only code stays in `parts/`. Each design gets a `README.md` saying which file is which version, its props/callbacks and data shapes. Example: `src/designs/inbox/`.
 - `PmAppShell` calls `onNav(key)` when a nav item is clicked; a design uses it to switch views inside the same design (e.g. inbox: All ↔ Notification settings). Don't create a separate design for a page that belongs to an existing area — add it as a view of that design.
 - Inbox design: see `src/designs/inbox/README.md`. Versions live in `start-chat/StartChat*.tsx`; the prototype store is `parts/useInbox.ts` (`useCreateInbox()` + `<InboxProvider store>`, `useInbox()` → `startWithContact`, `startWithPerson`, `switchContact`, `send`, `update(fn)` for any other state change).
-- Notes in inbox design (`src/designs/notes-inbox/`): reuses the inbox (`inbox/parts` + `StartChatSections`); notes UI in `notes-inbox/notes/` (NoteBubble, NoteComposer with @mentions) plugged in through InboxLayout's `renderNote` / `renderNoteComposer`. See its `README.md`.
+- Notes in inbox design (`src/designs/notes-inbox/`): reuses the inbox (`inbox/parts` + `StartChatSections`); notes UI in `notes-inbox/notes/` (NoteBubble, NoteComposer with @mentions, NoteThreadPanel) plugged in through InboxLayout's `renderNote` / `renderNoteComposer` / `renderLockedComposer` / `renderSidePanel`. Rule: chat/email/SMS need the ticket assigned to you; notes don't. See its `README.md`.
+- Notes in profile design (`src/designs/notes-profile/`): candidate profile page with a Notes tab (`profile/CandidateProfile.tsx`, `notes/ProfileNotes.tsx`); reuses `MentionText` / `NoteComposer` from notes-inbox. See its `README.md`.
 - Admin Settings design (`src/designs/settings/`): merged in from the separate PowerMatch Design Lab app; see its `README.md`. It keeps its own UI kit in `settings/ui/` (modal, select, toast, `useUnsavedChanges`…) — use those inside Settings, `@/ds` elsewhere. "Save changes" only appears when something changed.
 - Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/`, export it from `src/ds/index.ts`, and add one line to the table below.
 - Don't run `npm run build` or take screenshots after every edit. Verify once at the end of a task, or when asked.
@@ -63,7 +64,7 @@ Mock data (`@/mock`) — each status map is `{ key: { tone, label } }`, ready fo
 - `candidates` + `STATUS` · `jobs` + `JOB_STATUS` · `companies`
 - `interviews` + `INTERVIEW_STATUS` · `contracts` + `CONTRACT_STATUS` · `timesheets` + `TIMESHEET_STATUS` (these reference `candidateId` / `jobId`)
 - `notifications`, `todos`, `kpis`, `currentUser`
-- Notes (`src/mock/notes.ts`): `noteColleagues`, `notesThread`
+- Notes (`src/mock/notes.ts`): `noteColleagues`, `notesThread`, `profileCandidate`, `profileNotes`
 - Notification settings (`src/mock/notifications.ts`): `notificationSounds`, `notificationSettings`
 - Inbox (`src/mock/inbox.ts`): `clientCompanies` (with `contacts`, `jobs`, `invoices`), `contactDirectory` (candidates/applicants), `conversations` + `CONVERSATION_KIND`, `threads` (by conversation id), `agents`, `candidateProfile`, `PROFILE_STATUS`
 - Helpers: `candidateById(id)`, `jobById(id)`, `dkk(n)`

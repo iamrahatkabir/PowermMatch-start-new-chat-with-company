@@ -19,6 +19,9 @@ export type InboxLayoutProps = {
   defaultTab?: string
   renderNote?: ConversationThreadProps['renderNote']
   renderNoteComposer?: ConversationThreadProps['renderNoteComposer']
+  renderLockedComposer?: ConversationThreadProps['renderLockedComposer']
+  /** Called on every render; return a node to show it instead of the contact panel, or null for the normal panel. */
+  renderSidePanel?: () => ReactNode
 }
 
 // The full inbox. Variants pass their "Start new conversation" menu in the `menu` prop (a node).
@@ -28,8 +31,9 @@ export type InboxLayoutProps = {
 // the contact panel while an email thread is open (state.emailThreadId).
 const views = ['inbox-all', 'inbox-notifications']
 
-export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies, threadPanel: ThreadPanel, menu, renderEmailComposer, defaultTab, renderNote, renderNoteComposer }: InboxLayoutProps) {
+export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies, threadPanel: ThreadPanel, menu, renderEmailComposer, defaultTab, renderNote, renderNoteComposer, renderLockedComposer, renderSidePanel }: InboxLayoutProps) {
   const { state, selected, update } = useInbox()
+  const side = renderSidePanel?.()
   const onNav = (key: string) => views.includes(key) && update((s) => { s.view = key })
 
   return (
@@ -39,8 +43,8 @@ export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies,
       ) : (
         <div className="flex h-full bg-white">
           <ConversationList menu={menu} />
-          <ConversationThread {...(emailComponent ? { emailComponent } : {})} groupReplies={groupReplies} renderEmailComposer={renderEmailComposer} defaultTab={defaultTab} renderNote={renderNote} renderNoteComposer={renderNoteComposer} />
-          {ThreadPanel && state.emailThreadId ? <ThreadPanel /> : selected.kind === 'company' ? <CompanyPanel /> : <CandidatePanel />}
+          <ConversationThread {...(emailComponent ? { emailComponent } : {})} groupReplies={groupReplies} renderEmailComposer={renderEmailComposer} defaultTab={defaultTab} renderNote={renderNote} renderNoteComposer={renderNoteComposer} renderLockedComposer={renderLockedComposer} />
+          {side ? side : ThreadPanel && state.emailThreadId ? <ThreadPanel /> : selected.kind === 'company' ? <CompanyPanel /> : <CandidatePanel />}
         </div>
       )}
     </PmAppShell>
