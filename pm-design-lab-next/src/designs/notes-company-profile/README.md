@@ -6,12 +6,12 @@ Goal: notes on the **internal** company profile (agents/recruiters, inside the P
 |---|---|---|
 | A | `A.tsx` | App shell (Companies active), breadcrumb (Team › Company › name), logo + name + "Source: Meta Ads", tabs with counts (Company Details · Tasks 3 · Notes · Jobs 3 · Employees · Matches · Settings · Payment), full-width Notes tab, Thread panel on the right. AI note type, badge at the bottom right of the card. |
 
-Prototype: `parts/CompanyNotesPage.tsx` (content area scrolls as one, Thread panel sticks).
+Prototype: `parts/CompanyNotesPage.tsx` → shared `notes-profile/parts/ProfileNotesPage.tsx` (content area scrolls as one, Thread panel sticks; also used by Applicant/Candidate profile notes).
 
 ## UI (copy these)
 ```
 profile/CompanyHeader.tsx ← breadcrumb + logo (falls back to a building icon) + name + source. Props: company: CompanyHeader, onBack?()
-profile/ProfileTabs.tsx   ← tabs with an optional count chip (99+ max), dark underline on the active tab. Props: tabs: { key, label, count? }[], value, onChange(key)
+notes-profile/profile/ProfileTabs.tsx ← (shared) tabs with an optional count chip (99+ max), dark underline on the active tab. Props: tabs: { key, label, count? }[], value, onChange(key)
 ```
 - Notes, filters, Active/Archived, pin/archive, paging, edit/delete, Thread panel: same as Notes in profile (`notes-profile/parts/ProfileNotesSection.tsx` + `notes-profile/notes/*`). The Notes tab count = active (not archived) notes.
 

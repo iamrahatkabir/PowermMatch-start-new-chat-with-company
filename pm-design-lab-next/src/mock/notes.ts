@@ -172,18 +172,20 @@ export const profileNotes: ProfileNote[] = [
   ...olderProfileNotes(118),
 ]
 
-// ── Applicant/Candidate profile notes (internal profile page) ──
+// ── Applicant/Candidate profile notes (internal profile page, from the owner's screenshot) ──
 export type PersonProfile = {
-  name: string; photo: string; kind: 'applicant' | 'candidate'; trade: string; experienceYears: number; age: number
-  city: string; phone: string; email: string; address: string; status: string; appliedFor?: string; recruiter: string
+  name: string; photo: string; email: string; kind: 'applicant' | 'candidate'
+  /** 0–5 stars */
+  rating: number
+  status: string
+  counts: { todo: number }
 }
+export const PERSON_STATUSES = ['Looking for job', 'Not looking', 'Hired', 'Inactive']
 export const notesPerson: PersonProfile = {
-  name: 'Jonas Østergaard Nielsen', photo: photo('men', 86), kind: 'candidate', trade: 'Carpenter', experienceYears: 3, age: 23,
-  city: 'Copenhagen', phone: '+45 22 41 87 90', email: 'jonas.nielsen@gmail.com', address: 'Valby Langgade 112, 2500 Valby',
-  status: 'Available', appliedFor: 'Carpenter for Skanska site in Valby', recruiter: 'Las Sabir',
+  name: 'Pranto Kumar Pashi', photo: photo('men', 22), email: 'pkp@powermatch.dk', kind: 'applicant', rating: 4, status: 'Looking for job', counts: { todo: 4 },
 }
-// Same notes as the candidate profile (122, worst case)
-export const personNotes: ProfileNote[] = profileNotes
+// Same 122 notes as the candidate profile (worst case), about this applicant
+export const personNotes: ProfileNote[] = profileNotes.map((n) => ({ ...n, text: n.text.replace(/Jonas/g, 'Pranto') }))
 
 // ── Company profile notes ──
 const companyTexts = [

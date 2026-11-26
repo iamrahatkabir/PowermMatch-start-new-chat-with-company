@@ -1,19 +1,24 @@
 # Applicant/Candidate profile notes
 
-Goal: notes on the **internal** applicant/candidate profile (what agents/recruiters see, inside the PowerMatch app). Desktop only.
+Goal: notes on the **internal** applicant/candidate profile (agents/recruiters, inside the PowerMatch app). Built from the owner's screenshot (Pranto Kumar Pashi), with the latest profile notes design. Desktop only.
 
 | Version | File | What it is |
 |---|---|---|
-| A | `A.tsx` | App shell (nav collapsed, Candidates active), person summary on the left, tabs (Overview · Applications · Documents · Notes) with the Notes tab open. Notes = the shared profile notes (AI note type, badge at the bottom right of the card). |
+| A | `A.tsx` | App shell (Candidates active), breadcrumb (Jobs icon › Applicants › name), photo + name + star rating + email, status dropdown + "Match Job" on the right, tabs with counts (Profile Details · Todo 4 · Notes · Activity), full-width Notes tab, Thread panel on the right. AI note type, badge at the bottom right of the card. |
+
+Prototype: `parts/ApplicantNotesPage.tsx` → shared `notes-profile/parts/ProfileNotesPage.tsx` (app shell, header slot, tabs, notes, sticky Thread panel; also used by Company profile notes).
 
 ## UI (copy these)
 ```
-profile/PersonSummary.tsx ← left column: photo, name, trade • years • age, Applicant/Candidate pill + status pill, Personal Info (phone, email, address), Recruitment (applied for, recruiter)
+profile/ApplicantHeader.tsx          ← breadcrumb ("Applicants" or "Candidates" from kind), photo, name, 0–5 stars (warning-500, empty gray-200), email, status dropdown (shadcn DropdownMenu), Match Job (brand button)
+notes-profile/profile/ProfileTabs.tsx ← tabs with optional count chip (99+ max); shared with Company profile notes
 ```
-- `PersonSummary` props: `person: PersonProfile` (`kind: 'applicant' | 'candidate'` switches the pill text).
-- The notes, filters, paging, pin/archive, edit/delete and Thread panel are the same as Notes in profile: `notes-profile/parts/ProfileNotesSection.tsx` (state) + `notes-profile/notes/*` (UI). See `src/designs/notes-profile/README.md`.
-- Page layout: `notes-profile/parts/InternalProfilePage.tsx` (shared with Company profile notes): the content area scrolls as one (summary column has no scroll of its own), the Thread panel sticks to the right.
+- `ApplicantHeader` props: `person: PersonProfile`, `statuses: string[]`, `onStatusChange?(s)`, `onMatchJob?()`, `onBack?()`. Long names wrap; actions never shrink.
+- Notes, filters, Active/Archived, pin/archive, paging, edit/delete, Thread panel: same as Notes in profile. The Notes tab count = active notes (99+ in the mock).
 
 ## Data (`src/mock/notes.ts`)
-- `notesPerson: PersonProfile` — name (long: "Jonas Østergaard Nielsen"), photo, kind, trade, experienceYears, age, city, phone, email, address, status, appliedFor?, recruiter.
-- `personNotes` — same 122 notes as Notes in profile (worst case).
+- `notesPerson: PersonProfile` — name, photo, email, kind ('applicant' | 'candidate'), rating, status, counts { todo }. `PERSON_STATUSES`: Looking for job, Not looking, Hired, Inactive.
+- `personNotes` — the 122 profile notes (worst case), with "Jonas" replaced by "Pranto".
+
+## Differences from the screenshot
+- English copy: "Søger job" → "Looking for job"; nav labels in English.

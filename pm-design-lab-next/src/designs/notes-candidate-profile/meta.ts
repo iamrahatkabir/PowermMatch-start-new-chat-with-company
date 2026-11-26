@@ -5,7 +5,7 @@ const meta: DesignMeta = {
   order: 3,
   question: '',
   variants: {
-    A: 'Notes on the internal applicant/candidate profile',
+    A: 'Applicant profile with notes',
   },
 }
 

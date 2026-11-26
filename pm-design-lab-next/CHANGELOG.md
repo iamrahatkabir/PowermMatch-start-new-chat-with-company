@@ -3,6 +3,7 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-26
+- **Applicant/Candidate profile notes (A):** rebuilt from the owner's screenshot: breadcrumb, Pranto Kumar Pashi header (photo, stars, email, status dropdown, Match Job), tabs with counts, full-width notes with the latest design; removed the left summary column. Shared layout `notes-profile/parts/ProfileNotesPage.tsx` now used by both internal profile designs; `ProfileTabs` moved to `notes-profile/profile/`. Owner asked: "build this in applicant profile notes with the updated notes design".
 - **All designs (date filter in Notes in profile, Applicant/Candidate and Company profile notes):** removed the quick presets (Today, Last 7 days…); only the two-month range calendar stays. Rule added to CLAUDE.md for every date picker. Owner asked: "remove predefined quick selections, keep the 2 months, globally".
 - **Company profile notes (A):** rebuilt from the owner's screenshot: breadcrumb, Reno Power ApS. header (logo, source), tabs with counts, full-width Notes tab with the latest profile notes design; removed the left summary column. New mock `notesCompany`. Owner asked: "build this in company profile notes, use our latest note design".
 - **Lab gallery:** shows only each design's name (no version list); clicking opens the first version, the rest are in the toolbar. Owner asked: "don't show versions on the category page, only the name".
