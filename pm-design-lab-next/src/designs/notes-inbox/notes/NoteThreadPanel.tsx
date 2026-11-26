@@ -1,7 +1,7 @@
 'use client'
 // "Thread" side panel for a note: the note on top, "N replies", the replies (hover shows Reply, plus edit/delete on your own),
 // and a Reply box at the bottom. Reply on a reply shows "Replying to …" above the box; the sent reply quotes it. Replaces the contact panel while open.
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { NotepadText, Pencil, Reply, Trash2, X } from 'lucide-react'
 import { PmAvatar } from '@/ds'
 import { cx } from '@/lib/cx'
@@ -24,9 +24,13 @@ type Props = {
   currentUser?: string
   onEditReply?: (id: string, text: string) => void
   onDeleteReply?: (id: string) => void
+  /** Shown at the end of the note's author/time line (e.g. the note type badge). Replies have none. */
+  noteMeta?: ReactNode
+  /** Shown inside the note block at the bottom right (version B puts the type badge here) */
+  noteCorner?: ReactNode
 }
 
-export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendReply, focusKey, currentUser, onEditReply, onDeleteReply }: Props) {
+export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendReply, focusKey, currentUser, onEditReply, onDeleteReply, noteMeta, noteCorner }: Props) {
   const [draft, setDraft] = useState('')
   const [quote, setQuote] = useState<NoteReplyQuote | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -46,23 +50,28 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
     setFocus((k) => (k ?? 0) + 1)
   }
 
+  // Below xl it covers the screen (no room for a side column); from xl it is a 300px column
   return (
-    <aside className="hidden w-[300px] shrink-0 flex-col border-l border-gray-200 bg-white xl:flex">
+    <aside className="fixed inset-0 z-40 flex w-full flex-col bg-white xl:static xl:z-auto xl:w-[300px] xl:shrink-0 xl:border-l xl:border-gray-200">
       <div className="flex h-16 shrink-0 items-center border-b border-gray-200 px-4">
         <span className="text-base font-semibold text-gray-900">Thread</span>
         <button type="button" className="ml-auto flex size-8 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-50" title="Close thread" onClick={onClose}><X size={18} /></button>
       </div>
 
       <div ref={list} className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="rounded-2xl bg-brand-bg px-3 py-2.5 text-sm leading-6 text-gray-900">
+        <div className="whitespace-pre-line rounded-2xl bg-brand-bg px-3 py-2.5 text-sm leading-6 text-gray-900 [overflow-wrap:anywhere]">
           <MentionText text={note.text} mentions={note.mentions} />
+          {noteCorner && <div className="mt-1.5 flex justify-end whitespace-normal">{noteCorner}</div>}
         </div>
         <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-gray-500">
-          <NotepadText size={12} />
-          {note.authorPhoto && <PmAvatar name={note.author} src={note.authorPhoto} size={14} />}
-          {note.author} • {note.time}
+          <NotepadText size={12} className="shrink-0" />
+          {note.authorPhoto && <span className="shrink-0"><PmAvatar name={note.author} src={note.authorPhoto} size={14} /></span>}
+          {/* Author • time gets cut with "…" so a long type badge never breaks */}
+          <span className="min-w-0 truncate">{note.author} • {note.time}</span>
+          {noteMeta && <span className="ml-auto shrink-0 pl-1">{noteMeta}</span>}
         </div>
 
+        {replies.length === 0 && <p className="mt-6 text-center text-xs text-gray-500">No replies yet</p>}
         {replies.length > 0 && (
           <div className="my-4 flex items-center gap-2 text-[11px] text-gray-500">
             {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
@@ -87,7 +96,7 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
                     <EditBox initial={r.text} onCancel={() => setEditingId(null)} onSave={(t) => { onEditReply?.(r.id, t); setEditingId(null) }} />
                   </div>
                 ) : (
-                  <p className={cx(r.quote ? 'mt-2' : 'mt-0.5', 'whitespace-pre-line text-sm leading-6 text-gray-600')}>
+                  <p className={cx(r.quote ? 'mt-2' : 'mt-0.5', 'whitespace-pre-line text-sm leading-6 text-gray-600 [overflow-wrap:anywhere]')}>
                     <MentionText text={r.text} mentions={r.mentions} />
                   </p>
                 )}

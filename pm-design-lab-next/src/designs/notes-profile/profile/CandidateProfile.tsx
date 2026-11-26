@@ -18,14 +18,14 @@ const requirementIcon: Record<Requirement['icon'], LucideIcon> = { wage: Timer, 
 export function CandidateProfile({ candidate: c, onInterested, onNotInterested, onPlayVideo, onHowItWorks }: Props) {
   return (
     <div className="flex flex-col">
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="flex items-start gap-6">
           <button type="button" className="relative shrink-0" onClick={onPlayVideo} title="Play video">
             <img src={c.photo} alt="" className="size-24 rounded-full border-[3px] border-warning-500 object-cover p-0.5" />
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-warning-500 px-1.5 py-0.5 text-[11px] font-medium text-white">Watch Video</span>
           </button>
           <div className="min-w-0 pt-1">
-            <h1 className="text-2xl font-semibold text-gray-900">{c.name}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 [overflow-wrap:anywhere]">{c.name}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-700">
               <span className="flex items-center gap-1.5"><User size={16} className="text-gray-600" />{c.age} Years old</span>
               <span className="flex items-center gap-1.5"><MapPin size={16} className="text-gray-600" />{c.city}</span>
@@ -63,7 +63,7 @@ export function CandidateProfile({ candidate: c, onInterested, onNotInterested, 
         </div>
       </div>
 
-      <div className="border-t border-gray-200 p-8">
+      <div className="border-t border-gray-200 p-4 sm:p-8">
         <h2 className="text-lg font-semibold text-gray-900">Requirements</h2>
         <div className="mt-6 flex flex-col gap-5">
           {c.requirements.map((r) => {
@@ -72,8 +72,8 @@ export function CandidateProfile({ candidate: c, onInterested, onNotInterested, 
               <div key={r.label}>
                 <div className="flex items-center gap-3 text-sm">
                   <Icon size={20} className="shrink-0 text-warning-500" />
-                  <span className="text-gray-700">{r.label}</span>
-                  {r.value && <span className="ml-auto text-gray-900">{r.value}</span>}
+                  <span className="min-w-0 text-gray-700">{r.label}</span>
+                  {r.value && <span className="ml-auto min-w-0 text-right text-gray-900">{r.value}</span>}
                 </div>
                 {r.detail && <p className="mt-1 pl-8 text-sm text-gray-900">{r.detail}</p>}
               </div>

@@ -39,10 +39,10 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
               <PmAvatar name={n.author} src={n.authorPhoto} size={32} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start gap-3">
-                  <span className="text-sm text-gray-900">{n.author}</span>
+                  <span className="min-w-0 truncate text-sm text-gray-900">{n.author}</span>
                   <span className="ml-auto shrink-0 text-xs text-gray-700">{n.time}</span>
                 </div>
-                <p className="max-w-[480px] whitespace-pre-line text-xs leading-[18px] text-gray-600">
+                <p className="mt-0.5 max-w-[480px] whitespace-pre-line text-xs leading-[18px] text-gray-600 [overflow-wrap:anywhere]">
                   <MentionText text={n.text} mentions={n.mentions} />
                 </p>
               </div>
@@ -79,7 +79,7 @@ function RepliesRow({ replies, unread, onOpen }: { replies: NoteReply[]; unread?
   const shown = replies.filter((r, i) => replies.findIndex((x) => x.author === r.author) === i).slice(0, 2)
   const more = replies.length - shown.length
   return (
-    <div className="mt-2 flex items-center gap-1.5 text-xs">
+    <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 whitespace-nowrap text-xs">
       <div className="flex items-center gap-1">
         {shown.map((r) => <PmAvatar key={r.id} name={r.author} src={r.authorPhoto} size={16} />)}
         {more > 0 && <span className="flex size-4 items-center justify-center rounded-full border border-gray-200 bg-white text-[8px] font-medium text-gray-700">+{more}</span>}

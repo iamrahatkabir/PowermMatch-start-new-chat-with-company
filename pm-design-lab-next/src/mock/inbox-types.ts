@@ -77,11 +77,16 @@ export type ThreadItem = {
   mentions?: string[]
   canReply?: boolean // false = note shows no Reply link
   noteReplies?: NoteReply[] // replies to a note (oldest first)
+  noteType?: NoteType | null // note category (Notes in inbox B/C); null/missing = not set yet
+  noteTypeBy?: 'ai' | 'agent' // who set noteType (B: AI sets it after posting, an agent can change it)
   unread?: boolean // you're @mentioned in this note/its replies and haven't opened the thread
 }
 
 // time: 'dd Mon HH:MM' (e.g. '22 Mar 13:55'); mentions: names written as @Name in text;
 // quote: the reply this one answers (shown as a quote block above the text)
+/** Note category: Payroll + CS, Sales form, Screening, Sales */
+export type NoteType = 'payroll-cs' | 'sales-form' | 'screening' | 'sales'
+
 export type NoteReplyQuote = { replyId: string; author: string; text: string }
 export type NoteReply = { id: string; author: string; authorPhoto?: string; time: string; text: string; mentions?: string[]; quote?: NoteReplyQuote }
 

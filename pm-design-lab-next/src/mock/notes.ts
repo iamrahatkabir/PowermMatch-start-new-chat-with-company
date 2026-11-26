@@ -11,7 +11,31 @@ export const noteColleagues: Agent[] = [
   { id: 'aj', name: 'Adam James', initials: 'AJ', photo: photo('men', 64) },
   { id: 'mh', name: 'Maja Holm', initials: 'MH', photo: photo('women', 44) },
   { id: 'fk', name: 'Frederik Krogh', initials: 'FK', photo: photo('men', 12) },
+  { id: 'co', name: 'Christoffer Østergaard-Andersen', initials: 'CØ', photo: photo('men', 33) }, // worst case: long name
 ]
+
+// ── Worst-case examples (long name, long text, long link, many mentions, many replies) ──
+const longAuthor = { author: 'Christoffer Østergaard-Andersen', authorPhoto: photo('men', 33) }
+const longNoteText =
+  '@Las Sabir @Pranto Kumar Pashi @Maja Holm Payroll for weeks 38–41 is still missing two timesheets and the holiday pay was calculated on the old hourly rate. ' +
+  'I have checked the contract, the payslips and the agreement with the client, and the difference is 4.312,50 DKK. ' +
+  'Details here: https://powermatch.dk/payroll/2026/week-38-41/timesheets/candidate-james-adam-missing-hours-and-holiday-pay-correction\n\n' +
+  'Please confirm before Friday so we can correct it in the next pay run.'
+const manyReplies = (id: string, n: number, lastMentionsMe: boolean): NoteReply[] => {
+  const people = [
+    { author: 'Pranto Kumar Pashi', authorPhoto: photo('men', 22) }, { author: 'Maja Holm', authorPhoto: photo('women', 44) },
+    longAuthor, { author: 'Frederik Krogh', authorPhoto: photo('men', 12) },
+  ]
+  return Array.from({ length: n }, (_, i) => {
+    const last = i === n - 1
+    return {
+      id: `${id}-r${i + 1}`, ...people[i % people.length],
+      time: `23 Mar ${String(9 + Math.floor(i / 6)).padStart(2, '0')}:${String((i * 7) % 60).padStart(2, '0')}`,
+      text: last && lastMentionsMe ? '@Las Sabir the corrected payslip is uploaded, can you check it today?' : i % 5 === 2 ? 'Checked the timesheets again. Week 39 is approved by the client but week 40 is still waiting for the site manager, he is on holiday until Monday.' : 'Noted, thanks.',
+      mentions: last && lastMentionsMe ? ['Las Sabir'] : undefined,
+    }
+  })
+}
 
 // James Adam's conversation in the Notes in inbox design: a voicemail and a note that mentions a colleague
 export const notesThread: ThreadItem[] = [
@@ -22,7 +46,7 @@ export const notesThread: ThreadItem[] = [
   {
     id: 'n2', type: 'message', dir: 'out', channel: 'note', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '22 Mar 11:05',
     text: '@Pranto Kumar Pashi This candidate needs your attention.', mentions: ['Pranto Kumar Pashi'],
-    unread: true,
+    noteType: 'screening', noteTypeBy: 'ai', unread: true,
     noteReplies: [
       { id: 'r1', author: 'Pranto Kumar Pashi', authorPhoto: photo('men', 22), time: '22 Mar 13:55', text: 'All good @Las Sabir I’m taking over this chat.', mentions: ['Las Sabir'] },
       { id: 'r2', author: 'Pranto Kumar Pashi', authorPhoto: photo('men', 22), time: '22 Mar 13:55', text: '@Rahat Kabir Ifty I’ve talked with the applicant. Onboard him from the next month for Renow Power APS.', mentions: ['Rahat Kabir Ifty'] },
@@ -34,6 +58,13 @@ export const notesThread: ThreadItem[] = [
   {
     id: 'n3', type: 'message', dir: 'out', channel: 'note', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '22 Mar 14:20',
     text: 'Spoke with James. He prefers calls before 10:00 and has his own tools. Follow up after week 30.',
+    noteType: 'sales', noteTypeBy: 'ai',
+  },
+  {
+    // Worst case: long name, long text + link, 3 mentions, 24 replies, unread, longest type
+    id: 'n4', type: 'message', dir: 'out', channel: 'note', ...longAuthor, time: '23 Mar 09:12',
+    text: longNoteText, mentions: ['Las Sabir', 'Pranto Kumar Pashi', 'Maja Holm'],
+    noteType: 'payroll-cs', noteTypeBy: 'ai', unread: true, noteReplies: manyReplies('n4', 24, true),
   },
 ]
 
@@ -90,4 +121,6 @@ export const profileNotes: ProfileNote[] = [
     replies: profileReplies('pn2', { id: 'pn2-r5', author: 'Maja Holm', authorPhoto: photo('women', 44), time: '22 Mar 14:31', text: '@Las Sabir can you confirm the start date with Jonas?', mentions: ['Las Sabir'] }),
   },
   { id: 'pn3', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '9:15, 28 September, 2026', text: 'Jonas has his own tools and a driving licence.' },
+  // Worst case: long name, long text + link, 3 mentions, 24 replies, unread
+  { id: 'pn4', ...longAuthor, time: '23:59, 30 September, 2026', text: longNoteText, mentions: ['Las Sabir', 'Pranto Kumar Pashi', 'Maja Holm'], unread: true, replies: manyReplies('pn4', 24, true) },
 ]

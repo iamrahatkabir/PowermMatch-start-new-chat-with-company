@@ -2,7 +2,7 @@
 // The Note tab's composer: light yellow writing area, typing "@" opens a scrollable list of agents above the @,
 // Save note (Enter also saves, Shift+Enter = new line).
 // variant 'reply' = the Thread panel's box: white, bordered, "Reply…", Send button.
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, Paperclip, Send } from 'lucide-react'
 import { PmAvatar, PmButton } from '@/ds'
 import { cx } from '@/lib/cx'
@@ -21,9 +21,16 @@ type Props = {
   variant?: 'note' | 'reply'
   /** Overrides the default hint text */
   placeholder?: string
+  /** Shown above the text area (e.g. the note type chips) */
+  header?: ReactNode
+  /** Extra controls left of the Save button (e.g. the note type picker) */
+  tools?: ReactNode
+  /** Keeps Save disabled (e.g. no note type chosen yet); saveBlockedHint is shown as its tooltip */
+  saveBlocked?: boolean
+  saveBlockedHint?: string
 }
 
-export function NoteComposer({ value, onChange, onSave, colleagues, disabled, focusKey, variant = 'note', placeholder }: Props) {
+export function NoteComposer({ value, onChange, onSave, colleagues, disabled, focusKey, variant = 'note', placeholder, header, tools, saveBlocked, saveBlockedHint }: Props) {
   const isReply = variant === 'reply'
   const area = useRef<HTMLTextAreaElement>(null)
   const [cursor, setCursor] = useState(0)
@@ -45,7 +52,7 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
   useEffect(() => {
     list.current?.children[active]?.scrollIntoView({ block: 'nearest' })
   }, [active])
-  const canSave = !disabled && value.trim().length > 0
+  const canSave = !disabled && !saveBlocked && value.trim().length > 0
 
   function pick(c: Agent) {
     if (!q) return
@@ -67,7 +74,7 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
         <div
           ref={list}
           className="absolute z-10 max-h-[216px] w-[216px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
-          style={{ left: Math.max(8, Math.min(anchor?.left ?? 12, (area.current?.offsetWidth ?? 0) - 224)), bottom: `calc(100% - ${anchor?.top ?? 0}px + 4px)` }}
+          style={{ left: Math.max(8, Math.min(anchor?.left ?? 12, (area.current?.offsetWidth ?? 0) - 224)), bottom: `calc(100% - ${(anchor?.top ?? 0) + (area.current?.offsetTop ?? 0)}px + 4px)` }}
         >
           {matches.map((c, i) => (
             <button
@@ -77,11 +84,20 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
               onMouseEnter={() => setActive(i)}
               onMouseDown={(e) => { e.preventDefault(); pick(c) }}
             >
-              <PmAvatar name={c.name} src={c.photo} size={16} />{c.name}
+              <span className="shrink-0"><PmAvatar name={c.name} src={c.photo} size={16} /></span><span className="min-w-0 truncate">{c.name}</span>
             </button>
           ))}
         </div>
       )}
+      {q && q.query && matches.length === 0 && (
+        <div
+          className="absolute z-10 w-[216px] rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-500 shadow-lg"
+          style={{ left: Math.max(8, Math.min(anchor?.left ?? 12, (area.current?.offsetWidth ?? 0) - 224)), bottom: `calc(100% - ${(anchor?.top ?? 0) + (area.current?.offsetTop ?? 0)}px + 4px)` }}
+        >
+          No colleague found
+        </div>
+      )}
+      {header}
       <textarea
         ref={area}
         value={value}
@@ -104,7 +120,10 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
       <div className={cx('flex items-center gap-1 px-3 pb-3 text-gray-600', disabled && 'opacity-40')}>
         <button type="button" className={cx('flex size-8 items-center justify-center rounded-lg', isReply ? 'hover:bg-gray-50' : 'hover:bg-brand-light')} title="Attach file"><Paperclip size={16} /></button>
         <button type="button" className={cx('flex size-8 items-center justify-center rounded-lg', isReply ? 'hover:bg-gray-50' : 'hover:bg-brand-light')} title="Insert link"><Link size={16} /></button>
-        <PmButton size="sm" variant={canSave ? 'primary' : 'secondary'} disabled={!canSave} className="ml-auto" onClick={save}>{isReply ? <>Send <Send size={14} /></> : 'Save note'}</PmButton>
+        <div className="ml-auto flex min-w-0 items-center gap-2">{tools}</div>
+        <span title={saveBlocked && value.trim() ? saveBlockedHint : undefined}>
+        <PmButton size="sm" variant={canSave ? 'primary' : 'secondary'} disabled={!canSave} onClick={save}>{isReply ? <>Send <Send size={14} /></> : 'Save note'}</PmButton>
+        </span>
       </div>
     </div>
   )

@@ -38,21 +38,22 @@ export default function VariantA() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 lg:h-screen">
       <header className="flex h-16 shrink-0 items-center bg-brand px-8">
         <img src="/brand/logo-mark.svg" alt="PowerMatch" className="h-6 w-auto brightness-0" />
       </header>
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <aside className="shrink-0 overflow-y-auto border-gray-200 bg-white lg:w-[480px] lg:border-r">
+      {/* Phones: one page scroll, profile then notes. lg+: the columns scroll on their own */}
+      <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
+        <aside className="shrink-0 border-b border-gray-200 bg-white lg:w-[480px] lg:overflow-y-auto lg:border-b-0 lg:border-r">
           <CandidateProfile candidate={profileCandidate} />
         </aside>
-        <main className="min-w-0 flex-1 overflow-y-auto px-4 py-8 sm:px-10">
+        <main className="min-w-0 flex-1 px-4 py-8 sm:px-10 lg:overflow-y-auto">
           <div className="flex gap-2 border-b border-gray-200">
             {tabs.map((t) => (
               <button
                 key={t.key}
                 type="button"
-                className={cx('-mb-px border-b-2 px-2 pb-3 text-base', t.key === tab ? 'border-gray-900 font-medium text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900')}
+                className={cx('-mb-px shrink-0 whitespace-nowrap border-b-2 px-2 pb-3 text-base', t.key === tab ? 'border-gray-900 font-medium text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900')}
                 onClick={() => setTab(t.key)}
               >
                 {t.label}

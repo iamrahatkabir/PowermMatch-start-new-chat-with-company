@@ -27,3 +27,9 @@ notes/time.ts                ← profileNoteTime(): '8:30, 27 September, 2026'
 - Copy is in English (lab rule): "Watch Video" instead of "Se min video", match texts translated with sample numbers.
 - No orange in the palette: photo ring, badge and requirement icons use `warning-500`.
 - Note cards have the standard 1px gray border (lab rule).
+
+## Edge cases (checked at 1440px and 375px)
+- Mock worst case: note `pn4` (long name, long text + link, 3 mentions, 24 replies, unread, long time).
+- Long author name truncates next to the time; long words/links break; replies row wraps as whole pieces.
+- Phones: the page scrolls as one (profile, then tabs and notes); the Thread panel covers the screen. From lg the two columns scroll on their own.
+- Long candidate name wraps; long requirement values align right and wrap.

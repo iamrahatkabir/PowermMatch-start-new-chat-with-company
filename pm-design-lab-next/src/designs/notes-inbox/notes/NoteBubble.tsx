@@ -1,13 +1,13 @@
 'use client'
-// An internal note in the conversation: light yellow bubble on the right, @mentions in blue,
+// An internal note in the conversation: light yellow bubble on the right, @mentions in blue, text cut to 2 lines + "See more",
 // edit + delete icons on hover (left of the bubble; edit turns the bubble into a text box), a Reply link or (when it has replies) a replies row: avatars · "5 replies" · "Last reply 14:31", and "note icon · avatar · author • time" underneath.
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { NotepadText, Pencil, Reply, Trash2 } from 'lucide-react'
 import { PmAvatar } from '@/ds'
 import type { NoteReply } from '@/mock/inbox-types'
 import { cx } from '@/lib/cx'
 import { EditBox } from './EditBox'
-import { MentionText } from './MentionText'
+import { ClampedText } from './ClampedText'
 
 type Props = {
   text: string
@@ -25,9 +25,13 @@ type Props = {
   /** Shown as icons on hover when given (pass them only to the note's author). onEdit gets the new text. */
   onEdit?: (text: string) => void
   onDelete?: () => void
+  /** Shown at the end of the line under the bubble (e.g. the note type tag) */
+  meta?: ReactNode
+  /** Shown inside the bubble at the bottom right, on the replies / Reply row (e.g. the note type badge, version B) */
+  corner?: ReactNode
 }
 
-export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], unread, onReply, onOpenReplies, onEdit, onDelete }: Props) {
+export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], unread, onReply, onOpenReplies, onEdit, onDelete, meta, corner }: Props) {
   const [editing, setEditing] = useState<string | null>(null)
   return (
     <div className={cx('group flex max-w-[70%] flex-col items-end gap-1.5 self-end', editing !== null && 'w-full')}>
@@ -50,23 +54,33 @@ export function NoteBubble({ text, mentions = [], author, authorPhoto, time, rep
         {editing !== null ? (
           <EditBox initial={editing} onCancel={() => setEditing(null)} onSave={(t) => { onEdit?.(t); setEditing(null) }} />
         ) : (
-        <p className="whitespace-pre-line">
-          <MentionText text={text} mentions={mentions} />
-        </p>
+        // Two lines, then "See more"
+        <ClampedText text={text} mentions={mentions} className="whitespace-pre-line [overflow-wrap:anywhere]" />
         )}
-        {editing !== null ? null : replies.length > 0 ? (
-          <RepliesRow replies={replies} unread={unread} onOpen={onOpenReplies} />
-        ) : onReply && (
-          <button type="button" className="mt-1.5 flex items-center gap-1 text-[13px] text-info-500 hover:text-info-700" onClick={onReply}>
-            <Reply size={14} />Reply
-          </button>
+        {editing === null && (replies.length > 0 || onReply || corner) && (
+          // Bottom row: replies row or Reply link on the left, corner (type badge) on the right; the badge never wraps
+          <div className="mt-2 flex items-end gap-3">
+            <div className="min-w-0 flex-1">
+              {replies.length > 0 ? (
+                <RepliesRow replies={replies} unread={unread} onOpen={onOpenReplies} />
+              ) : onReply && (
+                <button type="button" className="flex items-center gap-1 text-[13px] text-info-500 hover:text-info-700" onClick={onReply}>
+                  <Reply size={14} />Reply
+                </button>
+              )}
+            </div>
+            {corner && <div className="ml-auto shrink-0">{corner}</div>}
+          </div>
         )}
       </div>
       </div>
-      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-        <NotepadText size={13} />
-        {authorPhoto && <PmAvatar name={author} src={authorPhoto} size={16} />}
-        {author} • {time}
+      <div className="flex max-w-full items-center gap-1.5 text-xs text-gray-500">
+        <NotepadText size={13} className="shrink-0" />
+        {authorPhoto && <span className="shrink-0"><PmAvatar name={author} src={authorPhoto} size={16} /></span>}
+        {/* Long names are cut with … so the time and type badge stay on one line */}
+        <span className="min-w-0 truncate">{author}</span>
+        <span className="shrink-0 whitespace-nowrap">• {time}</span>
+        {meta && <span className="ml-1 shrink-0">{meta}</span>}
       </div>
     </div>
   )
@@ -77,7 +91,7 @@ function RepliesRow({ replies, unread, onOpen }: { replies: NoteReply[]; unread?
   const shown = replies.filter((r, i) => replies.findIndex((x) => x.author === r.author) === i).slice(0, 2)
   const more = replies.length - shown.length
   return (
-    <div className="mt-2 flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 whitespace-nowrap">
       <div className="flex items-center gap-1">
         {shown.map((r) => <PmAvatar key={r.id} name={r.author} src={r.authorPhoto} size={20} />)}
         {more > 0 && (
