@@ -1,14 +1,20 @@
 'use client'
 // Prototype for every Notes in profile version: profile column, tabs, Notes tab and Thread panel with fake state.
-// noteTypes (same as Notes in inbox): 'ai' (A: AI sets the type after posting, badge next to the time),
-// 'ai-top' (B: same, badge at the bottom right of the card), 'manual' (C: dropdown next to Send),
+// noteTypes (same as Notes in inbox): 'ai-top' (A: AI sets the type after posting, badge at the bottom right of the card),
+// 'ai' (B: same, badge next to the time), 'manual' (C: dropdown next to Send),
 // 'chips' (D: four chips next to Send). Only the note's author can change the type from the badge.
-import { useState } from 'react'
+// Active / Archived tabs; Active = pinned first, then newest first; 8 per page with a pager under the list.
+// Anyone can pin or archive; archiving unpins. Pinning jumps to page 1 (where pinned notes are).
+import { useRef, useState } from 'react'
 import { cx } from '@/lib/cx'
 import { agents, noteColleagues, profileCandidate, profileNotes } from '@/mock'
 import type { NoteType, ProfileNote } from '@/mock'
 import { CandidateProfile } from '../profile/CandidateProfile'
-import { ProfileNotes } from '../notes/ProfileNotes'
+import { ProfileNotes, type NotesView } from '../notes/ProfileNotes'
+import { NotesPagination } from '../notes/NotesPagination'
+import { pageCountOf } from '../notes/pagination'
+import { NotesFilters } from '../notes/NotesFilters'
+import { applyFilters, emptyFilter, isFiltered, type NotesFilter } from '../notes/filters'
 import { profileNoteTime } from '../notes/time'
 import { NoteThreadPanel } from '@/designs/notes-inbox/notes/NoteThreadPanel'
 import { mentionsIn, noteTime } from '@/designs/notes-inbox/notes/mentions'
@@ -31,6 +37,22 @@ type Props = { noteTypes: NoteTypeMode }
 export function NotesProfile({ noteTypes }: Props) {
   const [tab, setTab] = useState('notes')
   const [notes, setNotes] = useState<ProfileNote[]>(profileNotes)
+  // Newest first, 8 per page
+  const PAGE_SIZE = 8
+  const [page, setPage] = useState(1)
+  const main = useRef<HTMLElement>(null)
+  const [view, setView] = useState<NotesView>('active')
+  const [filter, setFilter] = useState<NotesFilter>(emptyFilter)
+  const changeFilter = (f: NotesFilter) => { setFilter(f); setPage(1) }
+  // Everyone who wrote a note on this profile, A–Z
+  const authors = [...new Map(notes.map((n) => [n.author, { name: n.author, photo: n.authorPhoto }])).values()].sort((a, b) => a.name.localeCompare(b.name))
+  // Active: pinned first, then newest first. Archived: newest first.
+  const sorted = applyFilters(notes, filter)
+    .filter((n) => (view === 'archived' ? n.archived : !n.archived))
+    .sort((a, b) => (view === 'active' ? Number(!!b.pinned) - Number(!!a.pinned) : 0) || b.createdAt.localeCompare(a.createdAt))
+  const currentPage = Math.min(page, pageCountOf(sorted.length, PAGE_SIZE)) // e.g. after deleting the last note of the last page
+  const pageNotes = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const goToPage = (p: number) => { setPage(p); main.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }) }
   const [draft, setDraft] = useState('')
   const [draftType, setDraftType] = useState<NoteType | null>(null) // C, D: type picked before sending
   const ai = noteTypes === 'ai' || noteTypes === 'ai-top'
@@ -58,16 +80,16 @@ export function NotesProfile({ noteTypes }: Props) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 lg:h-screen">
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <header className="flex h-16 shrink-0 items-center bg-brand px-8">
         <img src="/brand/logo-mark.svg" alt="PowerMatch" className="h-6 w-auto brightness-0" />
       </header>
-      {/* Phones: one page scroll, profile then notes. lg+: the columns scroll on their own */}
+      {/* The whole page scrolls (no inner scroll in the profile column); the Thread panel sticks to the screen */}
       <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
-        <aside className="shrink-0 border-b border-gray-200 bg-white lg:w-[480px] lg:overflow-y-auto lg:border-b-0 lg:border-r">
+        <aside className="shrink-0 border-b border-gray-200 bg-white lg:w-[480px] lg:border-b-0 lg:border-r">
           <CandidateProfile candidate={profileCandidate} />
         </aside>
-        <main className="min-w-0 flex-1 px-4 py-8 sm:px-10 lg:overflow-y-auto">
+        <main ref={main} className="min-w-0 flex-1 scroll-mt-4 px-4 py-8 sm:px-10">
           <div className="flex gap-2 border-b border-gray-200">
             {tabs.map((t) => (
               <button
@@ -83,7 +105,15 @@ export function NotesProfile({ noteTypes }: Props) {
           <div className="pt-10">
             {tab === 'notes' ? (
               <ProfileNotes
-                notes={notes}
+                notes={pageNotes}
+                view={view}
+                filters={<NotesFilters value={filter} onChange={changeFilter} authors={authors} />}
+                emptyText={isFiltered(filter) ? 'No notes match these filters' : undefined}
+                emptyAction={isFiltered(filter) && <button type="button" className="text-sm font-medium text-info-500 hover:text-info-700" onClick={() => changeFilter(emptyFilter)}>Clear filter</button>}
+                onViewChange={(v) => { setView(v); setPage(1) }}
+                onTogglePin={(id) => { patch(id, (x) => ({ ...x, pinned: !x.pinned })); goToPage(1) }}
+                onToggleArchive={(id) => patch(id, (x) => ({ ...x, archived: !x.archived, pinned: x.archived ? x.pinned : false }))}
+                footer={<NotesPagination page={currentPage} total={sorted.length} pageSize={PAGE_SIZE} onPageChange={goToPage} />}
                 colleagues={noteColleagues}
                 draft={draft}
                 onDraftChange={setDraft}
@@ -105,7 +135,7 @@ export function NotesProfile({ noteTypes }: Props) {
                 onDeleteNote={(id) => { setNotes((ns) => ns.filter((x) => x.id !== id)); if (threadId === id) setThreadId(null) }}
                 onAddNote={(text, mentions) => {
                   const id = `new-${++noteId}`
-                  const base = { id, author: me.name, authorPhoto: me.photo, time: profileNoteTime(), text, mentions }
+                  const base = { id, author: me.name, authorPhoto: me.photo, time: profileNoteTime(), createdAt: new Date().toISOString().slice(0, 16), text, mentions }
                   if (picks) setNotes((ns) => [...ns, { ...base, noteType: draftType, noteTypeBy: 'agent' }])
                   else {
                     setNotes((ns) => [...ns, { ...base, noteType: null, noteTypeBy: 'ai' }])
@@ -114,6 +144,7 @@ export function NotesProfile({ noteTypes }: Props) {
                   }
                   setDraft('')
                   setDraftType(null)
+                  goToPage(1) // the new note is the newest, so it's first on page 1
                 }}
               />
             ) : (
@@ -123,6 +154,7 @@ export function NotesProfile({ noteTypes }: Props) {
         </main>
         {thread && (
           <NoteThreadPanel
+            className="xl:sticky xl:top-0 xl:h-screen xl:self-start"
             key={thread.id}
             note={thread}
             replies={thread.replies ?? []}

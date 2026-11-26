@@ -5,10 +5,13 @@
 // (bottom right, on the replies / Reply row). composerTools + saveBlocked let a version add a type picker next to Send.
 // Hover a note you wrote (canEdit) for edit + delete icons. Edit moves the text into the new-note box ("Save changes"),
 // the card stays in place above a dark overlay together with the box; overlay click, X or Esc cancels.
+// Paging: pass one page of notes and a footer (the pager). Active / Archived tabs right of the title (view + onViewChange);
+// hover toolbar: Pin + Archive for anyone, Edit + Delete for the author; pinned notes show "Pinned". Archived hides the new-note box.
 // Reuses MentionText (via ClampedText), NoteComposer and EditingBar from the Notes in inbox design.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Pencil, Reply, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, Pencil, Pin, PinOff, Reply, Trash2 } from 'lucide-react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PmAvatar } from '@/ds'
 import type { Agent } from '@/mock/inbox-types'
 import type { ProfileNote } from '@/mock/notes'
@@ -46,9 +49,28 @@ type Props = {
   /** Saves an edited note (mentions re-read from the text) */
   onEditNote?: (id: string, text: string, mentions: string[]) => void
   onDeleteNote?: (id: string) => void
+  /** Shown under the list, e.g. the pager */
+  footer?: ReactNode
+  /** Which list is shown: Active (with the new-note box) or Archived. Tabs sit right of the "Notes" title. */
+  view?: NotesView
+  onViewChange?: (v: NotesView) => void
+  /** Pin / unpin (Active only; pinned notes come first). Anyone can pin. */
+  onTogglePin?: (id: string) => void
+  /** Archive (Active) / restore (Archived). Anyone can archive. */
+  onToggleArchive?: (id: string) => void
+  /** Shown under the title row, e.g. the filter bar */
+  filters?: ReactNode
+  /** Empty-list text (e.g. "No notes match these filters") and an optional action under it */
+  emptyText?: string
+  emptyAction?: ReactNode
 }
 
-export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNote, onReply, onOpenReplies, openNoteId, focusKey, headerBadge, cornerBadge, composerTools, saveBlocked, saveBlockedHint, canEdit, onEditNote, onDeleteNote }: Props) {
+export type NotesView = 'active' | 'archived'
+
+const toolBtn = 'flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+
+export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNote, onReply, onOpenReplies, openNoteId, focusKey, headerBadge, cornerBadge, composerTools, saveBlocked, saveBlockedHint, canEdit, onEditNote, onDeleteNote, footer, view = 'active', onViewChange, onTogglePin, onToggleArchive, filters, emptyText, emptyAction }: Props) {
+  const archivedView = view === 'archived'
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
   const [editFocus, setEditFocus] = useState(0)
@@ -69,17 +91,41 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
   return (
     <div className="flex flex-col">
       <h2 className="text-lg font-semibold text-gray-900">Notes</h2>
+      {/* Filters on the left, Active / Archived tabs on the right, same row */}
+      <div className="mt-3 flex items-start gap-4">
+        <div className="min-w-0 flex-1">{filters}</div>
+        {onViewChange && (
+          <Tabs value={view} onValueChange={(v) => onViewChange(v === 'archived' ? 'archived' : 'active')} className="shrink-0">
+            <TabsList className="bg-gray-100 group-data-horizontal/tabs:h-9">
+              <TabsTrigger value="active" className="px-3 text-xs text-gray-600 data-active:text-gray-900 data-active:shadow-xs">Active</TabsTrigger>
+              <TabsTrigger value="archived" className="px-3 text-xs text-gray-600 data-active:text-gray-900 data-active:shadow-xs">Archived</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        )}
+      </div>
       <div ref={list} className="mt-3 flex flex-col gap-3">
-        {notes.length === 0 && <p className="text-sm text-gray-500">No notes yet</p>}
+        {notes.length === 0 && (
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-gray-200 bg-white px-4 py-8 text-center">
+            <p className="text-sm text-gray-500">{emptyText ?? (archivedView ? 'No archived notes' : 'No notes yet')}</p>
+            {emptyAction}
+          </div>
+        )}
         {notes.map((n) => (
           <div key={n.id} data-note-id={n.id} className={cx('group relative scroll-my-6 rounded-xl border bg-white p-4', n.id === openNoteId ? 'border-gray-400' : 'border-gray-200', n.id === editingId && 'pointer-events-none z-50')}>
-            {!editingId && canEdit?.(n) && (onEditNote || onDeleteNote) && (
+            {/* Hover toolbar: pin + archive for anyone; edit + delete for the author. Archived: restore (+ delete). */}
+            {!editingId && (
               <div className="absolute -top-3 right-3 hidden items-center rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm group-hover:flex">
-                {onEditNote && (
-                  <button type="button" className="flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-700" title="Edit note" onClick={() => startEdit(n)}><Pencil size={13} /></button>
+                {!archivedView && onTogglePin && (
+                  <button type="button" className={toolBtn} title={n.pinned ? 'Unpin' : 'Pin'} onClick={() => onTogglePin(n.id)}>{n.pinned ? <PinOff size={13} /> : <Pin size={13} />}</button>
                 )}
-                {onDeleteNote && (
-                  <button type="button" className="flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-error-500" title="Delete note" onClick={() => onDeleteNote(n.id)}><Trash2 size={13} /></button>
+                {onToggleArchive && (
+                  <button type="button" className={toolBtn} title={archivedView ? 'Restore' : 'Archive'} onClick={() => onToggleArchive(n.id)}>{archivedView ? <ArchiveRestore size={13} /> : <Archive size={13} />}</button>
+                )}
+                {!archivedView && onEditNote && canEdit?.(n) && (
+                  <button type="button" className={toolBtn} title="Edit note" onClick={() => startEdit(n)}><Pencil size={13} /></button>
+                )}
+                {onDeleteNote && canEdit?.(n) && (
+                  <button type="button" className={cx(toolBtn, 'hover:text-error-500')} title="Delete note" onClick={() => onDeleteNote(n.id)}><Trash2 size={13} /></button>
                 )}
               </div>
             )}
@@ -88,13 +134,16 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3">
                   <span className="min-w-0 truncate text-sm text-gray-900">{n.author}</span>
+                  {n.pinned && !archivedView && (
+                    <span className="flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-gray-500"><Pin size={12} className="fill-gray-500" />Pinned</span>
+                  )}
                   <span className="ml-auto flex shrink-0 items-center gap-2">
                     {headerBadge?.(n)}
                     <span className="whitespace-nowrap text-xs text-gray-700">{n.time}</span>
                   </span>
                 </div>
                 <div className="mt-0.5 max-w-[480px]">
-                  <ClampedText text={n.text} mentions={n.mentions} linkSize="text-xs" className="whitespace-pre-line text-xs leading-[18px] text-gray-600 [overflow-wrap:anywhere]" />
+                  <ClampedText text={n.text} mentions={n.mentions} linkSize="text-xs" className="whitespace-pre-line text-xs leading-[18px] text-gray-700 [overflow-wrap:anywhere]" />
                 </div>
               </div>
             </div>
@@ -115,6 +164,9 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
         ))}
       </div>
 
+      {footer && <div className="mt-4">{footer}</div>}
+
+      {!archivedView && (<>
       <h2 className="mt-10 text-lg font-semibold text-gray-900">Add a new note</h2>
       <div className="mt-3">
         {/* Edit mode: overlay (portaled to <body>) over everything except the note being edited and this box */}
@@ -140,6 +192,7 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
         />
         </div>
       </div>
+      </>)}
     </div>
   )
 }

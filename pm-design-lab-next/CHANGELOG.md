@@ -3,6 +3,21 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-26
+- **Notes in profile:** the profile column no longer scrolls on its own; the whole page scrolls and the column shows in full. The Thread panel sticks to the screen. Owner asked: "left side bar shouldn't be scrollable, make it full screen".
+- **Notes in profile:** hovering the "+N" filter chip shows the hidden chips in a small card, each removable. Added shadcn `hover-card`. Owner asked: "more than 2 filters shows like the Knowledge Base +1 hover".
+- **Notes in profile:** date range calendar: the days between start and end get a gray-100 band (start/end unchanged). Owner asked: "background between the date range gray 100".
+- **Notes in profile:** Active / Archived tabs are now really 36px tall (shadcn's own 32px height was winning over ours), matching the filter buttons. Owner noticed: "the outer height of the tab shows 32".
+- **Notes in profile:** note text colour gray-700 (was gray-600); inbox unchanged. Owner asked: "note text gray 700, only for profile".
+- **Notes in profile:** note text colour gray-600 → gray-700. Owner asked: "turn it to gray 700".
+- **Notes in profile:** filter buttons no longer show a count when applied (chips row shows the selection); fixed the tick of a ticked checkbox turning dark on hover (the menu's hover recoloured the tick icon). Owner asked: "remove filter count, tick still dark on hover".
+- **Notes in profile:** a ticked filter checkbox no longer changes on hover (stays gray-600 with a white tick). Owner asked: "remove hover effect for selected checkbox".
+- **Notes in profile:** filters and Active / Archived tabs now share one row (title above); removed the chevrons from the filter buttons; ticked filter checkboxes use gray-600. Owner asked: "filter and tabs in the same row, no chevron, gray 600 checkbox".
+- **Notes in profile (A–D):** filter bar under the title: Type, Author (checkbox menus), Date (presets + range calendar), Clear filter, and removable chips ("Type: Sales × +1"). Filters apply to the current tab before paging; empty state "No notes match these filters". Added shadcn `popover`, `calendar`, `checkbox`. Owner asked: "filter by type, author, date range, like the Knowledge Base design".
+- **Notes in profile:** 8 notes per page (was 5). Owner asked: "show 8 notes per page".
+- **Notes in profile (A–D):** Pin and Archive in the note hover toolbar (anyone; edit/delete stay author-only). Pinned notes show first with a "Pinned" label. Active / Archived tabs on the right of the "Notes" title; Archived has Restore and no new-note box. Added shadcn `tabs`. Owner asked: "pin and archive options, tabs for active and archived notes".
+- **Notes in profile:** removed the notes count next to the "Notes" title (the pager still says "Showing 1–5 of 122"). Owner asked: "remove the notes count beside the title".
+- **Notes in profile (A–D):** notes sorted newest first, 5 per page, pager under the list ("Showing 1–5 of 122", Previous · pages with … · Next) and a count next to "Notes". Mock now has 122 notes. Added shadcn `pagination`. Owner asked: "hundreds of notes in profiles: 5 per page, pagination, newest first".
+- **Notes in profile:** swapped A and B: A is now AI note type v2 (badge bottom right of the card), B is AI note type (badge next to the time). Owner asked: "move version B of profile to A".
 - **Notes in profile (A–D):** author-only edit + delete on note cards (hover toolbar). Edit works like the inbox: text moves into the new-note box (pencil · Esc to cancel, "Save changes"), the card and the box sit above a dark overlay. Owner asked: "apply these changes to profile, edit note as well".
 - **Notes in inbox + profile threads:** edit bar shows only the pencil icon and "Esc to cancel" (removed "Editing note" / "Editing reply" text). Owner asked: "only icon is enough, keep Esc to cancel".
 - **Notes in inbox:** while editing a note, the whole input card (tabs + input) sits above the overlay, not just the text box; tabs can't be switched during edit. Inbox got a `raiseComposer` option. Owner asked: "make the full input visible with the tabs".

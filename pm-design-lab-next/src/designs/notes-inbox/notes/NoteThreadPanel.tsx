@@ -29,9 +29,11 @@ type Props = {
   noteMeta?: ReactNode
   /** Shown inside the note block at the bottom right (version B puts the type badge here) */
   noteCorner?: ReactNode
+  /** Extra classes for the panel (e.g. sticky on a page that scrolls as a whole) */
+  className?: string
 }
 
-export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendReply, focusKey, currentUser, onEditReply, onDeleteReply, noteMeta, noteCorner }: Props) {
+export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendReply, focusKey, currentUser, onEditReply, onDeleteReply, noteMeta, noteCorner, className }: Props) {
   const [draft, setDraft] = useState('')
   const [quote, setQuote] = useState<NoteReplyQuote | null>(null)
   // Editing a reply happens in the Reply box: its text moves there, the reply is lifted above a dark overlay
@@ -70,7 +72,7 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
 
   // Below xl it covers the screen (no room for a side column); from xl it is a 300px column
   return (
-    <aside className="fixed inset-0 z-40 flex w-full flex-col bg-white xl:static xl:z-auto xl:w-[300px] xl:shrink-0 xl:border-l xl:border-gray-200">
+    <aside className={cx('fixed inset-0 z-40 flex w-full flex-col bg-white xl:static xl:z-auto xl:w-[300px] xl:shrink-0 xl:border-l xl:border-gray-200', className)}>
       <div className="flex h-16 shrink-0 items-center border-b border-gray-200 px-4">
         <span className="text-base font-semibold text-gray-900">Thread</span>
         <button type="button" className="ml-auto flex size-8 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-50" title="Close thread" onClick={onClose}><X size={18} /></button>
