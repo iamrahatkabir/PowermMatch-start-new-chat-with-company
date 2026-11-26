@@ -18,6 +18,8 @@ type Props = {
   time?: string
   /** Replies to this note, oldest first. When there are any, the replies row replaces the Reply link. */
   replies?: NoteReply[]
+  /** Red "• Unread" after the reply count (you're @mentioned and haven't opened the thread). Clicking it opens the thread, like "N replies". */
+  unread?: boolean
   onReply?: () => void
   onOpenReplies?: () => void
   /** Shown as icons on hover when given (pass them only to the note's author). onEdit gets the new text. */
@@ -25,7 +27,7 @@ type Props = {
   onDelete?: () => void
 }
 
-export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], onReply, onOpenReplies, onEdit, onDelete }: Props) {
+export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], unread, onReply, onOpenReplies, onEdit, onDelete }: Props) {
   const [editing, setEditing] = useState<string | null>(null)
   return (
     <div className={cx('group flex max-w-[70%] flex-col items-end gap-1.5 self-end', editing !== null && 'w-full')}>
@@ -53,7 +55,7 @@ export function NoteBubble({ text, mentions = [], author, authorPhoto, time, rep
         </p>
         )}
         {editing !== null ? null : replies.length > 0 ? (
-          <RepliesRow replies={replies} onOpen={onOpenReplies} />
+          <RepliesRow replies={replies} unread={unread} onOpen={onOpenReplies} />
         ) : onReply && (
           <button type="button" className="mt-1.5 flex items-center gap-1 text-[13px] text-info-500 hover:text-info-700" onClick={onReply}>
             <Reply size={14} />Reply
@@ -70,8 +72,8 @@ export function NoteBubble({ text, mentions = [], author, authorPhoto, time, rep
   )
 }
 
-// Up to 2 repliers' photos (different people), "+N" for the rest of the replies, count and last reply time
-function RepliesRow({ replies, onOpen }: { replies: NoteReply[]; onOpen?: () => void }) {
+// Up to 2 repliers' photos (different people), "+N" for the rest of the replies, count, red "• Unread" (clickable) and last reply time
+function RepliesRow({ replies, unread, onOpen }: { replies: NoteReply[]; unread?: boolean; onOpen?: () => void }) {
   const shown = replies.filter((r, i) => replies.findIndex((x) => x.author === r.author) === i).slice(0, 2)
   const more = replies.length - shown.length
   return (
@@ -85,6 +87,9 @@ function RepliesRow({ replies, onOpen }: { replies: NoteReply[]; onOpen?: () => 
       <button type="button" className="text-[13px] font-medium text-info-500 hover:text-info-700" onClick={onOpen}>
         {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
       </button>
+      {unread && (
+        <button type="button" className="text-[13px] font-medium text-error-500 hover:text-error-700" onClick={onOpen}>• Unread</button>
+      )}
       <span className="text-[13px] text-gray-500">Last reply {replies[replies.length - 1].time.slice(-5)}</span>
     </div>
   )

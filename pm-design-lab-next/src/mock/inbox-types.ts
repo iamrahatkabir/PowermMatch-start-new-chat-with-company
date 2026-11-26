@@ -77,6 +77,7 @@ export type ThreadItem = {
   mentions?: string[]
   canReply?: boolean // false = note shows no Reply link
   noteReplies?: NoteReply[] // replies to a note (oldest first)
+  unread?: boolean // you're @mentioned in this note/its replies and haven't opened the thread
 }
 
 // time: 'dd Mon HH:MM' (e.g. '22 Mar 13:55'); mentions: names written as @Name in text;

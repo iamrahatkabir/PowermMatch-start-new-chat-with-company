@@ -40,6 +40,12 @@ or the design system artifact unless a task changes them — their APIs are summ
 - Rule for company chats: a conversation with a contact person always opens under the **company's** name; the contact is shown as "Current" in Company info. If 2+ designs need the same new piece, add a `Pm*` component in `src/ds/`, export it from `src/ds/index.ts`, and add one line to the table below.
 - Don't run `npm run build` or take screenshots after every edit. Verify once at the end of a task, or when asked.
 
+## New components: shadcn/ui
+When a design needs a component that isn't in `@/ds` (or the design's own UI kit), take it from **shadcn/ui** (https://ui.shadcn.com/docs/components) instead of building it by hand. Keep using the `Pm*` components below for what they already cover.
+- Installed (style `radix-nova`, `components.json`). Add one with `npx shadcn@latest add <name>`; files go in `src/components/ui/` and import `cn` from the `cn` package (shadcn's class merger; `@/lib/utils` re-exports it). Import as `@/components/ui/<name>`.
+- **Colors are PowerMatch only:** shadcn's color variables (`--primary`, `--border`, …) are mapped to our tokens at the bottom of `src/styles/globals.css` (primary → `brand` with `gray-900` text, background → white, muted → `gray-50`/`gray-500`, border/input → `gray-200`/`gray-300`, ring → `gray-400`, destructive → `error-500`). Never add shadcn's default palette (slate, zinc, …) or its dark mode. Our radius, Inter font and brand rules still apply; if `shadcn init`/`add` ever rewrites `globals.css` or `app/layout.tsx` (fonts, radius), undo that part.
+- Added so far: `button` (from init; prefer `PmButton` for buttons). Add a line here when a shadcn component is added.
+
 ## Components (`import { PmButton, … } from '@/ds'`)
 Controlled inputs use `value` + `onChange(value)`; named slots are props that take nodes (`actions`, `prefix`, `suffix`).
 
@@ -96,3 +102,6 @@ Spacing: the default 4px scale. Card padding `p-4`–`p-6`, gaps `gap-4`–`gap-
 ## Sharing
 - `npm run build` builds the app; deploy the folder to Vercel to share review links.
 - Source of truth for tokens: the PowerMatch design system artifact (https://claude.ai/artifact/P53rwd7rZwvNk1kqUknKoD). Re-sync only when it changes.
+
+
+

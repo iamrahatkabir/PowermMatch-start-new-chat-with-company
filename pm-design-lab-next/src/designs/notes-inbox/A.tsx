@@ -35,6 +35,7 @@ export default function VariantA() {
 
   const openThread = (m: ThreadItem, focus: boolean) => {
     setThreadNoteId(m.id)
+    if (m.unread) inbox.update(() => { m.unread = false }) // opening the thread marks it read
     if (focus) setThreadFocus((k) => k + 1)
   }
   // Read on every InboxLayout render, so it always sees the current store state
@@ -62,6 +63,7 @@ export default function VariantA() {
             authorPhoto={m.authorPhoto}
             time={m.time}
             replies={m.noteReplies}
+            unread={m.unread}
             onReply={m.canReply === false ? undefined : () => openThread(m, true)}
             onOpenReplies={() => openThread(m, false)}
             // Only the note's author can edit or delete it

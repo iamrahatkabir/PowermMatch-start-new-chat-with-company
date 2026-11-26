@@ -8,6 +8,8 @@ import type { ProfileNote } from '@/mock'
 import { CandidateProfile } from './profile/CandidateProfile'
 import { ProfileNotes } from './notes/ProfileNotes'
 import { profileNoteTime } from './notes/time'
+import { NoteThreadPanel } from '@/designs/notes-inbox/notes/NoteThreadPanel'
+import { mentionsIn, noteTime } from '@/designs/notes-inbox/notes/mentions'
 
 const me = agents.find((a) => a.id === 'ls')!
 const tabs = [
@@ -16,12 +18,24 @@ const tabs = [
   { key: 'notes', label: 'Notes' },
 ]
 let noteId = 0
+let replyId = 0
 
 export default function VariantA() {
   const [tab, setTab] = useState('notes')
   const [notes, setNotes] = useState<ProfileNote[]>(profileNotes)
   const [draft, setDraft] = useState('')
   const [focusKey, setFocusKey] = useState<number | undefined>(undefined)
+  const [threadId, setThreadId] = useState<string | null>(null)
+  const [threadFocus, setThreadFocus] = useState(0)
+  const thread = notes.find((n) => n.id === threadId)
+
+  const patch = (id: string, fn: (n: ProfileNote) => ProfileNote) => setNotes((ns) => ns.map((n) => (n.id === id ? fn(n) : n)))
+  // Opening the thread marks it read
+  function openThread(n: ProfileNote, focus: boolean) {
+    setThreadId(n.id)
+    patch(n.id, (x) => ({ ...x, unread: false }))
+    if (focus) setThreadFocus((k) => k + 1)
+  }
 
   return (
     <div className="flex h-screen flex-col bg-gray-50">
@@ -53,7 +67,9 @@ export default function VariantA() {
                 draft={draft}
                 onDraftChange={setDraft}
                 focusKey={focusKey}
-                onReply={(n) => { setDraft(`@${n.author} `); setFocusKey((k) => (k ?? 0) + 1) }}
+                openNoteId={threadId}
+                onReply={(n) => openThread(n, true)}
+                onOpenReplies={(n) => openThread(n, false)}
                 onAddNote={(text, mentions) => {
                   setNotes((ns) => [...ns, { id: `new-${++noteId}`, author: me.name, authorPhoto: me.photo, time: profileNoteTime(), text, mentions }])
                   setDraft('')
@@ -64,6 +80,23 @@ export default function VariantA() {
             )}
           </div>
         </main>
+        {thread && (
+          <NoteThreadPanel
+            key={thread.id}
+            note={thread}
+            replies={thread.replies ?? []}
+            colleagues={noteColleagues}
+            currentUser={me.name}
+            focusKey={threadFocus}
+            onClose={() => setThreadId(null)}
+            onSendReply={(text, mentions, quote) => patch(thread.id, (n) => ({
+              ...n,
+              replies: [...(n.replies ?? []), { id: `pr-${++replyId}`, author: me.name, authorPhoto: me.photo, time: noteTime(), text, mentions, quote }],
+            }))}
+            onEditReply={(id, text) => patch(thread.id, (n) => ({ ...n, replies: n.replies?.map((r) => (r.id === id ? { ...r, text, mentions: mentionsIn(text, noteColleagues.map((c) => c.name)) } : r)) }))}
+            onDeleteReply={(id) => patch(thread.id, (n) => ({ ...n, replies: n.replies?.filter((r) => r.id !== id) }))}
+          />
+        )}
       </div>
     </div>
   )

@@ -47,7 +47,7 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
   }
 
   return (
-    <aside className="hidden w-[300px] shrink-0 flex-col border-l border-gray-200 xl:flex">
+    <aside className="hidden w-[300px] shrink-0 flex-col border-l border-gray-200 bg-white xl:flex">
       <div className="flex h-16 shrink-0 items-center border-b border-gray-200 px-4">
         <span className="text-base font-semibold text-gray-900">Thread</span>
         <button type="button" className="ml-auto flex size-8 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-50" title="Close thread" onClick={onClose}><X size={18} /></button>

@@ -3,6 +3,10 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-26
+- **Notes in inbox + Notes in profile (A):** red "• Unread" is clickable and opens the thread, like "N replies". Inbox notes now have the unread state too (`ThreadItem.unread`, set on the first note); opening the thread clears it. Owner asked: "unread should be clickable like replies, both open the thread".
+- **shadcn/ui installed:** `components.json` (radix-nova), `src/components/ui/button.tsx`, deps `radix-ui`, `class-variance-authority`, `cn`, `tw-animate-css`, `shadcn`. Its colors mapped to PowerMatch tokens in `globals.css`; kept Inter, our radius and gray-50 page (undid shadcn's Geist font, radius and dark mode). Owner asked: "install shadcn".
+- **Rule (CLAUDE.md):** new components come from shadcn/ui, styled with PowerMatch colors only (not set up yet; `npx shadcn@latest init` the first time one is needed). Owner asked: "use Shadcn for any new component, with PowerMatch colors".
+- **Notes in profile (A):** notes with replies: replies row (avatars, "5 replies", red "• Unread" when you're @mentioned and haven't read it, last reply time). Reply / "5 replies" opens the Thread sidebar on the right (reused from notes-inbox); opening marks it read. Owner asked: "note with reply, unread state, thread in sidebar".
 - **Notes in inbox (A):** edit/delete only for the author (notes and replies). Replies in the Thread panel get hover edit/delete next to Reply. Added a Las Sabir reply to the mock. Owner asked: "replies editable too, only author can edit or delete".
 - **Notes in inbox (A):** hover a note to see edit and delete icons; edit is inline (Save/Cancel), delete removes it. Owner asked: "edit and delete option on hover, just icons".
 - **Notes in profile (A):** built from the owner's screenshot: candidate profile (photo, facts, Interested buttons, match rings, requirements) and a Notes tab with note cards, Reply and "Add a new note" with @mentions. Copy in English. Owner asked: "build this in notes in profile".

@@ -1,4 +1,4 @@
-import type { Agent, ThreadItem } from './inbox-types'
+import type { Agent, NoteReply, ThreadItem } from './inbox-types'
 
 const photo = (g: 'men' | 'women', n: number) => `https://randomuser.me/api/portraits/${g}/${n}.jpg`
 
@@ -22,6 +22,7 @@ export const notesThread: ThreadItem[] = [
   {
     id: 'n2', type: 'message', dir: 'out', channel: 'note', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '22 Mar 11:05',
     text: '@Pranto Kumar Pashi This candidate needs your attention.', mentions: ['Pranto Kumar Pashi'],
+    unread: true,
     noteReplies: [
       { id: 'r1', author: 'Pranto Kumar Pashi', authorPhoto: photo('men', 22), time: '22 Mar 13:55', text: 'All good @Las Sabir I’m taking over this chat.', mentions: ['Las Sabir'] },
       { id: 'r2', author: 'Pranto Kumar Pashi', authorPhoto: photo('men', 22), time: '22 Mar 13:55', text: '@Rahat Kabir Ifty I’ve talked with the applicant. Onboard him from the next month for Renow Power APS.', mentions: ['Rahat Kabir Ifty'] },
@@ -43,7 +44,13 @@ export type ProfileCandidate = {
   name: string; photo: string; age: number; city: string; experienceYears: number
   match: number; factors: MatchFactor[]; requirements: Requirement[]
 }
-export type ProfileNote = { id: string; author: string; authorPhoto?: string; time: string; text: string; mentions?: string[] }
+export type ProfileNote = {
+  id: string; author: string; authorPhoto?: string; time: string; text: string; mentions?: string[]
+  /** Thread replies, oldest first (time 'dd Mon HH:MM') */
+  replies?: NoteReply[]
+  /** You are @mentioned in this note or its replies and haven't opened it yet */
+  unread?: boolean
+}
 
 export const profileCandidate: ProfileCandidate = {
   name: 'Jonas', photo: photo('men', 86), age: 23, city: 'Copenhagen', experienceYears: 3,
@@ -63,7 +70,24 @@ export const profileCandidate: ProfileCandidate = {
 }
 
 // time format on profile notes: 'H:MM, D Month, YYYY'
+const pk = { author: 'Pranto Kumar Pashi', authorPhoto: photo('men', 22) }
+const profileReplies = (id: string, last: NoteReply): NoteReply[] => [
+  { id: `${id}-r1`, ...pk, time: '22 Mar 13:55', text: 'All good @Las Sabir I’m taking over this chat.', mentions: ['Las Sabir'] },
+  { id: `${id}-r2`, ...pk, time: '22 Mar 13:55', text: '@Rahat Kabir Ifty I’ve talked with the applicant. Onboard him from the next month for Renow Power APS.', mentions: ['Rahat Kabir Ifty'] },
+  { id: `${id}-r3`, author: 'Maja Holm', authorPhoto: photo('women', 44), time: '22 Mar 14:02', text: 'He also applied for the Dewalt job last week.' },
+  { id: `${id}-r4`, author: 'Frederik Krogh', authorPhoto: photo('men', 12), time: '22 Mar 14:18', text: 'Skanska wants an answer before Friday.' },
+  last,
+]
+
+const profileNoteText = 'Candidate matched with and interested in the company, Company is willing to onboard this candidate from 01 January, 2026'
 export const profileNotes: ProfileNote[] = [
-  { id: 'pn1', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: 'Candidate matched with and interested in the company, Company is willing to onboard this candidate from 01 January, 2026' },
-  { id: 'pn2', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: 'Candidate matched with and interested in the company, Company is willing to onboard this candidate from 01 January, 2026' },
+  {
+    id: 'pn1', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: profileNoteText,
+    replies: profileReplies('pn1', { id: 'pn1-r5', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '22 Mar 14:31', text: 'Thanks, I’ll let the company know.' }),
+  },
+  {
+    id: 'pn2', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: profileNoteText, unread: true,
+    replies: profileReplies('pn2', { id: 'pn2-r5', author: 'Maja Holm', authorPhoto: photo('women', 44), time: '22 Mar 14:31', text: '@Las Sabir can you confirm the start date with Jonas?', mentions: ['Las Sabir'] }),
+  },
+  { id: 'pn3', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '9:15, 28 September, 2026', text: 'Jonas has his own tools and a driving licence.' },
 ]
