@@ -1,7 +1,7 @@
 'use client'
 // An internal note in the conversation: light yellow bubble on the right, @mentions in blue, text cut to 2 lines + "See more",
 // edit + delete icons on hover (left of the bubble; edit turns the bubble into a text box), a Reply link or (when it has replies) a replies row: avatars · "5 replies" · "Last reply 14:31", and "note icon · avatar · author • time" underneath.
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { NotepadText, Pencil, Reply, Trash2 } from 'lucide-react'
 import { PmAvatar } from '@/ds'
 import type { NoteReply } from '@/mock/inbox-types'
@@ -22,24 +22,30 @@ type Props = {
   unread?: boolean
   onReply?: () => void
   onOpenReplies?: () => void
-  /** Shown as icons on hover when given (pass them only to the note's author). onEdit gets the new text. */
+  /** Shown as icons on hover when given (pass them only to the note's author). onEdit gets the new text (inline edit). */
   onEdit?: (text: string) => void
+  /** When given, the pencil calls this instead of editing inside the bubble (e.g. edit in the composer) */
+  onEditClick?: () => void
   onDelete?: () => void
   /** Shown at the end of the line under the bubble (e.g. the note type tag) */
   meta?: ReactNode
+  /** Being edited: the note sits above the edit overlay (z-50), scrolls into view, light meta line, no hover icons */
+  raised?: boolean
   /** Shown inside the bubble at the bottom right, on the replies / Reply row (e.g. the note type badge, version B) */
   corner?: ReactNode
 }
 
-export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], unread, onReply, onOpenReplies, onEdit, onDelete, meta, corner }: Props) {
+export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], unread, onReply, onOpenReplies, onEdit, onEditClick, onDelete, meta, corner, raised }: Props) {
   const [editing, setEditing] = useState<string | null>(null)
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => { if (raised) root.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) }, [raised])
   return (
-    <div className={cx('group flex max-w-[70%] flex-col items-end gap-1.5 self-end', editing !== null && 'w-full')}>
+    <div ref={root} className={cx('group flex max-w-[70%] flex-col items-end gap-1.5 self-end', editing !== null && 'w-full', raised && 'pointer-events-none relative z-50')}>
       <div className="flex w-full items-center justify-end gap-2">
-        {editing === null && (onEdit || onDelete) && (
+        {editing === null && !raised && (onEdit || onEditClick || onDelete) && (
           <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-            {onEdit && (
-              <button type="button" className="flex size-7 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700" title="Edit note" onClick={() => setEditing(text)}>
+            {(onEdit || onEditClick) && (
+              <button type="button" className="flex size-7 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700" title="Edit note" onClick={() => (onEditClick ? onEditClick() : setEditing(text))}>
                 <Pencil size={15} />
               </button>
             )}
@@ -74,7 +80,7 @@ export function NoteBubble({ text, mentions = [], author, authorPhoto, time, rep
         )}
       </div>
       </div>
-      <div className="flex max-w-full items-center gap-1.5 text-xs text-gray-500">
+      <div className={cx('flex max-w-full items-center gap-1.5 text-xs', raised ? 'text-gray-200' : 'text-gray-500')}>
         <NotepadText size={13} className="shrink-0" />
         {authorPhoto && <span className="shrink-0"><PmAvatar name={author} src={authorPhoto} size={16} /></span>}
         {/* Long names are cut with … so the time and type badge stay on one line */}

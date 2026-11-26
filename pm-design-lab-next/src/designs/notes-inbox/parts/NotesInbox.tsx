@@ -4,6 +4,7 @@
 // 'ai-top' (B: same as A, nothing to set while writing; the badge sits inside the note at the bottom right),
 // 'manual' (C: agent picks the type from a dropdown before saving), 'chips' (D: four type chips next to Save note, one must be picked), none = no types.
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { agents, clientCompanies, contactDirectory, noteColleagues, notesThread } from '@/mock'
 import type { NoteType, ThreadItem } from '@/mock'
 import { InboxProvider, useCreateInbox } from '@/designs/inbox/parts/useInbox'
@@ -17,13 +18,13 @@ import { mentionsIn, noteTime } from '../notes/mentions'
 import { NoteTypeTag } from '../notes/NoteTypeTag'
 import { NoteTypePicker } from '../notes/NoteTypePicker'
 import { NoteTypeChips } from '../notes/NoteTypeChips'
-import { guessNoteType } from '../notes/noteTypes'
+import { EditingBar } from '../notes/EditingBar'
+import { guessNoteType, type NoteTypeMode } from '../notes/noteTypes'
 
 const me = agents.find((a) => a.id === 'ls')!
 let replyId = 0
 let noteId = 0
 
-export type NoteTypeMode = 'ai' | 'ai-top' | 'manual' | 'chips'
 type Props = { noteTypes?: NoteTypeMode }
 
 export function NotesInbox({ noteTypes }: Props) {
@@ -39,6 +40,11 @@ export function NotesInbox({ noteTypes }: Props) {
     },
   })
   const [draft, setDraft] = useState('')
+  // Editing a note happens in the composer: its text moves into the input, the rest of the screen gets an overlay
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [composerFocus, setComposerFocus] = useState(0)
+  const cancelEdit = () => { setEditId(null); setEditText('') }
   const [draftType, setDraftType] = useState<NoteType | null>(null) // C, D: type picked in the composer
   // Note whose Thread panel is open (id in the open conversation) + a counter to focus its Reply box
   const [threadNoteId, setThreadNoteId] = useState<string | null>(null)
@@ -67,6 +73,7 @@ export function NotesInbox({ noteTypes }: Props) {
     <InboxProvider store={inbox}>
       <InboxLayout
         defaultTab="note"
+        raiseComposer={!!editId}
         menu={
           <StartChatSections
             companies={clientCompanies}
@@ -76,7 +83,7 @@ export function NotesInbox({ noteTypes }: Props) {
             onSelectPerson={inbox.startWithPerson}
           />
         }
-        renderNote={(m) => (
+        renderNote={(m, { openNoteTab }) => (
           <NoteBubble
             text={m.text ?? ''}
             mentions={m.mentions}
@@ -88,28 +95,47 @@ export function NotesInbox({ noteTypes }: Props) {
             onReply={m.canReply === false ? undefined : () => openThread(m, true)}
             onOpenReplies={() => openThread(m, false)}
             // Only the note's author can edit or delete it
-            onEdit={m.author !== me.name ? undefined : (text) => inbox.update(() => { m.text = text; m.mentions = mentionsIn(text, noteColleagues.map((c) => c.name)) })}
+            raised={m.id === editId}
+            onEditClick={m.author !== me.name ? undefined : () => { openNoteTab(); setEditId(m.id); setEditText(m.text ?? ''); setComposerFocus((k) => k + 1) }}
             meta={noteTypes !== 'ai-top' && typeBadge(m)}
             corner={noteTypes === 'ai-top' && typeBadge(m)}
             onDelete={m.author !== me.name ? undefined : () => {
               inbox.update((s) => { s.threads[s.selectedId] = s.threads[s.selectedId].filter((x) => x.id !== m.id) })
               if (threadNoteId === m.id) setThreadNoteId(null)
+              if (editId === m.id) cancelEdit()
             }}
           />
         )}
         renderNoteComposer={({ saveNote }) => (
+          <>
+          {/* Edit mode: overlay over everything except the composer card (tabs + input, lifted via raiseComposer) and the
+              note being edited. Portaled to <body> so it isn't trapped inside the lifted card. Click it to cancel. */}
+          {editId && createPortal(<div className="fixed inset-0 z-40 bg-gray-900/70" onClick={cancelEdit} />, document.body)}
+          <div>
           <NoteComposer
-            value={draft}
-            onChange={setDraft}
+            value={editId ? editText : draft}
+            onChange={editId ? setEditText : setDraft}
             colleagues={noteColleagues}
-            tools={
+            focusKey={composerFocus}
+            header={editId && <EditingBar onCancel={cancelEdit} />}
+            saveLabel={editId ? 'Save changes' : undefined}
+            onEscape={editId ? cancelEdit : undefined}
+            tools={editId ? null :
               noteTypes === 'manual' ? <NoteTypePicker value={draftType} onChange={setDraftType} />
               : noteTypes === 'chips' ? <NoteTypeChips value={draftType} onChange={setDraftType} />
               : null
             }
-            saveBlocked={(noteTypes === 'manual' || noteTypes === 'chips') && !draftType}
+            saveBlocked={!editId && (noteTypes === 'manual' || noteTypes === 'chips') && !draftType}
             saveBlockedHint="Choose a note type first"
             onSave={(text, mentions) => {
+              if (editId) {
+                inbox.update((s) => {
+                  const n = s.threads[s.selectedId]?.find((x) => x.id === editId)
+                  if (n) { n.text = text; n.mentions = mentions }
+                })
+                cancelEdit()
+                return
+              }
               const id = `note-${++noteId}`
               if (noteTypes === 'manual' || noteTypes === 'chips') saveNote(text, { id, mentions, time: noteTime(), noteType: draftType, noteTypeBy: 'agent' })
               else if (noteTypes === 'ai' || noteTypes === 'ai-top') {
@@ -124,6 +150,8 @@ export function NotesInbox({ noteTypes }: Props) {
               setDraftType(null)
             }}
           />
+          </div>
+          </>
         )}
         renderLockedComposer={({ assignToMe }) => <AssignToJoin onAssign={assignToMe} />}
         renderSidePanel={() => {

@@ -4,7 +4,10 @@ const meta: DesignMeta = {
   title: 'Notes in profile',
   question: '',
   variants: {
-    A: 'Notes tab on the candidate profile',
+    A: 'AI note type',
+    B: 'AI note type v2',
+    C: 'Manual note type',
+    D: 'Manual note type v2',
   },
 }
 

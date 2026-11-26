@@ -28,9 +28,13 @@ type Props = {
   /** Keeps Save disabled (e.g. no note type chosen yet); saveBlockedHint is shown as its tooltip */
   saveBlocked?: boolean
   saveBlockedHint?: string
+  /** Save button text (default "Save note" / "Send") */
+  saveLabel?: string
+  /** Esc pressed while no @ list is open (e.g. cancel editing) */
+  onEscape?: () => void
 }
 
-export function NoteComposer({ value, onChange, onSave, colleagues, disabled, focusKey, variant = 'note', placeholder, header, tools, saveBlocked, saveBlockedHint }: Props) {
+export function NoteComposer({ value, onChange, onSave, colleagues, disabled, focusKey, variant = 'note', placeholder, header, tools, saveBlocked, saveBlockedHint, saveLabel, onEscape }: Props) {
   const isReply = variant === 'reply'
   const area = useRef<HTMLTextAreaElement>(null)
   const [cursor, setCursor] = useState(0)
@@ -114,6 +118,7 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
             if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); pick(matches[active] ?? matches[0]); return }
             if (e.key === 'Escape') { e.preventDefault(); setClosed(true); return }
           }
+          if (e.key === 'Escape' && onEscape) { e.preventDefault(); onEscape(); return }
           if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); save() }
         }}
       />
@@ -122,7 +127,7 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
         <button type="button" className={cx('flex size-8 items-center justify-center rounded-lg', isReply ? 'hover:bg-gray-50' : 'hover:bg-brand-light')} title="Insert link"><Link size={16} /></button>
         <div className="ml-auto flex min-w-0 items-center gap-2">{tools}</div>
         <span title={saveBlocked && value.trim() ? saveBlockedHint : undefined}>
-        <PmButton size="sm" variant={canSave ? 'primary' : 'secondary'} disabled={!canSave} onClick={save}>{isReply ? <>Send <Send size={14} /></> : 'Save note'}</PmButton>
+        <PmButton size="sm" variant={canSave ? 'primary' : 'secondary'} disabled={!canSave} onClick={save}>{saveLabel ?? (isReply ? <>Send <Send size={14} /></> : 'Save note')}</PmButton>
         </span>
       </div>
     </div>

@@ -105,6 +105,7 @@ Shown inside the inbox when **Inbox → Notification settings** is clicked in th
 - Uses `PmSelect`, `PmButton`, `PmToggle` and `lucide-react`.
 
 ## Prototype options
+- `raiseComposer?: boolean` (InboxLayout → ConversationThread): lifts the whole composer card (tabs + input) to `z-50` above a page overlay and stops tab switching; used by Notes in inbox while editing a note.
 - `useCreateInbox({ selectedId, menuOpen, init })` — open conversation, show the Start new conversation menu at start (default yes), `init(state)` to change the fresh state.
 - `<InboxLayout defaultTab>` — composer tab at start and after switching conversation (chat · email · sms · note). Default: the conversation's channel. Used by `notes-inbox`.
 - `<InboxLayout renderNote renderNoteComposer>` — optional: draw notes (`channel: 'note'`) and replace the Note tab composer (no assign overlay there). Used by `notes-inbox`.

@@ -3,6 +3,13 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-26
+- **Notes in profile (A–D):** author-only edit + delete on note cards (hover toolbar). Edit works like the inbox: text moves into the new-note box (pencil · Esc to cancel, "Save changes"), the card and the box sit above a dark overlay. Owner asked: "apply these changes to profile, edit note as well".
+- **Notes in inbox + profile threads:** edit bar shows only the pencil icon and "Esc to cancel" (removed "Editing note" / "Editing reply" text). Owner asked: "only icon is enough, keep Esc to cancel".
+- **Notes in inbox:** while editing a note, the whole input card (tabs + input) sits above the overlay, not just the text box; tabs can't be switched during edit. Inbox got a `raiseComposer` option. Owner asked: "make the full input visible with the tabs".
+- **Notes in inbox + Notes in profile (all versions):** editing a thread reply works like editing a note: its text moves into the Reply box ("Editing reply", "Save changes"), the reply stays in place above a dark overlay. Owner asked: "same for threads and all the versions".
+- **Notes in inbox:** while editing, the note you clicked stays in place and is lifted above the overlay (no copy). Owner asked: "the note I clicked should be visible, not a new one".
+- **Notes in inbox (all versions):** editing a note now loads its text into the note input ("Editing note" bar, "Save changes"), with a dark overlay over everything except the input; overlay click, X or Esc cancels. Owner asked: "edit puts the text in the input, overlay on the rest".
+- **Notes in profile A–D (new):** same note type versions as the inbox: A AI type (badge next to the time), B AI v2 (badge bottom right of the card), C Manual dropdown next to Send, D Manual chips next to Send. Also: 2-line text + "… See more", author-only type change, badge in the Thread panel. Prototype moved to `parts/NotesProfile.tsx`; `NoteTypeMode` now lives in `notes-inbox/notes/noteTypes.ts`. Owner asked: "apply these changes in profile with all 4 versions".
 - **Notes in inbox D:** type chips moved from above the text to next to Save note (no "Type" label). Owner asked: "bring the type beside the save note button".
 - **Notes in inbox B:** type badge stays white on hover too (hover darkens the text instead of turning gray). Owner asked: "badge bg white in B".
 - **Notes in inbox:** line 2 of a folded note is filled to the right edge before "… See more" (cut mid-word if needed). Owner asked: "fill the width of the second line to the right".

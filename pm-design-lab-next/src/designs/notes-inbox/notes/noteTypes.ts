@@ -3,6 +3,10 @@ import type { NoteType } from '@/mock/inbox-types'
 
 export type { NoteType }
 
+/** How a version handles note types: ai = AI sets it after posting (badge under the note), ai-top = same, badge inside the note
+ *  at the bottom right, manual = dropdown next to Save, chips = four chips next to Save */
+export type NoteTypeMode = 'ai' | 'ai-top' | 'manual' | 'chips'
+
 export const NOTE_TYPES: { key: NoteType; label: string }[] = [
   { key: 'payroll-cs', label: 'Payroll + CS' },
   { key: 'sales-form', label: 'Sales form' },

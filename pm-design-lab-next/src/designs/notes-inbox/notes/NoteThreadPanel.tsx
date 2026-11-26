@@ -1,12 +1,13 @@
 'use client'
-// "Thread" side panel for a note: the note on top, "N replies", the replies (hover shows Reply, plus edit/delete on your own),
+// "Thread" side panel for a note: the note on top, "N replies", the replies (hover shows Reply, plus edit/delete on your own;
+// edit moves the reply text into the Reply box and lifts the reply above a dark overlay),
 // and a Reply box at the bottom. Reply on a reply shows "Replying to …" above the box; the sent reply quotes it. Replaces the contact panel while open.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { NotepadText, Pencil, Reply, Trash2, X } from 'lucide-react'
 import { PmAvatar } from '@/ds'
 import { cx } from '@/lib/cx'
 import type { Agent, NoteReply, NoteReplyQuote } from '@/mock/inbox-types'
-import { EditBox } from './EditBox'
+import { EditingBar } from './EditingBar'
 import { MentionText } from './MentionText'
 import { NoteComposer } from './NoteComposer'
 import { withoutMentions } from './mentions'
@@ -33,7 +34,10 @@ type Props = {
 export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendReply, focusKey, currentUser, onEditReply, onDeleteReply, noteMeta, noteCorner }: Props) {
   const [draft, setDraft] = useState('')
   const [quote, setQuote] = useState<NoteReplyQuote | null>(null)
+  // Editing a reply happens in the Reply box: its text moves there, the reply is lifted above a dark overlay
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const cancelEdit = () => { setEditingId(null); setEditText('') }
   const [focus, setFocus] = useState(focusKey)
   useEffect(() => setFocus(focusKey), [focusKey])
   const list = useRef<HTMLDivElement>(null)
@@ -44,6 +48,20 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
     if (replies.length > count.current) list.current?.scrollTo({ top: list.current.scrollHeight, behavior: 'smooth' })
     count.current = replies.length
   }, [replies.length])
+
+  // After the edit bar appears (the list gets shorter), bring the reply being edited into view
+  useEffect(() => {
+    if (!editingId) return
+    const t = setTimeout(() => list.current?.querySelector(`[data-reply-id="${editingId}"]`)?.scrollIntoView({ block: 'end', behavior: 'smooth' }), 120)
+    return () => clearTimeout(t)
+  }, [editingId])
+
+  function startEdit(r: NoteReply) {
+    setEditingId(r.id)
+    setEditText(r.text)
+    setQuote(null)
+    setFocus((k) => (k ?? 0) + 1)
+  }
 
   function replyTo(r: NoteReply) {
     setQuote({ replyId: r.id, author: r.author, text: withoutMentions(r.text, r.mentions) })
@@ -84,27 +102,21 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
             const mine = !!currentUser && r.author === currentUser
             const editing = editingId === r.id
             return (
-            <div key={r.id} className="group relative flex gap-2.5">
+            <div key={r.id} data-reply-id={r.id} className={cx('group relative flex gap-2.5', editing && 'z-50 -mx-2 -my-1.5 rounded-xl bg-white px-2 py-1.5')}>
               <PmAvatar name={r.author} src={r.authorPhoto} size={24} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm text-gray-900">
                   {r.author} <span className="text-gray-500">• {r.time}</span>
                 </div>
                 {r.quote && <Quote quote={r.quote} className="mt-1.5 bg-gray-50" />}
-                {editing ? (
-                  <div className="mt-1.5">
-                    <EditBox initial={r.text} onCancel={() => setEditingId(null)} onSave={(t) => { onEditReply?.(r.id, t); setEditingId(null) }} />
-                  </div>
-                ) : (
-                  <p className={cx(r.quote ? 'mt-2' : 'mt-0.5', 'whitespace-pre-line text-sm leading-6 text-gray-600 [overflow-wrap:anywhere]')}>
-                    <MentionText text={r.text} mentions={r.mentions} />
-                  </p>
-                )}
+                <p className={cx(r.quote ? 'mt-2' : 'mt-0.5', 'whitespace-pre-line text-sm leading-6 text-gray-600 [overflow-wrap:anywhere]')}>
+                  <MentionText text={r.text} mentions={r.mentions} />
+                </p>
               </div>
-              {!editing && (
+              {!editingId && (
                 <div className="absolute -top-2 right-0 hidden items-center rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm group-hover:flex">
                   {mine && onEditReply && (
-                    <button type="button" className="flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-700" title="Edit reply" onClick={() => setEditingId(r.id)}><Pencil size={13} /></button>
+                    <button type="button" className="flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-700" title="Edit reply" onClick={() => startEdit(r)}><Pencil size={13} /></button>
                   )}
                   {mine && onDeleteReply && (
                     <button type="button" className="flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-error-500" title="Delete reply" onClick={() => onDeleteReply(r.id)}><Trash2 size={13} /></button>
@@ -120,6 +132,8 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
         </div>
       </div>
 
+      {/* Edit mode: overlay over everything except the reply being edited and the Reply box (click it to cancel) */}
+      {editingId && <div className="fixed inset-0 z-40 bg-gray-900/70" onClick={cancelEdit} />}
       <div className={cx('shrink-0 p-4', quote && 'border-t border-gray-200')}>
         {quote && (
           <div className="relative mb-3">
@@ -127,14 +141,22 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
             <button type="button" className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded text-gray-500 hover:bg-gray-100" title="Cancel reply" onClick={() => setQuote(null)}><X size={12} /></button>
           </div>
         )}
+        <div className={editingId ? 'relative z-50 overflow-hidden rounded-2xl bg-white' : undefined}>
         <NoteComposer
           variant="reply"
-          value={draft}
-          onChange={setDraft}
+          value={editingId ? editText : draft}
+          onChange={editingId ? setEditText : setDraft}
           colleagues={colleagues}
           focusKey={focus}
-          onSave={(text, mentions) => { onSendReply(text, mentions, quote ?? undefined); setDraft(''); setQuote(null) }}
+          header={editingId && <EditingBar label="Editing reply" onCancel={cancelEdit} />}
+          saveLabel={editingId ? 'Save changes' : undefined}
+          onEscape={editingId ? cancelEdit : undefined}
+          onSave={(text, mentions) => {
+            if (editingId) { onEditReply?.(editingId, text); cancelEdit(); return }
+            onSendReply(text, mentions, quote ?? undefined); setDraft(''); setQuote(null)
+          }}
         />
+        </div>
       </div>
     </aside>
   )

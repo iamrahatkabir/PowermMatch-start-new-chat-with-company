@@ -15,13 +15,16 @@ type Props = {
   /** Lines shown while folded */
   lines?: number
   className?: string
+  /** Text size of the See more / See less link (default 13px) */
+  linkSize?: string
 }
 
-const link = 'whitespace-nowrap text-[13px] font-medium text-info-500 hover:text-info-700'
+const linkBase = 'whitespace-nowrap font-medium text-info-500 hover:text-info-700'
 // Text up to n characters, without trailing spaces or punctuation (so it never reads "tools.…")
 const cutAt = (text: string, n: number) => text.slice(0, n).replace(/[\s.,;:!?–-]+$/, '')
 
-export function ClampedText({ text, mentions = [], lines = 2, className }: Props) {
+export function ClampedText({ text, mentions = [], lines = 2, className, linkSize = 'text-[13px]' }: Props) {
+  const link = cx(linkBase, linkSize)
   const wrap = useRef<HTMLDivElement>(null)
   const measure = useRef<HTMLParagraphElement>(null)
   const [open, setOpen] = useState(false)
@@ -69,7 +72,7 @@ export function ClampedText({ text, mentions = [], lines = 2, className }: Props
     }
     // Cut mid-word if needed so line 2 is filled up to "See more"
     setCut(lo)
-  }, [text, mentionKey, lines, open, width]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [text, mentionKey, lines, open, width, link]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div ref={wrap} className="relative">

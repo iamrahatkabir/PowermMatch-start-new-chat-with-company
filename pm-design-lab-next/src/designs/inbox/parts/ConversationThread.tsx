@@ -26,6 +26,8 @@ export type ConversationThreadProps = {
   renderNoteComposer?: (p: { saveNote: (text: string, extra?: Partial<ThreadItem>) => void }) => ReactNode
   /** Replaces the Chat/Email/SMS composer (and the overlay) while the conversation isn't assigned to you. The Note tab stays usable. */
   renderLockedComposer?: (p: { assignToMe: () => void }) => ReactNode
+  /** Lifts the whole composer card (tabs + input) above a page overlay (z-50), e.g. while editing a note */
+  raiseComposer?: boolean
 }
 
 // Email designs can pass their own email component (same props/callbacks as EmailMessage).
@@ -43,7 +45,7 @@ const sender = { name: me.name, email: 'las@powermatch.dk', phone: '+45 70 20 30
 // Opening a conversation starts at the newest message, with the composer on that conversation's channel
 const tabFor: Record<string, string> = { email: 'email', sms: 'sms' }
 
-export function ConversationThread({ emailComponent: EmailComponent = EmailMessage, groupReplies, renderEmailComposer, defaultTab, renderNote, renderNoteComposer, renderLockedComposer }: ConversationThreadProps) {
+export function ConversationThread({ emailComponent: EmailComponent = EmailMessage, groupReplies, renderEmailComposer, defaultTab, renderNote, renderNoteComposer, renderLockedComposer, raiseComposer }: ConversationThreadProps) {
   const { state, selected, company, currentContact, send, call, assignToMe, update } = useInbox()
   const assignee = selected.assigneeId === null ? null : agents.find((a) => a.id === (selected.assigneeId ?? 'pa'))!
   const thread = state.threads[selected.id]
@@ -252,8 +254,9 @@ export function ConversationThread({ emailComponent: EmailComponent = EmailMessa
 
       {/* Composer */}
       <div className="shrink-0 px-6 pb-6">
-        <div className="relative rounded-2xl border border-gray-200 bg-white">
-          <div className="flex gap-1 border-b border-gray-100 px-3">
+        <div className={cx('relative rounded-2xl border border-gray-200 bg-white', raiseComposer && 'z-50')}>
+          {/* While lifted (editing), tabs are visible but can't be switched */}
+          <div className={cx('flex gap-1 border-b border-gray-100 px-3', raiseComposer && 'pointer-events-none')}>
             {tabs.map((t) => (
               <button
                 key={t.key}

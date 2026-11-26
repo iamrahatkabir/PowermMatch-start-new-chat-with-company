@@ -1,4 +1,4 @@
-import type { Agent, NoteReply, ThreadItem } from './inbox-types'
+import type { Agent, NoteReply, NoteType, ThreadItem } from './inbox-types'
 
 const photo = (g: 'men' | 'women', n: number) => `https://randomuser.me/api/portraits/${g}/${n}.jpg`
 
@@ -81,6 +81,9 @@ export type ProfileNote = {
   replies?: NoteReply[]
   /** You are @mentioned in this note or its replies and haven't opened it yet */
   unread?: boolean
+  /** Note category; null/missing = not set yet (AI still working) */
+  noteType?: NoteType | null
+  noteTypeBy?: 'ai' | 'agent'
 }
 
 export const profileCandidate: ProfileCandidate = {
@@ -113,14 +116,14 @@ const profileReplies = (id: string, last: NoteReply): NoteReply[] => [
 const profileNoteText = 'Candidate matched with and interested in the company, Company is willing to onboard this candidate from 01 January, 2026'
 export const profileNotes: ProfileNote[] = [
   {
-    id: 'pn1', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: profileNoteText,
+    id: 'pn1', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: profileNoteText, noteType: 'sales', noteTypeBy: 'ai',
     replies: profileReplies('pn1', { id: 'pn1-r5', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '22 Mar 14:31', text: 'Thanks, I’ll let the company know.' }),
   },
   {
-    id: 'pn2', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: profileNoteText, unread: true,
+    id: 'pn2', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '8:30, 27 September, 2026', text: profileNoteText, noteType: 'sales-form', noteTypeBy: 'ai', unread: true,
     replies: profileReplies('pn2', { id: 'pn2-r5', author: 'Maja Holm', authorPhoto: photo('women', 44), time: '22 Mar 14:31', text: '@Las Sabir can you confirm the start date with Jonas?', mentions: ['Las Sabir'] }),
   },
-  { id: 'pn3', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '9:15, 28 September, 2026', text: 'Jonas has his own tools and a driving licence.' },
+  { id: 'pn3', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '9:15, 28 September, 2026', text: 'Jonas has his own tools and a driving licence.', noteType: 'screening', noteTypeBy: 'ai' },
   // Worst case: long name, long text + link, 3 mentions, 24 replies, unread
-  { id: 'pn4', ...longAuthor, time: '23:59, 30 September, 2026', text: longNoteText, mentions: ['Las Sabir', 'Pranto Kumar Pashi', 'Maja Holm'], unread: true, replies: manyReplies('pn4', 24, true) },
+  { id: 'pn4', ...longAuthor, time: '23:59, 30 September, 2026', text: longNoteText, noteType: 'payroll-cs', noteTypeBy: 'ai', mentions: ['Las Sabir', 'Pranto Kumar Pashi', 'Maja Holm'], unread: true, replies: manyReplies('pn4', 24, true) },
 ]
