@@ -3,6 +3,7 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-27
+- **Test designs (A–D):** new copy of Notes in inbox A–D (with tagging and the context bar name → profile link) in `test-designs/notes-inbox/`; replaces the empty canvas. Uses the real `sharedNotes` / `profileUrl`. Owner asked: "make a copy of the inbox with the profile link from the right side bar in test designs".
 - **Profile notes designs (Notes in profile, Applicant/Candidate, Company):** on a tagged note the time (and header type badge) moved up to the "Tagged from … · Go to note" line, top right. `notes-profile/notes/ProfileNotes.tsx`. Owner asked: "align the date with the Tagged from line at top right".
 - **Mock (all inbox designs):** Dianne Russell's chat moved below James Adam in the conversation list (order now Reno Power ApS., James Adam, Dianne Russell, …). Inbox A–D still open Dianne by default (`createInbox` default `selectedId` = 'cv-dianne' instead of the first conversation). Owner asked: "move the chat of Dianne Russell after James Adam".
 - **Test designs:** cleared. The Notes in inbox copy (A–D, `test-designs/notes-inbox/`) was deleted since tagging now lives in Notes in inbox and the profile notes designs; A is an empty canvas again. Owner asked: "clear the test design".
