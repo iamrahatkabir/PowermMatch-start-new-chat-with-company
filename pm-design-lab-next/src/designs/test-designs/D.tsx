@@ -1,7 +1,8 @@
 'use client'
-// Test designs — copy of Notes in inbox version D, Manual note type v2: agent picks the type from four chips next to Save note. Copy lives in notes-inbox/ (parts + notes); changes here don't touch the real design.
-import { NotesInbox } from './notes-inbox/parts/NotesInbox'
+// Test designs — version D: candidate profile (James Adam), AI summary alternative "callout": light yellow brand callout with numbered points.
+// Same information as A (see profile-notes/AiSummaryVariants.tsx).
+import { CandidatePage } from './profile-notes/CandidatePage'
 
 export default function VariantD() {
-  return <NotesInbox noteTypes="chips" />
+  return <CandidatePage summary="callout" />
 }

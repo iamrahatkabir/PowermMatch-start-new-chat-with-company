@@ -5,10 +5,12 @@ const meta: DesignMeta = {
   title: 'Test designs',
   question: '',
   variants: {
-    A: 'Notes in inbox copy: AI note type',
-    B: 'Notes in inbox copy: AI note type v2',
-    C: 'Notes in inbox copy: Manual note type',
-    D: 'Notes in inbox copy: Manual note type v2',
+    A: 'Candidate profile notes + AI summary',
+    B: 'AI summary alt: Collapsible',
+    C: 'AI summary alt: By type',
+    D: 'AI summary alt: Callout',
+    E: 'AI summary alt: Timeline',
+    F: 'AI summary alt: Split',
   },
 }
 

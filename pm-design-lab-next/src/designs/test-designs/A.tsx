@@ -1,7 +1,8 @@
 'use client'
-// Test designs — copy of Notes in inbox version A, AI note type: AI sets the type after posting; the author can change it. Copy lives in notes-inbox/ (parts + notes); changes here don't touch the real design.
-import { NotesInbox } from './notes-inbox/parts/NotesInbox'
+// Test designs — version A: Applicant/Candidate profile notes (James Adam) with the AI summary card at the top of Notes.
+// Page + notes logic in profile-notes/ (CandidatePage); B–F are the same page with other summary layouts.
+import { CandidatePage } from './profile-notes/CandidatePage'
 
 export default function VariantA() {
-  return <NotesInbox noteTypes="ai" />
+  return <CandidatePage summary="card" />
 }

@@ -30,6 +30,8 @@ type Props = {
   noteLinks?: (note: ProfileNote) => Record<string, () => void>
   /** "Go to note" on a note tagged from another profile */
   onGoToOrigin?: (note: ProfileNote) => void
+  /** Hide "Go to note" on a note (default: shown on every tagged note when onGoToOrigin is set) */
+  canGoToOrigin?: (note: ProfileNote) => boolean
   draft: string
   onDraftChange: (v: string) => void
   onAddNote: (text: string, mentions: string[]) => void
@@ -66,6 +68,8 @@ type Props = {
   onToggleArchive?: (id: string) => void
   /** Shown under the title row, e.g. the filter bar */
   filters?: ReactNode
+  /** Shown right under the "Notes" title, above the filters (e.g. Test designs' AI summary) */
+  top?: ReactNode
   /** Empty-list text (e.g. "No notes match these filters") and an optional action under it */
   emptyText?: string
   emptyAction?: ReactNode
@@ -75,7 +79,7 @@ export type NotesView = 'active' | 'archived'
 
 const toolBtn = 'flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-700'
 
-export function ProfileNotes({ notes, colleagues, entities, noteLinks, onGoToOrigin, draft, onDraftChange, onAddNote, onReply, onOpenReplies, openNoteId, focusKey, headerBadge, cornerBadge, composerTools, saveBlocked, saveBlockedHint, canEdit, onEditNote, onDeleteNote, footer, view = 'active', onViewChange, onTogglePin, onToggleArchive, filters, emptyText, emptyAction }: Props) {
+export function ProfileNotes({ notes, colleagues, entities, noteLinks, onGoToOrigin, canGoToOrigin, draft, onDraftChange, onAddNote, onReply, onOpenReplies, openNoteId, focusKey, headerBadge, cornerBadge, composerTools, saveBlocked, saveBlockedHint, canEdit, onEditNote, onDeleteNote, footer, view = 'active', onViewChange, onTogglePin, onToggleArchive, filters, top, emptyText, emptyAction }: Props) {
   const archivedView = view === 'archived'
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -97,6 +101,7 @@ export function ProfileNotes({ notes, colleagues, entities, noteLinks, onGoToOri
   return (
     <div className="flex flex-col">
       <h2 className="text-lg font-semibold text-gray-900">Notes</h2>
+      {top && <div className="mt-3">{top}</div>}
       {/* Filters on the left, Active / Archived tabs on the right, same row */}
       <div className="mt-3 flex items-start gap-4">
         <div className="min-w-0 flex-1">{filters}</div>
@@ -140,7 +145,7 @@ export function ProfileNotes({ notes, colleagues, entities, noteLinks, onGoToOri
               <div className="mb-2 flex min-w-0 items-center gap-1.5 text-xs text-gray-500">
                 <Tag size={12} className="shrink-0" />
                 <span className="min-w-0 truncate">Tagged from {n.taggedFrom.name}</span>
-                {onGoToOrigin && (
+                {onGoToOrigin && (canGoToOrigin?.(n) ?? true) && (
                   <button type="button" className="flex shrink-0 items-center gap-0.5 whitespace-nowrap font-medium text-info-500 hover:text-info-700" onClick={() => onGoToOrigin(n)}>
                     Go to note<ArrowUpRight size={12} />
                   </button>

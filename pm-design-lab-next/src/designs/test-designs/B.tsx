@@ -1,7 +1,8 @@
 'use client'
-// Test designs — copy of Notes in inbox version B, AI note type v2: AI sets the type after posting (nothing to set while writing); the badge sits inside the note at the bottom right. Copy lives in notes-inbox/ (parts + notes); changes here don't touch the real design.
-import { NotesInbox } from './notes-inbox/parts/NotesInbox'
+// Test designs — version B: candidate profile (James Adam), AI summary alternative "collapsible": collapsible card, 2 points then Show more, folds to the title line.
+// Same information as A (see profile-notes/AiSummaryVariants.tsx).
+import { CandidatePage } from './profile-notes/CandidatePage'
 
 export default function VariantB() {
-  return <NotesInbox noteTypes="ai-top" />
+  return <CandidatePage summary="collapsible" />
 }

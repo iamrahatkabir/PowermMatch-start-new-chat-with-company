@@ -1,7 +1,8 @@
 'use client'
-// Test designs — copy of Notes in inbox version C, Manual note type: agent picks the type from a dropdown before saving. Copy lives in notes-inbox/ (parts + notes); changes here don't touch the real design.
-import { NotesInbox } from './notes-inbox/parts/NotesInbox'
+// Test designs — version C: candidate profile (James Adam), AI summary alternative "by-type": key points grouped in one box per note type.
+// Same information as A (see profile-notes/AiSummaryVariants.tsx).
+import { CandidatePage } from './profile-notes/CandidatePage'
 
 export default function VariantC() {
-  return <NotesInbox noteTypes="manual" />
+  return <CandidatePage summary="by-type" />
 }
