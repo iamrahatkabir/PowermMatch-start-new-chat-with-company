@@ -3,10 +3,13 @@
 // the inbox design). noteTypes: 'ai' (A: AI tags the note after posting, author can change it),
 // 'ai-top' (B: same as A, nothing to set while writing; the badge sits inside the note at the bottom right),
 // 'manual' (C: agent picks the type from a dropdown before saving), 'chips' (D: four type chips next to Save note, one must be picked), none = no types.
-import { useState } from 'react'
+// TEST: tagging companies / candidates / applicants on notes (see syncTags below).
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { agents, clientCompanies, contactDirectory, noteColleagues, notesThread } from '@/mock'
-import type { NoteType, ThreadItem } from '@/mock'
+import { useRouter } from 'next/navigation'
+import { agents, clientCompanies, contactDirectory, noteColleagues, notesThread, taggedNoteExample } from '@/mock'
+import type { NoteTag, NoteType, ThreadItem } from '@/mock'
+import type { InboxState } from '@/designs/inbox/parts/useInbox'
 import { InboxProvider, useCreateInbox } from '@/designs/inbox/parts/useInbox'
 import { InboxLayout } from '@/designs/inbox/parts/InboxLayout'
 import { StartChatSections } from '@/designs/inbox/start-chat/StartChatSections'
@@ -14,7 +17,7 @@ import { NoteBubble } from '../notes/NoteBubble'
 import { NoteComposer } from '../notes/NoteComposer'
 import { NoteThreadPanel } from '../notes/NoteThreadPanel'
 import { AssignToJoin } from '../notes/AssignToJoin'
-import { mentionsIn, noteTime } from '../notes/mentions'
+import { mentionsIn, noteTime, tagsIn } from '../notes/mentions'
 import { NoteTypeTag } from '../notes/NoteTypeTag'
 import { NoteTypePicker } from '../notes/NoteTypePicker'
 import { NoteTypeChips } from '../notes/NoteTypeChips'
@@ -37,8 +40,33 @@ export function NotesInbox({ noteTypes }: Props) {
       s.threads['cv-james'] = structuredClone(notesThread)
       const james = s.conversations.find((c) => c.id === 'cv-james')
       if (james) { james.assigneeId = null; james.callback = null }
+      // A note on James that tags Ancorless Bangladesh and Guy Hawkins: the same note object sits in all three threads
+      const tagged = structuredClone(taggedNoteExample)
+      s.threads['cv-james'].push(tagged)
+      syncTags(s, tagged)
     },
   })
+  // Tagging: a note lives in its origin conversation and in every tagged company / candidate / applicant
+  // conversation (the same object, so edits, type changes and replies show everywhere).
+  const [focusNoteId, setFocusNoteId] = useState<string | null>(null) // "Go to note": scroll to it and mark it
+  useEffect(() => {
+    if (!focusNoteId) return
+    const t = setTimeout(() => setFocusNoteId(null), 2000)
+    return () => clearTimeout(t)
+  }, [focusNoteId])
+  const convName = (id: string) => inbox.state.conversations.find((c) => c.id === id)?.name ?? ''
+  // Everyone that can be tagged here: companies, candidates and applicants with a conversation, except this one
+  const allEntities: NoteTag[] = inbox.state.conversations
+    .filter((c) => c.kind !== 'unknown')
+    .map((c) => ({ id: c.id, name: c.name, kind: c.kind as NoteTag['kind'], photo: c.photo }))
+  const entities = allEntities.filter((e) => e.id !== inbox.state.selectedId) // the @ list never offers the profile you're on
+  // Tags in a text: read against everyone (an edit made on a tagged profile keeps that profile's own tag), never the origin
+  const readTags = (text: string, originId: string) => tagsIn(text, allEntities).filter((t) => t.id !== originId)
+  const openProfile = (id: string) => { setThreadNoteId(null); inbox.select(id) }
+  // Tag chips open the profile page: company → Company profile notes, candidate / applicant → Applicant/Candidate profile notes
+  const router = useRouter()
+  const tagLinks = (m: ThreadItem) => Object.fromEntries((m.tags ?? []).map((t) => [t.name, () => router.push(profileUrl(t.kind))]))
+  const chips = (m: ThreadItem) => [...(m.mentions ?? []), ...(m.tags ?? []).map((t) => t.name)]
   const [draft, setDraft] = useState('')
   // Editing a note happens in the composer: its text moves into the input, the rest of the screen gets an overlay
   const [editId, setEditId] = useState<string | null>(null)
@@ -74,6 +102,8 @@ export function NotesInbox({ noteTypes }: Props) {
       <InboxLayout
         defaultTab="note"
         raiseComposer={!!editId}
+        // Context bar name → the notes profile designs (company → company profile, candidate / applicant → applicant profile)
+        profileHref={(kind) => kind === 'unknown' ? undefined : profileUrl(kind)}
         menu={
           <StartChatSections
             companies={clientCompanies}
@@ -86,7 +116,10 @@ export function NotesInbox({ noteTypes }: Props) {
         renderNote={(m, { openNoteTab }) => (
           <NoteBubble
             text={m.text ?? ''}
-            mentions={m.mentions}
+            mentions={chips(m)}
+            links={tagLinks(m)}
+            highlight={m.id === focusNoteId}
+            origin={m.originId && m.originId !== inbox.state.selectedId ? { name: convName(m.originId), onGo: () => { openProfile(m.originId!); setFocusNoteId(m.id) } } : undefined}
             author={m.author}
             authorPhoto={m.authorPhoto}
             time={m.time}
@@ -100,7 +133,8 @@ export function NotesInbox({ noteTypes }: Props) {
             meta={noteTypes !== 'ai-top' && typeBadge(m)}
             corner={noteTypes === 'ai-top' && typeBadge(m)}
             onDelete={m.author !== me.name ? undefined : () => {
-              inbox.update((s) => { s.threads[s.selectedId] = s.threads[s.selectedId].filter((x) => x.id !== m.id) })
+              // Deleting removes it from the origin and every tagged conversation
+              inbox.update((s) => { for (const id of Object.keys(s.threads)) s.threads[id] = s.threads[id].filter((x) => x.id !== m.id) })
               if (threadNoteId === m.id) setThreadNoteId(null)
               if (editId === m.id) cancelEdit()
             }}
@@ -116,6 +150,7 @@ export function NotesInbox({ noteTypes }: Props) {
             value={editId ? editText : draft}
             onChange={editId ? setEditText : setDraft}
             colleagues={noteColleagues}
+            entities={entities}
             focusKey={composerFocus}
             header={editId && <EditingBar onCancel={cancelEdit} />}
             saveLabel={editId ? 'Save changes' : undefined}
@@ -131,21 +166,25 @@ export function NotesInbox({ noteTypes }: Props) {
               if (editId) {
                 inbox.update((s) => {
                   const n = s.threads[s.selectedId]?.find((x) => x.id === editId)
-                  if (n) { n.text = text; n.mentions = mentions }
+                  if (n) { n.originId ??= s.selectedId; n.text = text; n.mentions = mentions; n.tags = readTags(text, n.originId); syncTags(s, n) }
                 })
                 cancelEdit()
                 return
               }
               const id = `note-${++noteId}`
-              if (noteTypes === 'manual' || noteTypes === 'chips') saveNote(text, { id, mentions, time: noteTime(), noteType: draftType, noteTypeBy: 'agent' })
+              const origin = inbox.state.selectedId
+              const tagged = { tags: readTags(text, origin), originId: origin }
+              if (noteTypes === 'manual' || noteTypes === 'chips') saveNote(text, { id, mentions, ...tagged, time: noteTime(), noteType: draftType, noteTypeBy: 'agent' })
               else if (noteTypes === 'ai' || noteTypes === 'ai-top') {
-                saveNote(text, { id, mentions, time: noteTime(), noteType: null, noteTypeBy: 'ai' })
+                saveNote(text, { id, mentions, ...tagged, time: noteTime(), noteType: null, noteTypeBy: 'ai' })
                 // Fake AI: the type appears a moment after posting
                 setTimeout(() => inbox.update((s) => {
                   const n = Object.values(s.threads).flat().find((x) => x.id === id)
                   if (n && !n.noteType) n.noteType = guessNoteType(text)
                 }), 1500)
-              } else saveNote(text, { id, mentions, time: noteTime() })
+              } else saveNote(text, { id, mentions, ...tagged, time: noteTime() })
+              // Copy the new note into every tagged conversation
+              inbox.update((s) => { const n = s.threads[origin]?.find((x) => x.id === id); if (n) syncTags(s, n) })
               setDraft('')
               setDraftType(null)
             }}
@@ -160,7 +199,8 @@ export function NotesInbox({ noteTypes }: Props) {
           return (
             <NoteThreadPanel
               key={note.id}
-              note={{ text: note.text ?? '', mentions: note.mentions, author: note.author, authorPhoto: note.authorPhoto, time: note.time }}
+              note={{ text: note.text ?? '', mentions: chips(note), author: note.author, authorPhoto: note.authorPhoto, time: note.time }}
+              noteLinks={tagLinks(note)}
               replies={note.noteReplies ?? []}
               colleagues={noteColleagues}
               focusKey={threadFocus}
@@ -184,4 +224,18 @@ export function NotesInbox({ noteTypes }: Props) {
       />
     </InboxProvider>
   )
+}
+
+// The profile designs a company / candidate / applicant name opens
+const profileUrl = (kind: NoteTag['kind']) => kind === 'company' ? '/d/notes-company-profile?v=A' : '/d/notes-candidate-profile?v=A'
+
+// Puts the note in its origin conversation and every tagged one, and takes it out of conversations no longer tagged
+function syncTags(s: InboxState, note: ThreadItem) {
+  const keep = new Set([note.originId, ...(note.tags ?? []).map((t) => t.id)])
+  for (const t of note.tags ?? []) s.threads[t.id] ??= []
+  for (const id of Object.keys(s.threads)) {
+    const has = s.threads[id].some((x) => x.id === note.id)
+    if (keep.has(id) && !has) s.threads[id] = [...s.threads[id], note]
+    if (!keep.has(id) && has) s.threads[id] = s.threads[id].filter((x) => x.id !== note.id)
+  }
 }

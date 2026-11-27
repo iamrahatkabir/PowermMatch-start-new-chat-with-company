@@ -3,6 +3,7 @@ import { Building, FileText, Mail, MapPin, PanelRight, Phone, Video } from 'luci
 import { PmAvatar, PmStatusPill } from '@/ds'
 import { candidateProfile as p, PROFILE_STATUS } from '@/mock'
 import { useInbox } from './useInbox'
+import { ProfileName } from './ProfileName'
 
 const info = [
   { label: 'Phone', value: p.phone, icon: Phone },
@@ -16,7 +17,8 @@ const Pill = ({ status }: { status: string }) => (
   <span className="flex self-start"><PmStatusPill tone={PROFILE_STATUS[status].tone} dot={false} bordered>{PROFILE_STATUS[status].label}</PmStatusPill></span>
 )
 
-export function CandidatePanel() {
+/** profileHref: makes the name a link to the candidate / applicant profile (hover shows ↗) */
+export function CandidatePanel({ profileHref }: { profileHref?: string }) {
   const { selected } = useInbox()
 
   return (
@@ -29,7 +31,7 @@ export function CandidatePanel() {
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col items-center gap-1 border-b border-gray-200 px-4 py-6 text-center">
           <PmAvatar name={selected.name} src={selected.photo} size={64} className="mb-2" />
-          <div className="text-base font-semibold text-gray-900">{selected.name}</div>
+          <ProfileName name={selected.name} href={profileHref} />
           <div className="text-[13px] text-gray-600">{selected.kind === 'applicant' ? 'Applicant' : p.type} • {p.trade} • {p.experience}</div>
         </div>
 

@@ -1,4 +1,5 @@
-import type { Agent, NoteReply, NoteType, ThreadItem } from './inbox-types'
+import type { Agent, NoteReply, NoteTag, NoteType, ThreadItem } from './inbox-types'
+import { conversations } from './inbox'
 
 const photo = (g: 'men' | 'women', n: number) => `https://randomuser.me/api/portraits/${g}/${n}.jpg`
 
@@ -90,6 +91,10 @@ export type ProfileNote = {
   pinned?: boolean
   /** Archived notes only show in the Archived tab */
   archived?: boolean
+  /** Companies / candidates / applicants tagged in the text (@Name); the note also shows on their profiles */
+  tags?: NoteTag[]
+  /** Written on another profile that tagged this one: "Tagged from <name> · Go to note" */
+  taggedFrom?: NoteTag
 }
 
 export const profileCandidate: ProfileCandidate = {
@@ -182,10 +187,10 @@ export type PersonProfile = {
 }
 export const PERSON_STATUSES = ['Looking for job', 'Not looking', 'Hired', 'Inactive']
 export const notesPerson: PersonProfile = {
-  name: 'Pranto Kumar Pashi', photo: photo('men', 22), email: 'pkp@powermatch.dk', kind: 'applicant', rating: 4, status: 'Looking for job', counts: { todo: 4 },
+  name: 'James Adam', photo: photo('men', 32), email: 'james.adam@gmail.com', kind: 'candidate', rating: 4, status: 'Looking for job', counts: { todo: 4 },
 }
-// Same 122 notes as the candidate profile (worst case), about this applicant
-export const personNotes: ProfileNote[] = profileNotes.map((n) => ({ ...n, text: n.text.replace(/Jonas/g, 'Pranto') }))
+// Same 122 notes as the candidate profile (worst case), about James Adam (candidate; same person as his inbox conversation)
+export const personNotes: ProfileNote[] = profileNotes.map((n) => ({ ...n, text: n.text.replace(/Jonas/g, 'James') }))
 
 // ── Company profile notes ──
 const companyTexts = [
@@ -216,3 +221,34 @@ export const companyProfileNotes: ProfileNote[] = [
 // Company profile header (Company profile notes): breadcrumb, logo, name, source, tab counts
 export type CompanyHeader = { name: string; logo?: string; source: string; counts: { tasks: number; jobs: number } }
 export const notesCompany: CompanyHeader = { name: 'Reno Power ApS.', logo: '/mock/reno-power-logo.svg', source: 'Meta Ads', counts: { tasks: 3, jobs: 3 } }
+
+// Test designs: a note written on James Adam that tags a company and another candidate (shows on all three conversations)
+export const taggedNoteExample: ThreadItem = {
+  id: 'n5', type: 'message', dir: 'out', channel: 'note', author: 'Las Sabir', authorPhoto: photo('men', 75), time: '23 Mar 10:02',
+  text: '@Reno Power ApS. wants James for the power plant job from week 30, together with @Guy Hawkins. @Maja Holm please send both contracts.',
+  mentions: ['Maja Holm'],
+  tags: [
+    { id: 'cv-ancorless', name: 'Reno Power ApS.', kind: 'company' },
+    { id: 'cv-guy', name: 'Guy Hawkins', kind: 'candidate', photo: photo('men', 64) },
+  ],
+  originId: 'cv-james', noteType: 'sales', noteTypeBy: 'ai',
+}
+
+// ── Tagging (companies / candidates / applicants on notes) ──
+// Everyone that can be tagged with @ in a note: the inbox contacts plus the profile designs' own company / candidate.
+// The Applicant/Candidate profile design is James Adam (= inbox conversation cv-james); the Company profile design is
+// Reno Power ApS. (= inbox conversation cv-ancorless).
+// A profile leaves itself out of its @ list (by name).
+export const taggableEntities: NoteTag[] = [
+  ...conversations.filter((c) => c.kind !== 'unknown').map((c) => ({ id: c.id, name: c.name, kind: c.kind as NoteTag['kind'], photo: c.photo })),
+  { id: 'pf-jonas', name: 'Jonas', kind: 'candidate', photo: photo('men', 86) },
+]
+const tag = (name: string) => taggableEntities.find((e) => e.name === name)!
+// One note per profile design that was written somewhere else and tags this profile (shows "Tagged from …")
+const taggedIn = (id: string, from: string, text: string, tags: string[], createdAt: string, time: string): ProfileNote => ({
+  id, author: 'Maja Holm', authorPhoto: photo('women', 44), time, createdAt, text, mentions: [],
+  tags: tags.map(tag), taggedFrom: tag(from), noteType: 'sales', noteTypeBy: 'ai',
+})
+profileNotes.push(taggedIn('pn-tag', 'Poly Corporation', '@Poly Corporation wants @Jonas on the Valby site from week 2, together with @Guy Hawkins.', ['Poly Corporation', 'Jonas', 'Guy Hawkins'], '2026-10-01T09:20', '9:20, 1 October, 2026'))
+personNotes.push(taggedIn('pp-tag', 'Reno Power ApS.', '@Reno Power ApS. asked for @James Adam for the plumbing job in week 30.', ['Reno Power ApS.', 'James Adam'], '2026-10-01T09:20', '9:20, 1 October, 2026'))
+companyProfileNotes.push(taggedIn('cn-tag', 'James Adam', '@James Adam starts at @Reno Power ApS. on Monday, contract signed.', ['James Adam', 'Reno Power ApS.'], '2026-10-01T09:20', '9:20, 1 October, 2026'))

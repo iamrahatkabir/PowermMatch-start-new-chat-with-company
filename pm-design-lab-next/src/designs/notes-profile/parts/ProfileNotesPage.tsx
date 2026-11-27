@@ -17,16 +17,18 @@ type Props = {
   tabs: ProfileTab[]
   notes: ProfileNote[]
   noteTypes: NoteTypeMode
+  /** This profile's name (left out of the @ tag list) */
+  self: string
 }
 
-export function ProfileNotesPage({ active, header, tabs, notes, noteTypes }: Props) {
+export function ProfileNotesPage({ active, header, tabs, notes, noteTypes, self }: Props) {
   const [tab, setTab] = useState('notes')
   const main = useRef<HTMLElement>(null)
   const activeCount = notes.filter((n) => !n.archived).length
   const shown = tabs.map((t) => (t.key === 'notes' ? { ...t, count: activeCount } : t))
   return (
     <PmAppShell active={active} flush>
-      <ProfileNotesSection initial={notes} noteTypes={noteTypes} scrollTo={main} threadClassName="xl:sticky xl:top-0 xl:h-full xl:max-h-[calc(100vh-64px)] xl:self-start">
+      <ProfileNotesSection initial={notes} noteTypes={noteTypes} self={self} scrollTo={main} threadClassName="xl:sticky xl:top-0 xl:h-full xl:max-h-[calc(100vh-64px)] xl:self-start">
         {({ notes: notesNode, thread }) => (
           <div className="h-full overflow-y-auto bg-white">
             <div className="flex min-h-full">

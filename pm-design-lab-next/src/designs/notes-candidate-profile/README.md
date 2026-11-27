@@ -1,6 +1,6 @@
 # Applicant/Candidate profile notes
 
-Goal: notes on the **internal** applicant/candidate profile (agents/recruiters, inside the PowerMatch app). Built from the owner's screenshot (Pranto Kumar Pashi), with the latest profile notes design. Desktop only.
+Goal: notes on the **internal** applicant/candidate profile (agents/recruiters, inside the PowerMatch app). Built from the owner's screenshot (originally Pranto Kumar Pashi; now **James Adam, candidate**, the same person as his Notes in inbox conversation `cv-james`), with the latest profile notes design. Desktop only.
 
 | Version | File | What it is |
 |---|---|---|
@@ -18,7 +18,10 @@ notes-profile/profile/ProfileTabs.tsx ← tabs with optional count chip (99+ max
 
 ## Data (`src/mock/notes.ts`)
 - `notesPerson: PersonProfile` — name, photo, email, kind ('applicant' | 'candidate'), rating, status, counts { todo }. `PERSON_STATUSES`: Looking for job, Not looking, Hired, Inactive.
-- `personNotes` — the 122 profile notes (worst case), with "Jonas" replaced by "Pranto".
+- `personNotes` — the 122 profile notes (worst case), with "Jonas" replaced by "James". Tagging James Adam in any inbox chat (e.g. a company chat) puts the note on this Notes tab; notes written here that tag someone also show in James's inbox conversation.
 
 ## Differences from the screenshot
 - English copy: "Søger job" → "Looking for job"; nav labels in English.
+
+## Tagging
+Same as Notes in profile (see `notes-profile/README.md` → Tagging). This profile's own name is left out of the @ list; mock tagged-in note: `pp-tag` (from Reno Power ApS.).

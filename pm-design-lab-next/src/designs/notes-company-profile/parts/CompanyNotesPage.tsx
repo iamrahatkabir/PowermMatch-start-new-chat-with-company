@@ -17,5 +17,5 @@ const tabs = [
 ]
 
 export function CompanyNotesPage({ noteTypes }: { noteTypes: NoteTypeMode }) {
-  return <ProfileNotesPage active="companies" header={<CompanyHeader company={notesCompany} />} tabs={tabs} notes={companyProfileNotes} noteTypes={noteTypes} />
+  return <ProfileNotesPage active="companies" header={<CompanyHeader company={notesCompany} />} tabs={tabs} notes={companyProfileNotes} noteTypes={noteTypes} self={notesCompany.name} />
 }

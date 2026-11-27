@@ -31,7 +31,8 @@ export function NotesPagination({ page, total, pageSize, onPageChange }: Props) 
           {pageItems(page, count).map((p, i) => (
             <PaginationItem key={p === 'gap' ? `gap-${i}` : p}>
               {p === 'gap' ? (
-                <PaginationEllipsis className="text-gray-500" />
+                // relative: keeps its hidden "More pages" label inside the page (without it the whole window scrolls)
+                <PaginationEllipsis className="relative text-gray-500" />
               ) : (
                 <PaginationLink href="#" isActive={p === page} onClick={go(p)} className={cx('text-xs tabular-nums', p === page ? 'border-gray-300 font-semibold text-gray-900' : 'text-gray-600')}>
                   {p}

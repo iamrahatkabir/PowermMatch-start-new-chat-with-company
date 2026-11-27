@@ -11,8 +11,9 @@ export const agents: Agent[] = [
 // shows the company name; `currentContactId` on the conversation says who we're talking to.
 export const clientCompanies: Company[] = [
   {
-    id: 'ancorless', name: 'Ancorless Bangladesh', contractsLabel: '2 contracts',
-    email: 'info@ancorless.dk', address: 'Bredgade 33C, 3, 1260 København, Denmark',
+    // Same company as the Company profile notes design (notesCompany)
+    id: 'ancorless', name: 'Reno Power ApS.', logo: '/mock/reno-power-logo.svg', contractsLabel: '2 contracts',
+    email: 'info@renopower.dk', address: 'Bredgade 33C, 3, 1260 København, Denmark',
     contacts: [
       { id: 'jhon', name: 'Jhon Bossman', role: 'HR Manager', phone: '+45 12 34 56 78' },
       { id: 'togu', name: 'Togu Mogu', role: 'Site Manager', phone: '+45 12 34 78 90' },
@@ -73,7 +74,7 @@ export const contactDirectory: { candidates: DirectoryPerson[]; applicants: Dire
 // assigneeId = agent handling it (default Patrick Andre); assignedToMe unlocks the composer
 export const conversations: Conversation[] = [
   { id: 'cv-dianne', kind: 'applicant', name: 'Dianne Russell', email: 'dianne.russell@gmail.com', photo: photo('men', 46), channel: 'email', preview: 'RE: Application Received by PowerMatch', time: '5 min', unread: 1, assignedToMe: true, assigneeId: 'ls' },
-  { id: 'cv-ancorless', kind: 'company', companyId: 'ancorless', currentContactId: 'togu', name: 'Ancorless Bangladesh', channel: 'chat', preview: 'Hi PowerMatch. We need qualified plumbers.', time: '1 d', unread: 0, assignedToMe: true },
+  { id: 'cv-ancorless', kind: 'company', companyId: 'ancorless', currentContactId: 'togu', name: 'Reno Power ApS.', channel: 'chat', preview: 'Hi PowerMatch. We need qualified plumbers.', time: '1 d', unread: 0, assignedToMe: true },
   { id: 'cv-james', kind: 'candidate', name: 'James Adam', photo: photo('men', 32), channel: 'missed', preview: 'Missed call', time: '5 min', unread: 1, callback: { missedAt: '21:45, 19 Oct' } },
   { id: 'cv-jenny', kind: 'applicant', name: 'Jenny Wilson', photo: photo('women', 68), channel: 'chat', preview: "Hi! I'm looking for a carpentry job in Copenhagen", time: '5 min', unread: 2, starred: true },
   { id: 'cv-poly', kind: 'company', companyId: 'poly', currentContactId: 'maria', name: 'Poly Corporation', channel: 'chat', preview: 'Can you send two more carpenters?', time: '1 d', unread: 15, assignedToMe: true },
@@ -122,7 +123,7 @@ export const threads: Record<string, ThreadItem[]> = {
   ],
   'cv-ancorless': [
     { id: 'a1', type: 'system', text: 'Conversation started with Jhon Bossman' },
-    { id: 'a2', type: 'message', dir: 'out', channel: 'chat', bySystem: true, author: 'System', time: '22 Mar 11:05', text: 'Hi Ancorless Bangladesh, this is PowerMatch ApS. We help companies with qualified workers. Should I send you some resumes of qualified workers?' },
+    { id: 'a2', type: 'message', dir: 'out', channel: 'chat', bySystem: true, author: 'System', time: '22 Mar 11:05', text: 'Hi Reno Power ApS., this is PowerMatch ApS. We help companies with qualified workers. Should I send you some resumes of qualified workers?' },
     { id: 'a3', type: 'message', dir: 'in', channel: 'chat', author: 'Jhon Bossman', time: '22 Mar 11:05', text: 'Hi PowerMatch! Thank you for reaching out. Please talk to Togu Mogu.' },
     { id: 'a4', type: 'system', text: 'Conversation switched to Togu Mogu' },
     { id: 'a5', type: 'message', dir: 'out', channel: 'chat', author: 'Patrick Andre', authorPhoto: photo('men', 41), time: '22 Mar 11:05', text: 'Hi Togu Mogu! Jhon Bossman referred you to contact regarding qualified workers.' },
@@ -160,13 +161,13 @@ export const candidateProfile = {
   phone: '+45 12 34 56 78',
   email: 'james@powermatch.dk',
   address: 'Bredgade 33C, 3, 1260 København, Denmark',
-  employer: 'Ancorless Bangladesh',
+  employer: 'Reno Power ApS.',
   interviews: [
     { id: 'pi1', mode: 'onsite', date: '24 Nov', time: '09:00', company: 'Paw Life ApS', status: 'scheduled' },
     { id: 'pi2', mode: 'video', date: '24 Nov', time: '09:00', company: 'Dewalt ApS', status: 'requested' },
   ],
   contracts: [
-    { id: 'pc1', date: '24 Nov', time: '09:00', company: 'Ancorless Bangladesh Ltd', status: 'signed' },
+    { id: 'pc1', date: '24 Nov', time: '09:00', company: 'Reno Power ApS.', status: 'signed' },
     { id: 'pc2', date: '16 Jan', time: '13:20', company: 'Dewalt ApS', status: 'sent' },
   ],
 }

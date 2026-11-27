@@ -21,7 +21,7 @@ export function NotesProfile({ noteTypes }: Props) {
   const [tab, setTab] = useState('notes')
   const main = useRef<HTMLElement>(null)
   return (
-    <ProfileNotesSection initial={profileNotes} noteTypes={noteTypes} scrollTo={main} threadClassName="xl:sticky xl:top-0 xl:h-screen xl:self-start">
+    <ProfileNotesSection initial={profileNotes} noteTypes={noteTypes} self={profileCandidate.name} scrollTo={main} threadClassName="xl:sticky xl:top-0 xl:h-screen xl:self-start">
       {({ notes, thread }) => (
         <div className="flex min-h-screen flex-col bg-gray-50">
           <header className="flex h-16 shrink-0 items-center bg-brand px-8">

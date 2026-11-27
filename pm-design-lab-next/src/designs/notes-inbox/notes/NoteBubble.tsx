@@ -2,7 +2,7 @@
 // An internal note in the conversation: light yellow bubble on the right, @mentions in blue, text cut to 2 lines + "See more",
 // edit + delete icons on hover (left of the bubble; edit turns the bubble into a text box), a Reply link or (when it has replies) a replies row: avatars · "5 replies" · "Last reply 14:31", and "note icon · avatar · author • time" underneath.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { NotepadText, Pencil, Reply, Trash2 } from 'lucide-react'
+import { ArrowUpRight, NotepadText, Pencil, Reply, Tag, Trash2 } from 'lucide-react'
 import { PmAvatar } from '@/ds'
 import type { NoteReply } from '@/mock/inbox-types'
 import { cx } from '@/lib/cx'
@@ -31,16 +31,31 @@ type Props = {
   meta?: ReactNode
   /** Being edited: the note sits above the edit overlay (z-50), scrolls into view, light meta line, no hover icons */
   raised?: boolean
+  /** Tagged companies / candidates: name → open their profile (their chips become links) */
+  links?: Record<string, () => void>
+  /** Shown when this note was written on another profile and only tagged here: "Tagged from James Adam · Go to note" */
+  origin?: { name: string; onGo: () => void }
+  /** Briefly marks the note (after "Go to note") and scrolls it into view */
+  highlight?: boolean
   /** Shown inside the bubble at the bottom right, on the replies / Reply row (e.g. the note type badge, version B) */
   corner?: ReactNode
 }
 
-export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], unread, onReply, onOpenReplies, onEdit, onEditClick, onDelete, meta, corner, raised }: Props) {
+export function NoteBubble({ text, mentions = [], author, authorPhoto, time, replies = [], unread, onReply, onOpenReplies, onEdit, onEditClick, onDelete, meta, corner, raised, links, origin, highlight }: Props) {
   const [editing, setEditing] = useState<string | null>(null)
   const root = useRef<HTMLDivElement>(null)
-  useEffect(() => { if (raised) root.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) }, [raised])
+  useEffect(() => { if (raised || highlight) root.current?.scrollIntoView({ block: raised ? 'nearest' : 'center', behavior: 'smooth' }) }, [raised, highlight])
   return (
     <div ref={root} className={cx('group flex max-w-[70%] flex-col items-end gap-1.5 self-end', editing !== null && 'w-full', raised && 'pointer-events-none relative z-50')}>
+      {origin && (
+        <div className="flex max-w-full items-center gap-1.5 text-xs text-gray-500">
+          <Tag size={12} className="shrink-0" />
+          <span className="min-w-0 truncate">Tagged from {origin.name}</span>
+          <button type="button" className="flex shrink-0 items-center gap-0.5 whitespace-nowrap font-medium text-info-500 hover:text-info-700" onClick={origin.onGo}>
+            Go to note<ArrowUpRight size={12} />
+          </button>
+        </div>
+      )}
       <div className="flex w-full items-center justify-end gap-2">
         {editing === null && !raised && (onEdit || onEditClick || onDelete) && (
           <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
@@ -56,12 +71,12 @@ export function NoteBubble({ text, mentions = [], author, authorPhoto, time, rep
             )}
           </div>
         )}
-      <div className={cx('rounded-2xl bg-brand-bg px-4 py-3 text-sm leading-6 text-gray-900', editing !== null && 'w-full')}>
+      <div className={cx('rounded-2xl bg-brand-bg px-4 py-3 text-sm leading-6 text-gray-900 transition-shadow duration-500', editing !== null && 'w-full', highlight && 'shadow-[0_0_0_2px_var(--color-gray-400)]')}>
         {editing !== null ? (
           <EditBox initial={editing} onCancel={() => setEditing(null)} onSave={(t) => { onEdit?.(t); setEditing(null) }} />
         ) : (
         // Two lines, then "See more"
-        <ClampedText text={text} mentions={mentions} className="whitespace-pre-line [overflow-wrap:anywhere]" />
+        <ClampedText text={text} mentions={mentions} links={links} className="whitespace-pre-line [overflow-wrap:anywhere]" />
         )}
         {editing === null && (replies.length > 0 || onReply || corner) && (
           // Bottom row: replies row or Reply link on the left, corner (type badge) on the right; the badge never wraps

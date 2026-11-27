@@ -7,6 +7,7 @@ import { ConversationThread, type ConversationThreadProps } from './Conversation
 import { CandidatePanel } from './CandidatePanel'
 import { CompanyPanel } from './CompanyPanel'
 import { NotificationSettingsView } from './NotificationSettingsView'
+import type { ConversationKind } from '@/mock/inbox-types'
 import type { EmailComposerSlotProps, EmailInThreadProps } from '../email/types'
 
 export type InboxLayoutProps = {
@@ -23,6 +24,8 @@ export type InboxLayoutProps = {
   raiseComposer?: boolean
   /** Called on every render; return a node to show it instead of the contact panel, or null for the normal panel. */
   renderSidePanel?: () => ReactNode
+  /** Link for the name in the context bar (company / candidate / applicant profile); none = plain name */
+  profileHref?: (kind: ConversationKind) => string | undefined
 }
 
 // The full inbox. Variants pass their "Start new conversation" menu in the `menu` prop (a node).
@@ -32,7 +35,7 @@ export type InboxLayoutProps = {
 // the contact panel while an email thread is open (state.emailThreadId).
 const views = ['inbox-all', 'inbox-notifications']
 
-export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies, threadPanel: ThreadPanel, menu, renderEmailComposer, defaultTab, renderNote, renderNoteComposer, renderLockedComposer, renderSidePanel, raiseComposer }: InboxLayoutProps) {
+export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies, threadPanel: ThreadPanel, menu, renderEmailComposer, defaultTab, renderNote, renderNoteComposer, renderLockedComposer, renderSidePanel, raiseComposer, profileHref }: InboxLayoutProps) {
   const { state, selected, update } = useInbox()
   const side = renderSidePanel?.()
   const onNav = (key: string) => views.includes(key) && update((s) => { s.view = key })
@@ -45,7 +48,7 @@ export function InboxLayout({ navCollapsed = true, emailComponent, groupReplies,
         <div className="flex h-full bg-white">
           <ConversationList menu={menu} />
           <ConversationThread {...(emailComponent ? { emailComponent } : {})} groupReplies={groupReplies} renderEmailComposer={renderEmailComposer} defaultTab={defaultTab} renderNote={renderNote} renderNoteComposer={renderNoteComposer} renderLockedComposer={renderLockedComposer} raiseComposer={raiseComposer} />
-          {side ? side : ThreadPanel && state.emailThreadId ? <ThreadPanel /> : selected.kind === 'company' ? <CompanyPanel /> : <CandidatePanel />}
+          {side ? side : ThreadPanel && state.emailThreadId ? <ThreadPanel /> : selected.kind === 'company' ? <CompanyPanel profileHref={profileHref?.('company')} /> : <CandidatePanel profileHref={profileHref?.(selected.kind)} />}
         </div>
       )}
     </PmAppShell>

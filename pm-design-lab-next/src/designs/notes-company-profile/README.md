@@ -22,3 +22,8 @@ notes-profile/profile/ProfileTabs.tsx ← (shared) tabs with an optional count c
 ## Differences from the screenshot
 - English copy (lab rule): "Source: Meta Ads", nav labels in English.
 - Logo is a placeholder in PowerMatch colours (warning/info), on a `warning-50` circle.
+
+## Tagging
+Same as Notes in profile (see `notes-profile/README.md` → Tagging). This profile's own name is left out of the @ list; mock tagged-in note: `cn-tag` (from James Adam).
+
+Reno Power ApS. is the same company as the inbox company conversation (`cv-ancorless`, renamed from Ancorless Bangladesh): tagging it in any inbox chat, or writing a tagged note in its own chat, shows the note on this Notes tab.

@@ -77,6 +77,8 @@ export type ThreadItem = {
   mentions?: string[]
   canReply?: boolean // false = note shows no Reply link
   noteReplies?: NoteReply[] // replies to a note (oldest first)
+  tags?: NoteTag[] // companies / candidates / applicants tagged on a note; the note also shows on their conversation / profile
+  originId?: string // conversation (or profile, pf-…) the note was written in (tagged notes)
   noteType?: NoteType | null // note category (Notes in inbox B/C); null/missing = not set yet
   noteTypeBy?: 'ai' | 'agent' // who set noteType (B: AI sets it after posting, an agent can change it)
   unread?: boolean // you're @mentioned in this note/its replies and haven't opened the thread
@@ -84,6 +86,9 @@ export type ThreadItem = {
 
 // time: 'dd Mon HH:MM' (e.g. '22 Mar 13:55'); mentions: names written as @Name in text;
 // quote: the reply this one answers (shown as a quote block above the text)
+/** A company, candidate or applicant tagged on a note. id = their conversation id. */
+export type NoteTag = { id: string; name: string; kind: 'company' | 'candidate' | 'applicant'; photo?: string }
+
 /** Note category: Payroll + CS, Sales form, Screening, Sales */
 export type NoteType = 'payroll-cs' | 'sales-form' | 'screening' | 'sales'
 

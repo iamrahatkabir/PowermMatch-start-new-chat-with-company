@@ -23,6 +23,7 @@ export function ApplicantNotesPage({ noteTypes }: { noteTypes: NoteTypeMode }) {
       tabs={tabs}
       notes={personNotes}
       noteTypes={noteTypes}
+      self={notesPerson.name}
     />
   )
 }

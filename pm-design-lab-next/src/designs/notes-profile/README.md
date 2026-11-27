@@ -50,3 +50,11 @@ notes/pagination.ts          ← pageItems(current, count) (which page buttons +
 - Long author name truncates next to the time; long words/links break; replies row wraps as whole pieces.
 - The whole page scrolls as one (the profile column has no scroll of its own and shows in full); the Thread panel sticks to the screen (`className` prop on NoteThreadPanel: sticky, full height). Phones: the Thread panel covers the screen.
 - Long candidate name wraps; long requirement values align right and wrap.
+
+## Tagging companies / candidates / applicants (shared by Notes in profile, Applicant/Candidate and Company profile notes)
+- The new-note box and edit use the same grouped @ list as Notes in inbox (Colleagues, Companies, Candidates, Applicants, max 3 each). The profile itself is left out (`self` prop on `ProfileNotesSection` / `ProfileNotesPage`).
+- Tagged names are link chips to the profile designs (company → Company profile notes, candidate / applicant → Applicant/Candidate profile notes); the profile's own name stays a plain chip. Same in the Thread panel.
+- A note written on another profile that tags this one shows "Tagged from <name> · Go to note" at the top of the card; Go to note opens that profile design.
+- Data: `ProfileNote.tags?`, `ProfileNote.taggedFrom?`; `taggableEntities` (inbox contacts incl. James Adam and Reno Power ApS. + Jonas) in `src/mock/notes.ts`; one tagged-in mock note per profile (`pn-tag`, `pp-tag`, `cn-tag`).
+- Shared notes (`notes-inbox/notes/sharedNotes.ts`): notes from Notes in inbox or another profile design that tag this profile are merged in ("Tagged from James Adam"); notes written here that tag someone are shared (origin = this profile, e.g. `cv-ancorless`). Pin / archive stay local; edit, type and delete update the shared copy. Go to note: an inbox origin opens Notes in inbox at the note (`?note=`), a profile origin opens that profile design.
+- Prototype limits: shared notes live in this browser tab's sessionStorage; all companies open Reno Power ApS., all candidates / applicants open James Adam's profile; replies aren't shared.

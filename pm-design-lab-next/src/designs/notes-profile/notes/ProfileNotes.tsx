@@ -10,10 +10,10 @@
 // Reuses MentionText (via ClampedText), NoteComposer and EditingBar from the Notes in inbox design.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Archive, ArchiveRestore, Pencil, Pin, PinOff, Reply, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, ArrowUpRight, Pencil, Pin, PinOff, Reply, Tag, Trash2 } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PmAvatar } from '@/ds'
-import type { Agent } from '@/mock/inbox-types'
+import type { Agent, NoteTag } from '@/mock/inbox-types'
 import type { ProfileNote } from '@/mock/notes'
 import type { NoteReply } from '@/mock/inbox-types'
 import { cx } from '@/lib/cx'
@@ -24,6 +24,12 @@ import { EditingBar } from '@/designs/notes-inbox/notes/EditingBar'
 type Props = {
   notes: ProfileNote[]
   colleagues: Agent[]
+  /** Companies / candidates / applicants that can be tagged with @ (grouped in the same @ list as colleagues) */
+  entities?: NoteTag[]
+  /** Tagged names in a note that are links (name → open that profile) */
+  noteLinks?: (note: ProfileNote) => Record<string, () => void>
+  /** "Go to note" on a note tagged from another profile */
+  onGoToOrigin?: (note: ProfileNote) => void
   draft: string
   onDraftChange: (v: string) => void
   onAddNote: (text: string, mentions: string[]) => void
@@ -69,7 +75,7 @@ export type NotesView = 'active' | 'archived'
 
 const toolBtn = 'flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-700'
 
-export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNote, onReply, onOpenReplies, openNoteId, focusKey, headerBadge, cornerBadge, composerTools, saveBlocked, saveBlockedHint, canEdit, onEditNote, onDeleteNote, footer, view = 'active', onViewChange, onTogglePin, onToggleArchive, filters, emptyText, emptyAction }: Props) {
+export function ProfileNotes({ notes, colleagues, entities, noteLinks, onGoToOrigin, draft, onDraftChange, onAddNote, onReply, onOpenReplies, openNoteId, focusKey, headerBadge, cornerBadge, composerTools, saveBlocked, saveBlockedHint, canEdit, onEditNote, onDeleteNote, footer, view = 'active', onViewChange, onTogglePin, onToggleArchive, filters, emptyText, emptyAction }: Props) {
   const archivedView = view === 'archived'
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -129,6 +135,18 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
                 )}
               </div>
             )}
+            {/* Written on another profile that tagged this one */}
+            {n.taggedFrom && (
+              <div className="mb-2 flex min-w-0 items-center gap-1.5 text-xs text-gray-500">
+                <Tag size={12} className="shrink-0" />
+                <span className="min-w-0 truncate">Tagged from {n.taggedFrom.name}</span>
+                {onGoToOrigin && (
+                  <button type="button" className="flex shrink-0 items-center gap-0.5 whitespace-nowrap font-medium text-info-500 hover:text-info-700" onClick={() => onGoToOrigin(n)}>
+                    Go to note<ArrowUpRight size={12} />
+                  </button>
+                )}
+              </div>
+            )}
             <div className="flex items-start gap-2.5">
               <PmAvatar name={n.author} src={n.authorPhoto} size={32} />
               <div className="min-w-0 flex-1">
@@ -143,7 +161,7 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
                   </span>
                 </div>
                 <div className="mt-0.5 max-w-[480px]">
-                  <ClampedText text={n.text} mentions={n.mentions} linkSize="text-xs" className="whitespace-pre-line text-xs leading-[18px] text-gray-700 [overflow-wrap:anywhere]" />
+                  <ClampedText text={n.text} mentions={[...(n.mentions ?? []), ...(n.tags ?? []).map((t) => t.name)]} links={noteLinks?.(n)} linkSize="text-xs" className="whitespace-pre-line text-xs leading-[18px] text-gray-700 [overflow-wrap:anywhere]" />
                 </div>
               </div>
             </div>
@@ -174,10 +192,11 @@ export function ProfileNotes({ notes, colleagues, draft, onDraftChange, onAddNot
         <div className={editingId ? 'relative z-50 overflow-hidden rounded-2xl bg-white' : undefined}>
         <NoteComposer
           variant="reply"
-          placeholder="Use @ to mention your colleagues"
+          placeholder={entities?.length ? 'Use @ to mention colleagues or tag a company / candidate' : 'Use @ to mention your colleagues'}
           value={editingId ? editText : draft}
           onChange={editingId ? setEditText : onDraftChange}
           colleagues={colleagues}
+          entities={entities}
           focusKey={editingId ? editFocus : focusKey}
           header={editingId && <EditingBar onCancel={cancelEdit} />}
           saveLabel={editingId ? 'Save changes' : undefined}

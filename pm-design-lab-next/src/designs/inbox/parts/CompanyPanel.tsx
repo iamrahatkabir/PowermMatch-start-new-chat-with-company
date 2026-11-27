@@ -4,6 +4,7 @@ import { PmButton, PmStatusPill } from '@/ds'
 import { PROFILE_STATUS } from '@/mock'
 import { useInbox } from './useInbox'
 import { EntityAvatar } from '../start-chat/ui/EntityAvatar'
+import { ProfileName } from './ProfileName'
 
 // PmStatusPill has no className: `self-start` lives on a wrapper so the pill doesn't stretch
 const Pill = ({ status }: { status: string }) => (
@@ -11,7 +12,8 @@ const Pill = ({ status }: { status: string }) => (
 )
 
 // Company info: who we're currently talking to, and a quick switch to another contact person.
-export function CompanyPanel() {
+/** profileHref: makes the company name a link to its profile (hover shows ↗) */
+export function CompanyPanel({ profileHref }: { profileHref?: string }) {
   const { selected, company: maybeCompany, currentContact, switchContact } = useInbox()
   const company = maybeCompany!
 
@@ -25,7 +27,7 @@ export function CompanyPanel() {
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col items-center gap-1 border-b border-gray-200 px-4 py-6 text-center">
           <EntityAvatar type="company" logo={company.logo} size={64} className="mb-2" />
-          <div className="text-base font-semibold text-gray-900">{company.name}</div>
+          <ProfileName name={company.name} href={profileHref} />
           <div className="text-[13px] text-gray-600">{currentContact?.name}</div>
         </div>
 

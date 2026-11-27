@@ -59,3 +59,8 @@ export function noteTime(d: Date = new Date()): string {
   const hm = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
   return `${d.getDate()} ${month} ${hm}`
 }
+
+/** Tags (companies / candidates / applicants) written as "@Name" in the text */
+export function tagsIn<T extends { name: string }>(text: string, entities: T[]): T[] {
+  return entities.filter((e) => text.includes(`@${e.name}`))
+}

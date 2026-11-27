@@ -52,3 +52,12 @@ notes/
 - Replies row wraps as whole pieces (avatars · count · Unread · Last reply) instead of breaking words.
 - @ list: long names truncate; typing a name nobody has shows "No colleague found".
 - Thread panel with no replies says "No replies yet". Below xl the Thread panel covers the screen (it used to be hidden).
+
+## Tagging companies / candidates / applicants (all versions, moved from Test designs 27.11.2026)
+- Typing `@` opens one list (no tabs): Colleagues, Companies, Candidates, Applicants, each heading once, max 3 matches each; typing filters all. The conversation you're on is never offered. Several tags per note.
+- A tagged note sits in its origin conversation and every tagged one (same object, so edits, type and replies show everywhere). On a tagged conversation it shows "Tagged from James Adam · Go to note" (opens the origin, scrolls to the note, marks it 2 s).
+- Tagged names are link chips: company → Company profile notes, candidate / applicant → Applicant/Candidate profile notes (`notes/profileUrl.ts`). Same in the Thread panel.
+- Context bar: hovering the name underlines it and shows ↗; click opens the same profile designs (`InboxLayout` prop `profileHref`, `inbox/parts/ProfileName.tsx`).
+- Edit re-reads tags (adds / removes the note on those conversations); delete removes it everywhere (`syncTags` in `parts/NotesInbox.tsx`).
+- **Shared with the profile designs** (`notes/sharedNotes.ts`, sessionStorage stand-in for the backend): a note that tags someone is shared, so tagging Reno Power ApS., James Adam or Jonas (Reno Power and Jonas added to the @ list) puts the note on that profile design's Notes tab. Notes written on a profile that tag a conversation (e.g. James Adam) come into that conversation with "Tagged from Reno Power ApS."; Go to note opens the profile. Edit, type change and delete update the shared copy. Profile "Go to note" opens Notes in inbox with `?note=<id>` (selects the origin conversation and marks the note).
+- Data: `ThreadItem.tags?: NoteTag[]`, `ThreadItem.originId?`; mock `taggedNoteExample` (note on James Adam tagging Reno Power ApS. + Guy Hawkins).

@@ -3,18 +3,24 @@
 // Save note (Enter also saves, Shift+Enter = new line).
 // variant 'reply' = the Thread panel's box: white, bordered, "Reply…", Send button.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link, Paperclip, Send } from 'lucide-react'
+import { Building2, Link, Paperclip, Send } from 'lucide-react'
 import { PmAvatar, PmButton } from '@/ds'
 import { cx } from '@/lib/cx'
-import type { Agent } from '@/mock/inbox-types'
-import { caretPosition, mentionQuery, mentionsIn } from './mentions'
+import type { Agent, NoteTag } from '@/mock/inbox-types'
+import { caretPosition, mentionQuery, mentionsIn, tagsIn } from './mentions'
+
+// One row in the @ list
+type Pickable = { key: string; name: string; photo?: string; group: string; company?: boolean }
+const GROUP: Record<NoteTag['kind'], string> = { company: 'Companies', candidate: 'Candidates', applicant: 'Applicants' }
 
 type Props = {
   value: string
   onChange: (v: string) => void
-  /** Called with the text and the colleagues mentioned in it */
-  onSave: (text: string, mentions: string[]) => void
+  /** Called with the text, the colleagues mentioned in it and the companies / candidates tagged in it */
+  onSave: (text: string, mentions: string[], tags: NoteTag[]) => void
   colleagues: Agent[]
+  /** Companies, candidates and applicants that can be tagged (same @ list, own groups) */
+  entities?: NoteTag[]
   disabled?: boolean
   /** Change this number to move focus into the text area (e.g. after Reply) */
   focusKey?: number
@@ -34,7 +40,7 @@ type Props = {
   onEscape?: () => void
 }
 
-export function NoteComposer({ value, onChange, onSave, colleagues, disabled, focusKey, variant = 'note', placeholder, header, tools, saveBlocked, saveBlockedHint, saveLabel, onEscape }: Props) {
+export function NoteComposer({ value, onChange, onSave, colleagues, entities = [], disabled, focusKey, variant = 'note', placeholder, header, tools, saveBlocked, saveBlockedHint, saveLabel, onEscape }: Props) {
   const isReply = variant === 'reply'
   const area = useRef<HTMLTextAreaElement>(null)
   const [cursor, setCursor] = useState(0)
@@ -49,16 +55,28 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
   }, [focusKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const q = closed ? null : mentionQuery(value, cursor)
-  const matches = q ? colleagues.filter((c) => c.name.toLowerCase().includes(q.query.toLowerCase())) : []
+  // @ list: colleagues, then companies, candidates and applicants (grouped)
+  const all: Pickable[] = [
+    ...colleagues.map((c) => ({ key: `a-${c.id}`, name: c.name, photo: c.photo, group: 'Colleagues' })),
+    ...entities.map((e) => ({ key: `t-${e.id}`, name: e.name, photo: e.photo, group: GROUP[e.kind], company: e.kind === 'company' })),
+  ]
+  const found = q ? all.filter((c) => c.name.toLowerCase().includes(q.query.toLowerCase())) : []
+  // With tagging on: one list, each category once (Colleagues, Companies, Candidates, Applicants), max 3 matches each
+  const categorized = entities.length > 0
+  const PER_GROUP = 3
+  const matches = categorized
+    ? ['Colleagues', 'Companies', 'Candidates', 'Applicants'].flatMap((g) => found.filter((c) => c.group === g).slice(0, PER_GROUP))
+    : found
+  const showList = q !== null && (categorized ? true : matches.length > 0)
   // The list opens just above the "@" being typed
   const anchor = q && area.current ? caretPosition(area.current, q.start) : null
   const list = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    list.current?.children[active]?.scrollIntoView({ block: 'nearest' })
+    list.current?.querySelector(`[data-idx="${active}"]`)?.scrollIntoView({ block: 'nearest' })
   }, [active])
   const canSave = !disabled && !saveBlocked && value.trim().length > 0
 
-  function pick(c: Agent) {
+  function pick(c: Pickable) {
     if (!q) return
     const next = `${value.slice(0, q.start)}@${c.name} ${value.slice(cursor)}`
     const pos = q.start + c.name.length + 2
@@ -69,36 +87,44 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
 
   function save() {
     if (!canSave) return
-    onSave(value.trim(), mentionsIn(value, colleagues.map((c) => c.name)))
+    onSave(value.trim(), mentionsIn(value, colleagues.map((c) => c.name)), tagsIn(value, entities))
   }
 
   return (
     <div className={cx('relative', isReply ? 'rounded-2xl border border-gray-200 bg-white' : 'rounded-b-2xl bg-brand-bg')}>
-      {matches.length > 0 && (
+      {showList && (
         <div
-          ref={list}
-          className="absolute z-10 max-h-[216px] w-[216px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
-          style={{ left: Math.max(8, Math.min(anchor?.left ?? 12, (area.current?.offsetWidth ?? 0) - 224)), bottom: `calc(100% - ${(anchor?.top ?? 0) + (area.current?.offsetTop ?? 0)}px + 4px)` }}
+          className={cx('absolute z-10 flex max-h-[300px] flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg', 'w-[260px]')}
+          style={{ left: Math.max(8, Math.min(anchor?.left ?? 12, (area.current?.offsetWidth ?? 0) - 268)), bottom: `calc(100% - ${(anchor?.top ?? 0) + (area.current?.offsetTop ?? 0)}px + 4px)` }}
         >
+          <div ref={list} className="min-h-0 overflow-y-auto p-1.5">
+          {matches.length === 0 && <p className="px-2 py-2 text-sm text-gray-500">No one found</p>}
           {matches.map((c, i) => (
-            <button
-              key={c.id}
-              type="button"
-              className={cx('flex w-full items-center gap-2.5 rounded-lg px-2 py-2.5 text-left text-sm text-gray-900', i === active ? 'bg-gray-50' : 'hover:bg-gray-50')}
-              onMouseEnter={() => setActive(i)}
-              onMouseDown={(e) => { e.preventDefault(); pick(c) }}
-            >
-              <span className="shrink-0"><PmAvatar name={c.name} src={c.photo} size={16} /></span><span className="min-w-0 truncate">{c.name}</span>
-            </button>
+            <div key={c.key}>
+              {categorized && (i === 0 || matches[i - 1].group !== c.group) && <div className="px-2 pb-1 pt-2 text-xs font-medium text-gray-500 first:pt-1">{c.group}</div>}
+              <button
+                type="button"
+                data-idx={i}
+                className={cx('flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm text-gray-900', i === active ? 'bg-gray-50' : 'hover:bg-gray-50')}
+                onMouseEnter={() => setActive(i)}
+                onMouseDown={(e) => { e.preventDefault(); pick(c) }}
+              >
+                {c.company
+                  ? <span className="flex size-4 shrink-0 items-center justify-center rounded bg-gray-100 text-gray-600"><Building2 size={11} /></span>
+                  : <span className="shrink-0"><PmAvatar name={c.name} src={c.photo} size={16} /></span>}
+                <span className="min-w-0 truncate">{c.name}</span>
+              </button>
+            </div>
           ))}
+          </div>
         </div>
       )}
-      {q && q.query && matches.length === 0 && (
+      {!categorized && q && q.query && matches.length === 0 && (
         <div
           className="absolute z-10 w-[216px] rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-500 shadow-lg"
           style={{ left: Math.max(8, Math.min(anchor?.left ?? 12, (area.current?.offsetWidth ?? 0) - 224)), bottom: `calc(100% - ${(anchor?.top ?? 0) + (area.current?.offsetTop ?? 0)}px + 4px)` }}
         >
-          No colleague found
+          {entities.length ? 'No one found' : 'No colleague found'}
         </div>
       )}
       {header}
@@ -112,6 +138,7 @@ export function NoteComposer({ value, onChange, onSave, colleagues, disabled, fo
         onChange={(e) => { onChange(e.target.value); setCursor(e.target.selectionStart); setActive(0); setClosed(false) }}
         onSelect={(e) => setCursor(e.currentTarget.selectionStart)}
         onKeyDown={(e) => {
+          if (showList && categorized && e.key === 'Escape') { e.preventDefault(); setClosed(true); return }
           if (matches.length) {
             if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => (a + 1) % matches.length); return }
             if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => (a - 1 + matches.length) % matches.length); return }

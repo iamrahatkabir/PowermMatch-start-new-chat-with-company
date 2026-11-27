@@ -31,9 +31,11 @@ type Props = {
   noteCorner?: ReactNode
   /** Extra classes for the panel (e.g. sticky on a page that scrolls as a whole) */
   className?: string
+  /** Tagged companies / candidates on the note: name → open their profile */
+  noteLinks?: Record<string, () => void>
 }
 
-export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendReply, focusKey, currentUser, onEditReply, onDeleteReply, noteMeta, noteCorner, className }: Props) {
+export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendReply, focusKey, currentUser, onEditReply, onDeleteReply, noteMeta, noteCorner, className, noteLinks }: Props) {
   const [draft, setDraft] = useState('')
   const [quote, setQuote] = useState<NoteReplyQuote | null>(null)
   // Editing a reply happens in the Reply box: its text moves there, the reply is lifted above a dark overlay
@@ -80,7 +82,7 @@ export function NoteThreadPanel({ note, replies, colleagues, onClose, onSendRepl
 
       <div ref={list} className="flex-1 overflow-y-auto px-4 py-4">
         <div className="whitespace-pre-line rounded-2xl bg-brand-bg px-3 py-2.5 text-sm leading-6 text-gray-900 [overflow-wrap:anywhere]">
-          <MentionText text={note.text} mentions={note.mentions} />
+          <MentionText text={note.text} mentions={note.mentions} links={noteLinks} />
           {noteCorner && <div className="mt-1.5 flex justify-end whitespace-normal">{noteCorner}</div>}
         </div>
         <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-gray-500">

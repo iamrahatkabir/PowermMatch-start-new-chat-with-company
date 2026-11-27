@@ -12,6 +12,8 @@ type Props = {
   text: string
   /** Names written as "@Name" in the text, shown as chips */
   mentions?: string[]
+  /** Name → open that profile (tagged companies / candidates) */
+  links?: Record<string, () => void>
   /** Lines shown while folded */
   lines?: number
   className?: string
@@ -23,7 +25,7 @@ const linkBase = 'whitespace-nowrap font-medium text-info-500 hover:text-info-70
 // Text up to n characters, without trailing spaces or punctuation (so it never reads "tools.…")
 const cutAt = (text: string, n: number) => text.slice(0, n).replace(/[\s.,;:!?–-]+$/, '')
 
-export function ClampedText({ text, mentions = [], lines = 2, className, linkSize = 'text-[13px]' }: Props) {
+export function ClampedText({ text, mentions = [], links, lines = 2, className, linkSize = 'text-[13px]' }: Props) {
   const link = cx(linkBase, linkSize)
   const wrap = useRef<HTMLDivElement>(null)
   const measure = useRef<HTMLParagraphElement>(null)
@@ -77,7 +79,7 @@ export function ClampedText({ text, mentions = [], lines = 2, className, linkSiz
   return (
     <div ref={wrap} className="relative">
       <p className={className}>
-        {open || cut === null ? <MentionText text={text} mentions={mentions} /> : <MentionText text={cutAt(text, cut)} mentions={mentions} />}
+        {open || cut === null ? <MentionText text={text} mentions={mentions} links={links} /> : <MentionText text={cutAt(text, cut)} mentions={mentions} links={links} />}
         {cut !== null && !open && <>… <button type="button" className={link} onClick={() => setOpen(true)}>See more</button></>}
         {open && cut !== null && <> <button type="button" className={link} onClick={() => setOpen(false)}>See less</button></>}
       </p>
