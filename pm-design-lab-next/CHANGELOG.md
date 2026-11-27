@@ -2,6 +2,11 @@
 
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
+## 2026-11-27
+- **Test designs (A–D):** copy of Notes in inbox A–D with its own copy of the notes UI (`test-designs/notes-inbox/`), so tests don't change the real design; replaced the empty canvas. Owner asked: "make a copy of notes in inbox here".
+- **Test designs:** purpose written down: test-only sandbox; final designs move to where they belong and are removed here (CLAUDE.md + README). Owner said: "test designs is only for testing, finalized designs move where they should be".
+- **New design: Test designs (A):** empty canvas in the app shell for quick experiments. Owner asked: "create a category called test designs".
+
 ## 2026-11-26
 - **Applicant/Candidate profile notes (A):** rebuilt from the owner's screenshot: breadcrumb, Pranto Kumar Pashi header (photo, stars, email, status dropdown, Match Job), tabs with counts, full-width notes with the latest design; removed the left summary column. Shared layout `notes-profile/parts/ProfileNotesPage.tsx` now used by both internal profile designs; `ProfileTabs` moved to `notes-profile/profile/`. Owner asked: "build this in applicant profile notes with the updated notes design".
 - **All designs (date filter in Notes in profile, Applicant/Candidate and Company profile notes):** removed the quick presets (Today, Last 7 days…); only the two-month range calendar stays. Rule added to CLAUDE.md for every date picker. Owner asked: "remove predefined quick selections, keep the 2 months, globally".
