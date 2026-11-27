@@ -48,7 +48,7 @@ export const contactOf = (company: Company | undefined, id: string | undefined):
 
 // options.selectedId: conversation open at start · options.menuOpen: show "Start new conversation" at start
 // options.init(state): may mutate the fresh state (e.g. push extra emails)
-function createInbox({ selectedId = conversations[0].id, menuOpen = true, init }: InboxOptions = {}): InboxStore {
+function createInbox({ selectedId = 'cv-dianne', menuOpen = true, init }: InboxOptions = {}): InboxStore {
   const state: InboxState = {
     conversations: structuredClone(conversations),
     threads: structuredClone(threads),

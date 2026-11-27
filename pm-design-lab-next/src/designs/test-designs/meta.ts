@@ -5,10 +5,7 @@ const meta: DesignMeta = {
   title: 'Test designs',
   question: '',
   variants: {
-    A: 'Notes in inbox copy: AI note type',
-    B: 'Notes in inbox copy: AI note type v2',
-    C: 'Notes in inbox copy: Manual note type',
-    D: 'Notes in inbox copy: Manual note type v2',
+    A: 'Empty canvas',
   },
 }
 

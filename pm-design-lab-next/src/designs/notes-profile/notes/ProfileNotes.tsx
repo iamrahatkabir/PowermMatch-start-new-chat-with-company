@@ -145,6 +145,11 @@ export function ProfileNotes({ notes, colleagues, entities, noteLinks, onGoToOri
                     Go to note<ArrowUpRight size={12} />
                   </button>
                 )}
+                {/* Tagged notes: time (and header badge) sit on this top line, at the right */}
+                <span className="ml-auto flex shrink-0 items-center gap-2 pl-2">
+                  {headerBadge?.(n)}
+                  <span className="whitespace-nowrap text-xs text-gray-700">{n.time}</span>
+                </span>
               </div>
             )}
             <div className="flex items-start gap-2.5">
@@ -155,10 +160,12 @@ export function ProfileNotes({ notes, colleagues, entities, noteLinks, onGoToOri
                   {n.pinned && !archivedView && (
                     <span className="flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-gray-500"><Pin size={12} className="fill-gray-500" />Pinned</span>
                   )}
-                  <span className="ml-auto flex shrink-0 items-center gap-2">
-                    {headerBadge?.(n)}
-                    <span className="whitespace-nowrap text-xs text-gray-700">{n.time}</span>
-                  </span>
+                  {!n.taggedFrom && (
+                    <span className="ml-auto flex shrink-0 items-center gap-2">
+                      {headerBadge?.(n)}
+                      <span className="whitespace-nowrap text-xs text-gray-700">{n.time}</span>
+                    </span>
+                  )}
                 </div>
                 <div className="mt-0.5 max-w-[480px]">
                   <ClampedText text={n.text} mentions={[...(n.mentions ?? []), ...(n.tags ?? []).map((t) => t.name)]} links={noteLinks?.(n)} linkSize="text-xs" className="whitespace-pre-line text-xs leading-[18px] text-gray-700 [overflow-wrap:anywhere]" />

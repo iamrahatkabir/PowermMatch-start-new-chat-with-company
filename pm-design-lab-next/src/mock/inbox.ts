@@ -73,9 +73,9 @@ export const contactDirectory: { candidates: DirectoryPerson[]; applicants: Dire
 // callback = { missedAt } → missed call where the caller asked to be called back
 // assigneeId = agent handling it (default Patrick Andre); assignedToMe unlocks the composer
 export const conversations: Conversation[] = [
-  { id: 'cv-dianne', kind: 'applicant', name: 'Dianne Russell', email: 'dianne.russell@gmail.com', photo: photo('men', 46), channel: 'email', preview: 'RE: Application Received by PowerMatch', time: '5 min', unread: 1, assignedToMe: true, assigneeId: 'ls' },
   { id: 'cv-ancorless', kind: 'company', companyId: 'ancorless', currentContactId: 'togu', name: 'Reno Power ApS.', channel: 'chat', preview: 'Hi PowerMatch. We need qualified plumbers.', time: '1 d', unread: 0, assignedToMe: true },
   { id: 'cv-james', kind: 'candidate', name: 'James Adam', photo: photo('men', 32), channel: 'missed', preview: 'Missed call', time: '5 min', unread: 1, callback: { missedAt: '21:45, 19 Oct' } },
+  { id: 'cv-dianne', kind: 'applicant', name: 'Dianne Russell', email: 'dianne.russell@gmail.com', photo: photo('men', 46), channel: 'email', preview: 'RE: Application Received by PowerMatch', time: '5 min', unread: 1, assignedToMe: true, assigneeId: 'ls' },
   { id: 'cv-jenny', kind: 'applicant', name: 'Jenny Wilson', photo: photo('women', 68), channel: 'chat', preview: "Hi! I'm looking for a carpentry job in Copenhagen", time: '5 min', unread: 2, starred: true },
   { id: 'cv-poly', kind: 'company', companyId: 'poly', currentContactId: 'maria', name: 'Poly Corporation', channel: 'chat', preview: 'Can you send two more carpenters?', time: '1 d', unread: 15, assignedToMe: true },
   { id: 'cv-marvin', kind: 'candidate', name: 'Marvin McKinney', photo: photo('men', 85), channel: 'call', preview: 'Incoming call • Sales', time: 'Now', unread: 1, state: 'waiting' },
