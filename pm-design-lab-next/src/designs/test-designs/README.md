@@ -9,14 +9,15 @@ Sandbox for testing designs only. When a design here is final, it moves to the d
 |---|---|---|
 | A | `A.tsx` | Applicant/Candidate profile notes (James Adam) + AI summary at the top of Notes. |
 | B | `B.tsx` | Candidate profile, AI summary alt **Collapsible**: title + type chips + refresh + chevron on one line; all key points, up to 6 (bulleted, whole sentences up to ~150 characters, `longGist` in summary.ts, in a fixed 580px column so each ends within 2 lines; no "…"; 16px apart), meta on the right; no Show more; chevron folds it to the title line. |
-| C | `C.tsx` | Candidate profile, AI summary alt **By type**: one gray box per note type ("Sales · 7 notes") with that type's key points, 2 columns. |
-| D | `D.tsx` | Candidate profile, AI summary alt **Callout**: light yellow brand box (brand-bg), type chips under the title, numbered points with meta on the right. |
-| E | `E.tsx` | Candidate profile, AI summary alt **Timeline**: date column on the left, blue dot + line, point with type chip and author. |
-| F | `F.tsx` | Candidate profile, AI summary alt **Split**: left gray column (title, a bar per type, Updated + refresh at the bottom), right the points with dividers. |
+| C | `C.tsx` | Candidate profile, AI summary alt **Timeline**: date column on the left, blue dot + line, point with type chip and author. |
+| D | `D.tsx` | Candidate profile, AI summary alt **By type**: one gray box per note type ("Sales · 7 notes") with that type's key points, 2 columns. |
+| E | `E.tsx` | Candidate profile, AI summary alt **Callout**: light yellow brand box (brand-bg), type chips under the title, numbered points with meta on the right. |
 
 All versions share their own note store `profile-notes/sharedNotes.ts` (sessionStorage key `pm-lab-test-designs-notes-v3`, filled with `profile-notes/seedNotes.ts` on first read) and links `profile-notes/profileUrl.ts` (candidate / applicant → A; company → the real Company profile notes design, since the company version was removed). Nothing mixes with the real designs. "Go to note" only shows on notes tagged from James Adam's chat; notes from other chats (Reno Power ApS., Poly Corporation) show "Tagged from …" without it.
 
 When a test is final, move it to the design it belongs to (e.g. `notes-profile/`) and delete it here.
+
+Version B (Collapsible) was implemented in all profile notes designs on 27.11.2026 (`notes-profile/notes/AiNotesSummary.tsx`); the versions here stay for comparing until the owner clears them.
 
 History: the Notes in inbox tagging test (companies / candidates / applicants on notes, context bar name link) was moved to Notes in inbox and the profile notes designs on 27.11.2026 and cleared from here.
 
@@ -36,6 +37,6 @@ History: the Notes in inbox tagging test (companies / candidates / applicants on
 - Loaded the first time the store is read in a browser tab; after that edits / deletes stick (clear the tab's sessionStorage to get them back).
 - The inbox copy (A–D) that wrote them was removed on 27.11.2026.
 
-## AI summary alternatives (B–F)
+## AI summary alternatives (B–E)
 - Same information as A: AI icon + "AI Summary of latest 20 notes", notes per type, up to 6 key points (type, author, date), Updated + refresh, "Updating…" when notes change, hidden with no notes.
-- Code: `profile-notes/AiSummaryVariants.tsx` (B–F layouts + `AiSummary` picker, `SummaryVariant`), `useAiSummary.ts` (shared state), `summaryParts.tsx` (title, chips, refresh, skeleton, point meta), `CandidatePage.tsx` (James Adam page used by A–F; `summary` prop). `ProfileNotesPage` / `ProfileNotesSection` copies take `summaryVariant`.
+- Code: `profile-notes/AiSummaryVariants.tsx` (B–E layouts + `AiSummary` picker, `SummaryVariant`), `useAiSummary.ts` (shared state), `summaryParts.tsx` (title, chips, refresh, skeleton, point meta), `CandidatePage.tsx` (James Adam page used by A–E; `summary` prop). `ProfileNotesPage` / `ProfileNotesSection` copies take `summaryVariant`.

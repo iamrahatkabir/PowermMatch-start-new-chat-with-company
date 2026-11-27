@@ -27,3 +27,6 @@ notes-profile/profile/ProfileTabs.tsx ← (shared) tabs with an optional count c
 Same as Notes in profile (see `notes-profile/README.md` → Tagging). This profile's own name is left out of the @ list; mock tagged-in note: `cn-tag` (from James Adam).
 
 Reno Power ApS. is the same company as the inbox company conversation (`cv-ancorless`, renamed from Ancorless Bangladesh): tagging it in any inbox chat, or writing a tagged note in its own chat, shows the note on this Notes tab.
+
+## AI summary
+At the top of Notes: "AI Summary of latest 20 notes" with type chips, refresh, fold arrow and up to 6 key points. Shared with the other profile designs — see `notes-profile/README.md` → AI summary.

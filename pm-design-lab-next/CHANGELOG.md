@@ -3,6 +3,10 @@
 Newest first. Each entry: what changed, where, and the instruction behind it. Keep entries short.
 
 ## 2026-11-27
+- **Notes in profile, Applicant/Candidate profile notes, Company profile notes (all versions):** AI summary at the top of Notes, from Test designs B: AI icon + "AI Summary of latest 20 notes" + type chips, Updated + refresh, fold arrow; all key points (up to 6), bulleted, 2 lines max in a 580px column. Updates when notes change. New `notes-profile/notes/AiNotesSummary.tsx`, `useAiSummary.ts`, `aiSummary.ts`, `AiMagicIcon.tsx`. Owner asked: "implement version B to all profiles".
+- **Test designs:** swapped C and D: C is now Timeline, D is By type. Owner asked: "move the D to C".
+- **Test designs:** swapped D and E: D is now Timeline, E is Callout. Owner asked: "move the E to D".
+- **Test designs:** removed version F (AI summary alt: Split) and its code. Owner asked: "remove version F".
 - **Test designs (B):** shows all key points (up to 6) instead of only 2; still no Show more. Owner asked: "show all 6".
 - **Test designs (B):** removed Show more / Show less; the summary shows the 2 newest key points only. Owner asked: "we don't need the show more or less option".
 - **Test designs (B):** summary points no longer cut with "…": the summary keeps whole sentences up to ~150 characters (`longGist`), so each point ends within 2 lines at 580px. The two newest dummy notes were shortened to fit; store key → `-v3` so tabs reload them. Owner asked: "remove the dots, the summary has to end in two lines".

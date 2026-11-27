@@ -7,10 +7,9 @@ const meta: DesignMeta = {
   variants: {
     A: 'Candidate profile notes + AI summary',
     B: 'AI summary alt: Collapsible',
-    C: 'AI summary alt: By type',
-    D: 'AI summary alt: Callout',
-    E: 'AI summary alt: Timeline',
-    F: 'AI summary alt: Split',
+    C: 'AI summary alt: Timeline',
+    D: 'AI summary alt: By type',
+    E: 'AI summary alt: Callout',
   },
 }
 

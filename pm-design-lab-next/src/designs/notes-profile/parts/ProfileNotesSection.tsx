@@ -13,6 +13,7 @@ import { ProfileNotes, type NotesView } from '../notes/ProfileNotes'
 import { NotesPagination } from '../notes/NotesPagination'
 import { pageCountOf } from '../notes/pagination'
 import { NotesFilters } from '../notes/NotesFilters'
+import { AiNotesSummary } from '../notes/AiNotesSummary'
 import { applyFilters, emptyFilter, isFiltered, type NotesFilter } from '../notes/filters'
 import { profileNoteTime } from '../notes/time'
 import { NoteThreadPanel } from '@/designs/notes-inbox/notes/NoteThreadPanel'
@@ -129,6 +130,8 @@ export function ProfileNotesSection({ initial, noteTypes, self, scrollTo, thread
     <ProfileNotes
       notes={pageNotes}
       view={view}
+      // AI summary of the latest 20 active notes (every type), not affected by the filters or Active / Archived
+      top={<AiNotesSummary notes={notes} subject={self} />}
       filters={<NotesFilters value={filter} onChange={changeFilter} authors={authors} />}
       emptyText={isFiltered(filter) ? 'No notes match these filters' : undefined}
       emptyAction={isFiltered(filter) && <button type="button" className="text-sm font-medium text-info-500 hover:text-info-700" onClick={() => changeFilter(emptyFilter)}>Clear filter</button>}

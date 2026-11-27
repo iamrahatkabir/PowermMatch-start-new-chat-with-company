@@ -1,5 +1,5 @@
 'use client'
-// TEST COPY (Test designs A–F) of notes-profile/parts/ProfileNotesSection.tsx + the AI summary at the top of Notes.
+// TEST COPY (Test designs A–E) of notes-profile/parts/ProfileNotesSection.tsx + the AI summary at the top of Notes.
 // The notes of one profile with all their behaviour (prototype state): Active / Archived, filters, pin, archive,
 // edit / delete, paging (6 per page, pinned first, newest first), note types, Thread panel.
 // Used by Notes in profile, Applicant/Candidate profile notes and Company profile notes. The page decides the layout:
@@ -34,7 +34,7 @@ type Props = {
   noteTypes: NoteTypeMode
   /** This profile's name: left out of the @ list (a note can't tag the profile it's written on) */
   self: string
-  /** AI summary layout (Test designs: A card, B–F alternatives) */
+  /** AI summary layout (Test designs: A card, B–E alternatives) */
   summaryVariant?: SummaryVariant
   /** Scrolled into view when the page changes (the notes area) */
   scrollTo?: RefObject<HTMLElement | null>

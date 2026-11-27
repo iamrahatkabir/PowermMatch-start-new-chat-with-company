@@ -1,5 +1,5 @@
 'use client'
-// State of an AI notes summary, shared by every summary layout (card A, alternatives B–F): the summary of the latest 20 active
+// State of an AI notes summary, shared by every summary layout (card A, alternatives B–E): the summary of the latest 20 active
 // notes, "Updating…" while the fake AI works, regenerating when the notes change and on refresh, "Updated N min ago".
 import { useEffect, useRef, useState } from 'react'
 import type { ProfileNote } from '@/mock'

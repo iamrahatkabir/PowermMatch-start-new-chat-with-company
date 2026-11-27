@@ -25,3 +25,6 @@ notes-profile/profile/ProfileTabs.tsx ← tabs with optional count chip (99+ max
 
 ## Tagging
 Same as Notes in profile (see `notes-profile/README.md` → Tagging). This profile's own name is left out of the @ list; mock tagged-in note: `pp-tag` (from Reno Power ApS.).
+
+## AI summary
+At the top of Notes: "AI Summary of latest 20 notes" with type chips, refresh, fold arrow and up to 6 key points. Shared with the other profile designs — see `notes-profile/README.md` → AI summary.

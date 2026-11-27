@@ -58,3 +58,11 @@ notes/pagination.ts          ← pageItems(current, count) (which page buttons +
 - Data: `ProfileNote.tags?`, `ProfileNote.taggedFrom?`; `taggableEntities` (inbox contacts incl. James Adam and Reno Power ApS. + Jonas) in `src/mock/notes.ts`; one tagged-in mock note per profile (`pn-tag`, `pp-tag`, `cn-tag`).
 - Shared notes (`notes-inbox/notes/sharedNotes.ts`): notes from Notes in inbox or another profile design that tag this profile are merged in ("Tagged from James Adam"); notes written here that tag someone are shared (origin = this profile, e.g. `cv-ancorless`). Pin / archive stay local; edit, type and delete update the shared copy. Go to note: an inbox origin opens Notes in inbox at the note (`?note=`), a profile origin opens that profile design.
 - Prototype limits: shared notes live in this browser tab's sessionStorage; all companies open Reno Power ApS., all candidates / applicants open James Adam's profile; replies aren't shared.
+
+## AI summary (all profile notes designs, from Test designs B, 27.11.2026)
+- At the top of Notes, under the title, above the filters (`ProfileNotes`' `top` slot, filled in `parts/ProfileNotesSection.tsx`), so it's on Notes in profile, Applicant/Candidate profile notes and Company profile notes, every version.
+- One line: AI icon (`notes/AiMagicIcon.tsx`, owner's ai-magic.svg, info-500) + "AI Summary of latest 20 notes" ("of N notes" with 20 or fewer) + notes-per-type chips … "Updated just now" + refresh + fold arrow (folds it to that line).
+- Below: all key points (up to 6), bulleted, 16px apart. Each point is whole sentences up to ~150 characters (ends within 2 lines, no "…") in a fixed 580px column (shrinks if the card is narrower), with type · author, date at the right.
+- Covers the 20 newest active notes, every type in them; not changed by the filters; archived notes left out. Key points: newest note of every type, then pinned, then newest; newest first.
+- Regenerates ("Updating…", ~1.2 s) when notes are added, edited, deleted, archived / restored or their type changes; refresh does it on demand. No active notes → no summary.
+- Code: `notes/AiNotesSummary.tsx` (UI), `notes/useAiSummary.ts` (state), `notes/aiSummary.ts` (fake AI). Test designs keeps its own copy (versions A–E) for comparing layouts.

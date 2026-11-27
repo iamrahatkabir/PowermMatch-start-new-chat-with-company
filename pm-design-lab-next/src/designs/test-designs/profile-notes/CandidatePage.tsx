@@ -1,5 +1,5 @@
 'use client'
-// Applicant/Candidate profile notes page (James Adam, AI note type v2) for Test designs A and B–F; `summary` picks the
+// Applicant/Candidate profile notes page (James Adam, AI note type v2) for Test designs A and B–E; `summary` picks the
 // AI summary layout.
 import { useState } from 'react'
 import { notesPerson, personNotes, PERSON_STATUSES } from '@/mock'

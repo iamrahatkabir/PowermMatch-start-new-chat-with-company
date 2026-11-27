@@ -1,12 +1,11 @@
 'use client'
-// Five alternative AI summary layouts (Test designs B–F), same information as the card (A): AI icon + "AI Summary of
+// Four alternative AI summary layouts (Test designs B–E), same information as the card (A): AI icon + "AI Summary of
 // latest 20 notes", notes per type, up to 6 key points (type, author, date), Updated + refresh, "Updating…" when notes
 // change, hidden with no notes. All use useAiSummary + summaryParts.
 //   B collapsible — card with all key points (longer, up to 2 lines each), folds away to the title line
-//   C by-type     — key points grouped in one box per note type (2 columns)
-//   D callout     — light yellow brand callout, numbered points
-//   E timeline    — points on a timeline, date on the left
-//   F split       — left: title, refresh and a bar per type; right: the points
+//   C timeline    — points on a timeline, date on the left
+//   D by-type     — key points grouped in one box per note type (2 columns)
+//   E callout     — light yellow brand callout, numbered points
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { ProfileNote } from '@/mock'
@@ -15,7 +14,7 @@ import { AiNotesSummary } from './AiNotesSummary'
 import { useAiSummary } from './useAiSummary'
 import { PointMeta, RefreshControl, SummarySkeleton, SummaryTitle, TypeChips } from './summaryParts'
 
-export type SummaryVariant = 'card' | 'collapsible' | 'by-type' | 'callout' | 'timeline' | 'split'
+export type SummaryVariant = 'card' | 'collapsible' | 'by-type' | 'callout' | 'timeline'
 type P = { notes: ProfileNote[]; subject: string }
 
 /** Picks the layout */
@@ -24,7 +23,6 @@ export function AiSummary({ variant = 'card', ...p }: P & { variant?: SummaryVar
   if (variant === 'by-type') return <ByTypeSummary {...p} />
   if (variant === 'callout') return <CalloutSummary {...p} />
   if (variant === 'timeline') return <TimelineSummary {...p} />
-  if (variant === 'split') return <SplitSummary {...p} />
   return <AiNotesSummary {...p} />
 }
 
@@ -66,7 +64,7 @@ function CollapsibleSummary({ notes, subject }: P) {
   )
 }
 
-// C — By type: one box per note type ("Sales · 7 notes") with that type's key points
+// D — By type: one box per note type ("Sales · 7 notes") with that type's key points
 function ByTypeSummary({ notes, subject }: P) {
   const s = useAiSummary(notes)
   if (!s.show) return null
@@ -107,7 +105,7 @@ function ByTypeSummary({ notes, subject }: P) {
   )
 }
 
-// D — Callout: light yellow brand box, numbered points, meta on the right
+// E — Callout: light yellow brand box, numbered points, meta on the right
 function CalloutSummary({ notes, subject }: P) {
   const s = useAiSummary(notes)
   if (!s.show) return null
@@ -135,7 +133,7 @@ function CalloutSummary({ notes, subject }: P) {
   )
 }
 
-// E — Timeline: date column on the left, dot + line, point with type chip and author
+// C — Timeline: date column on the left, dot + line, point with type chip and author
 function TimelineSummary({ notes, subject }: P) {
   const s = useAiSummary(notes)
   if (!s.show) return null
@@ -166,43 +164,6 @@ function TimelineSummary({ notes, subject }: P) {
               </li>
             ))}
           </ol>
-        )}
-      </div>
-    </section>
-  )
-}
-
-// F — Split: left column (title, refresh, one bar per type), right column (key points with dividers)
-function SplitSummary({ notes, subject }: P) {
-  const s = useAiSummary(notes)
-  if (!s.show) return null
-  const max = Math.max(1, ...(s.summary?.byType.map((t) => t.count) ?? [1]))
-  return (
-    <section aria-label={`AI summary of the notes on ${subject}`} className="grid grid-cols-[240px_1fr] overflow-hidden rounded-xl border border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 border-r border-gray-200 bg-gray-50 p-4">
-        <SummaryTitle summary={s.summary} className="items-start [&>h3]:leading-5" />
-        {s.summary && (
-          <ul className={cx('flex flex-col gap-2.5', dim(s.updating))} aria-label="Notes per type">
-            {s.summary.byType.map((t) => (
-              <li key={t.type} className="text-xs">
-                <div className="flex justify-between gap-2"><span className="text-gray-700">{t.label}</span><span className="text-gray-500">{t.count}</span></div>
-                <div className="mt-1 h-1.5 rounded-full bg-gray-200"><div className="h-full rounded-full bg-info-500" style={{ width: `${(t.count / max) * 100}%` }} /></div>
-              </li>
-            ))}
-          </ul>
-        )}
-        <RefreshControl updating={s.updating} ago={s.ago} onRefresh={s.regenerate} className="mt-auto -ml-0.5" />
-      </div>
-      <div className={cx('min-w-0 p-4', dim(s.updating))}>
-        {!s.summary ? <SummarySkeleton /> : (
-          <ul className="flex flex-col divide-y divide-gray-100" aria-label="Key points">
-            {s.summary.points.map((p) => (
-              <li key={p.id} className="py-2.5 first:pt-0 last:pb-0">
-                <p className="text-sm text-gray-700 [overflow-wrap:anywhere]">{p.text}</p>
-                <PointMeta p={p} className="mt-0.5" />
-              </li>
-            ))}
-          </ul>
         )}
       </div>
     </section>
